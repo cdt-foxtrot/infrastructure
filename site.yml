@@ -1,0 +1,27 @@
+---
+#################################
+# Main Ansible Playbook for FOXTROT Infrastructure
+#################################
+#
+# This Ansible Playbook is called in the build.sh script.
+# This will run and execute all of the imported playbooks below,
+# to set up the 10 servers.
+#
+# Prerequisites:
+# 1. Virtual Machines built
+# 2. Inventory.ini from this repo in the same directory as build.sh
+# 3. Windows targets configured for WinRM
+# 4. Valid Windows credentials w/ admin privileges
+#
+# Usage:
+# ansible-playbook -i inventory.ini site.yml
+
+- import_playbook: apache/apache.yml
+- import_playbook: ca/ca.yml
+- import_playbook: dc-adds-dns/master.yml
+- import_playbook: mysql/mysql.yml
+- import_playbook: ossec/ossec.yml
+- import_playbook: iis-ftp/iis_ftp.yml
+- import_playbook: ms/ms.yml
+- import_playbook: ntp/ntp.yml
+- import_playbook: samba/samba.yml
