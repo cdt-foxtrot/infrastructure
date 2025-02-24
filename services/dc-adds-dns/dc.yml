@@ -1,0 +1,143 @@
+---
+# Created by: Isaac Settle
+# Email: ijs3503@rit.edu
+# Date: 1/31/25
+######################################
+# This playbook will do the following:
+# 1. Installation of AD DS
+# 2. DC Promotion
+# 3. Creation of OUs, Groups and User Assignments
+
+- name: Configure AD DS, DNS and Set Local Admin Password
+  hosts: domain_controllers
+  tasks:
+    # setup the local admin password
+    - name: Setup Local Admin Password
+      win_user:
+        name: Administrator
+        password: "{{ domain_admin_password }}"
+        state: present
+        password_never_expires: yes
+    
+    # install AD DS and DNS via powershell
+    - name: Install AD Domain Services
+      win_shell: |
+        Install-WindowsFeature -Name AD-Domain-Services, DNS -IncludeManagementTools
+      register: install
+      
+    # create the AD domain and safe mode password  
+    - name: Create AD Domain
+      win_domain:
+        dns_domain_name: "{{ domain_name }}"
+        safe_mode_password: "{{ domain_admin_password }}"
+      register: domain_install
+
+    # reboots if needed
+    - name: Reboot after domain creation
+      win_reboot:
+      when: domain_install.reboot_required
+    
+    # ensures that the DC is booted before moving forward with other tasks
+    - name: Wait for domain controller to become available
+      win_ping:
+      register: ping_result
+      until: ping_result is success
+      retries: 10
+      delay: 30
+      
+    # Installation of ADWS
+    - name: Install RSAT-AD-PowerShell feature
+      win_feature:
+        name: RSAT-AD-PowerShell
+        state: present
+      register: rsat_install
+
+    # reboot if required
+    - name: Reboot if required after RSAT install
+      win_reboot:
+      when: rsat_install.reboot_required
+
+    # checks to make sure ADWS is running
+    - name: Ensure ADWS service is running
+      win_service:
+        name: ADWS
+        state: started
+        start_mode: auto
+
+    # checks to make sure ADWS is all set
+    - name: Wait for ADWS to be fully operational
+      win_shell: |
+        $attempts = 0
+        while ($attempts -lt 5) {
+          try {
+            Get-ADDomain
+            exit 0
+          } catch {
+            Start-Sleep -Seconds 30
+            $attempts++
+          }
+        }
+        exit 1
+      register: adws_check
+      until: adws_check.rc == 0
+      retries: 5
+      delay: 30
+
+    # Setting up OUs
+    
+    # Red-Team OU
+    - name: Create red-team OU
+      community.windows.win_domain_ou:
+        name: red-team
+        path: "DC={{ domain_name.split('.')[0] }},DC={{ domain_name.split('.')[1] }}"
+        state: present
+    
+    # Blue-Team OU
+    - name: Create blue-team OU
+      community.windows.win_domain_ou:
+        name: blue-team
+        path: "DC={{ domain_name.split('.')[0] }},DC={{ domain_name.split('.')[1] }}"
+        state: present
+        
+    # Competition Groups OU
+    - name: Create Competition Groups OU
+      community.windows.win_domain_ou:
+        name: competition-groups
+        path: "DC={{ domain_name.split('.')[0] }},DC={{ domain_name.split('.')[1] }}"
+        state: present
+        
+    # Create a user group for Red-Team in the appropriate OU
+    - name: Create Red User group in competition-groups OU
+      community.windows.win_domain_group:
+        name: Red User
+        scope: global
+        category: security
+        path: "OU=competition-groups,DC={{ domain_name.split('.')[0] }},DC={{ domain_name.split('.')[1] }}"
+        state: present
+    
+    #  Create a user group for Blue-Team in the appropriate OU
+    - name: Create Blue User group in competition-groups OU
+      community.windows.win_domain_group:
+        name: Blue User
+        scope: global
+        category: security
+        path: "OU=competition-groups,DC={{ domain_name.split('.')[0] }},DC={{ domain_name.split('.')[1] }}"
+        state: present
+    
+    # Pull from all.yml for any users that have been declared and set them accordingly. Will add them to the specified OU and any declared groups.
+    - name: Create domain users
+      win_domain_user:
+        name: "{{ item.username }}"
+        password: "{{ item.password }}"
+        state: present
+        path: "OU={{ item.ou }},DC={{ domain_name.split('.')[0] }},DC={{ domain_name.split('.')[1] }}"
+        groups: "{{ item.groups }}"
+        password_never_expires: yes
+        user_cannot_change_password: no
+        firstname: "{{ item.name.split(' ')[0] }}"
+        surname: "{{ item.name.split(' ')[1] }}"
+      loop: "{{ domain_users }}"
+      
+    - name: Print console command
+      debug:
+        msg: "incus console --type=vga foxtrot-DC01-ADDS-DNS"

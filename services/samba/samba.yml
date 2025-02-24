@@ -1,0 +1,21 @@
+# Nathan Trumble
+# CSEC - 473
+# Team Foxtrot
+# Spring 2025
+---
+- name: Install Samba
+  hosts: all
+  become: true
+  tasks:
+    - name: Install Samba
+      package:
+        name: samba
+        state: present
+      register: samba_install_result
+
+    - name: Ensure samba service is enabled and started
+      service:
+        name: smbd
+        state: started
+        enabled: yes
+      when: samba_install_result.changed

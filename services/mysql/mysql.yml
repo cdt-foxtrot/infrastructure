@@ -1,0 +1,37 @@
+# Josh Malaguti
+# SFinstalls.yml
+# Assignment 2 - CSEC 473
+
+---
+- hosts: mysql
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+  become: true
+  tasks:
+
+# Feature 1
+  - name: Install PyMySQL
+    apt:
+      name: python3-pymysql
+      update_cache: yes
+      state: present
+
+# Feature 2
+  - name: Install Nano
+    apt:
+      name: nano
+      update_cache: yes
+      state: present
+
+# Service
+  - name: Install MySQL-Server
+    apt:
+      name: mysql-server
+      update_cache: yes
+      state: present
+
+  - name: Start MySQL
+    service:
+      name: mysql
+      state: started
+      enabled: yes
