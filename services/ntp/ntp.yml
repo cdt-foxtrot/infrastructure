@@ -12,7 +12,7 @@
       update_cache: no
 
 #this takes the config file from the ntp_make node and and replaces the chrony.conf file on the server with it
-- hosts: ntp_server
+- hosts: ntp
   become: yes
   tasks:
   - name: deploy chrony.conf template to the ntp_server
