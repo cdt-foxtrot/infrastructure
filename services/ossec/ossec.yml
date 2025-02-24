@@ -6,7 +6,7 @@
 # Sets up OSSEC on the server
 ---
 - name: Install OSSEC
-  hosts: ossec-server
+  hosts: ossec
   become: yes
   tasks:
     - name: Install dependencies
