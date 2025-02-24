@@ -3,7 +3,7 @@
 # Assignment 2 - CSEC 473
 
 ---
-- hosts: mysql
+- hosts: sql
   vars:
     ansible_python_interpreter: /usr/bin/python3
   become: true
