@@ -16,12 +16,12 @@
 # Usage:
 # ansible-playbook -i inventory.ini site.yml
 
-- import_playbook: apache/apache.yml
-- import_playbook: ca/ca.yml
-- import_playbook: dc-adds-dns/master.yml
-- import_playbook: mysql/mysql.yml
-- import_playbook: ossec/ossec.yml
-- import_playbook: iis-ftp/iis_ftp.yml
-- import_playbook: ms/ms.yml
-- import_playbook: ntp/ntp.yml
-- import_playbook: samba/samba.yml
+- import_playbook: services/apache/apache.yml
+- import_playbook: services/ca/ca.yml
+- import_playbook: services/dc-adds-dns/dc.yml
+- import_playbook: services/mysql/mysql.yml
+- import_playbook: services/ossec/ossec.yml
+- import_playbook: services/iis-ftp/iis_ftp.yml
+- import_playbook: services/ms/ms.yml
+- import_playbook: services/ntp/ntp.yml
+- import_playbook: services/samba/samba.yml
