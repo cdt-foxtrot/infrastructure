@@ -6,7 +6,7 @@
 # Sets up OSSEC on the Agent, then connects the agent to the server
 ---
 - name: Add OSSEC Agent to Server
-  hosts: ossec-server
+  hosts: ossec
   become: yes
   tasks:
     - name: Add OSSEC Agent to Server
@@ -30,7 +30,7 @@
         dest: "/tmp/agent_key.txt"
 
 - name: Register Agent with Server
-  hosts: ossec-agents
+  hosts: blueteam
   become: yes
   tasks:
     - name: Install Agent Dependencies
@@ -104,7 +104,7 @@
         enabled: yes
 
 - name: Restart OSSEC Server
-  hosts: ossec-server
+  hosts: ossec
   become: yes
   tasks:
     - name: Restart OSSEC
@@ -113,7 +113,7 @@
         state: restarted
 
 - name: Verify Connection
-  hosts: ossec-server
+  hosts: ossec
   become: yes
   tasks:
     - name: Verify
