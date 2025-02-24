@@ -4,7 +4,7 @@
 # Spring 2025
 ---
 - name: Creating Ubuntu Container
-  hosts: localhost
+  hosts: apache
   tasks:
     # Actually creaters an instance of the needed container.
     - name: Creating the Ubuntu Container 
