@@ -14,6 +14,18 @@ It Creates:
 ## destroy.sh
 This script destroys the Foxtrot Competition Infrastructure. This is primarily for testing purposes.
 
+## services/
+This directory contains all of the Ansible scripts to set up the 9 services:
+1. Apache
+2. Certificate Authority
+3. Domain Controller/Active Directory/DNS
+4. IIS
+5. Mail Server
+6. MySQL
+7. NTP
+8. OSSEC
+9. Samba
+
 ## inventory.ini
 This file groups the IP addresses for the competition infrastructure in the following ways:
 
