@@ -4,7 +4,7 @@
 # Spring 2025 Semester
 ---
 - name: Install CA on WinServer
-  hosts: windows_servers
+  hosts: ca
   tasks:
 
     - name: Install ADCS
