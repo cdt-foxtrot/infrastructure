@@ -9,7 +9,7 @@
 # 3. Creation of OUs, Groups and User Assignments
 
 - name: Configure AD DS, DNS and Set Local Admin Password
-  hosts: domain_controllers
+  hosts: dc
   tasks:
     # setup the local admin password
     - name: Setup Local Admin Password
