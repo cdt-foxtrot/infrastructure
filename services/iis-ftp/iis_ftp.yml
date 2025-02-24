@@ -1,5 +1,5 @@
 - name: IIS/FTP Server Configuration
-  hosts: all
+  hosts: iis
   gather_facts: true
   tasks:
     - name: Installs IIS Web Service Feature
