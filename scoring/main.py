@@ -3,8 +3,40 @@ from flask import Flask, jsonify, request
 import time
 import concurrent.futures
 import random
+import pymysql
 
 app = Flask(__name__)
+
+############################
+# MySQL Connection Establishment (connected/not connected)
+############################
+
+class MySQL:
+    def __init__(self):
+        self.connection = None
+
+    def start_connection(self, host, user, password, database):
+        try:
+            self.connection = pymysql.connect(
+                host=host,
+                user=user,
+                password=password,
+                database=database
+            )
+            if self.connection is not None:
+                print("Scoring DB Connection Established")
+        except Error as e:
+            print(f"Error: {e}") 
+
+    def get_connection(self):
+        return self.connection
+    
+    def close_connection(self):
+        if self.connection is not None:
+            self.connection.close()
+            print("Scoring DB Connection Closed")
+
+mysql = MySQL()
 
 ############################
 # Thread synchronization for competition status (started/not started)
@@ -194,19 +226,30 @@ def scores():
 def addPoints(points, machine):
     print(f'add {points} points to Box {machine} ({box_to_service.get(machine, "Unknown")})')
 
+
+# Testing MYSQL Modifications Still
 def subPoints(points, machine):
     print(f'subtract {points} points from Box {machine} ({box_to_service.get(machine, "Unknown")})')
+    cursor = mysql.get_connection().cursor()
+    sql = "UPDATE scoring SET health = health-1 WHERE service = 'AD/DNS'"
+    cursor.execute(sql)
 
 def setPoints(points, machine):
     print(f'set Box {machine} ({box_to_service.get(machine, "Unknown")}) to {points} points')
 
+# Successfully starts connection
 def start():
     print('Competition started')
     comp_state.set(True)
+    mysql.start_connection('localhost', 'greyteam', 'greyteam', 'Scoring')
+    
 
 def end():
     print('Competition ended')
     comp_state.set(False)
+    
+    if mysql.get_connection is not None:
+        mysql.close_connection()
 
 def help():
     print("\n========================= Available Commands =========================")
