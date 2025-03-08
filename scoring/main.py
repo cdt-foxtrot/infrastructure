@@ -69,28 +69,28 @@ def scan_AD_DNS():
     # Replace with actual AD/DNS service check
     return random.choice([True, False])
 
+def scan_Apache():
+    print("Scanning Box 2: Apache")
+
+    # Replace with actual Apache service check
+    return random.choice([True, False])
+
+def scan_ELK():
+    print("Scanning Box 3: ELK")
+
+    # Replace with actual ELK service check
+    return random.choice([True, False])
+
 def scan_IIS_FTP():
-    print("Scanning Box 2: IIS/FTP")
+    print("Scanning Box 4: IIS/FTP")
 
     # Replace with actual IIS/FTP service check
     return random.choice([True, False])
 
-def scan_Nginx():
-    print("Scanning Box 3: Nginx")
+def scan_Mail():
+    print("Scanning Box 5: Mail")
 
-    # Replace with actual Nginx service check
-    return random.choice([True, False])
-
-def scan_WinRM():
-    print("Scanning Box 4: WinRM")
-
-    # Replace with actual WinRM service check
-    return random.choice([True, False])
-
-def scan_Apache():
-    print("Scanning Box 5: Apache")
-
-    # Replace with actual Apache service check
+    # Replace with actual Mail service check
     return random.choice([True, False])
 
 def scan_MySQL():
@@ -99,56 +99,56 @@ def scan_MySQL():
     # Replace with actual MySQL service check
     return random.choice([True, False])
 
-def scan_Mail():
-    print("Scanning Box 7: Mail")
+def scan_Nginx():
+    print("Scanning Box 7: Nginx")
 
-    # Replace with actual Mail service check
+    # Replace with actual Nginx service check
+    return random.choice([True, False])
+
+def scan_NTP():
+    print("Scanning Box 8: NTP")
+
+    # Replace with actual NTP service check
     return random.choice([True, False])
 
 def scan_Samba():
-    print("Scanning Box 8: Samba")
+    print("Scanning Box 9: Samba")
 
     # Replace with actual Samba service check
     return random.choice([True, False])
 
-def scan_ELK():
-    print("Scanning Box 9: ELK")
+def scan_WinRM():
+    print("Scanning Box 10: WinRM")
 
-    # Replace with actual ELK service check
-    return random.choice([True, False])
-
-def scan_NTP():
-    print("Scanning Box 10: NTP")
-
-    # Replace with actual NTP service check
+    # Replace with actual WinRM service check
     return random.choice([True, False])
 
 # Service to box mapping
 service_to_box = {
     "AD_DNS": 1,
-    "IIS_FTP": 2,
-    "Nginx": 3,
-    "WinRM": 4,
-    "Apache": 5,
+    "Apache": 2,
+    "ELK": 3,
+    "IIS_FTP": 4,
+    "Mail": 5,
     "MySQL": 6,
-    "Mail": 7,
-    "Samba": 8,
-    "ELK": 9,
-    "NTP": 10
+    "Nginx": 7,
+    "NTP": 8,
+    "Samba": 9,
+    "WinRM": 10
 }
 
 # Box to service mapping
 box_to_service = {
     1: "AD/DNS",
-    2: "IIS/FTP", 
-    3: "Nginx",
-    4: "WinRM",
-    5: "Apache",
+    2: "Apache", 
+    3: "ELK",
+    4: "IIS_FTP",
+    5: "Mail",
     6: "MySQL",
-    7: "Mail",
-    8: "Samba",
-    9: "ELK",
-    10: "NTP"
+    7: "Nginx",
+    8: "NTP",
+    9: "Samba",
+    10: "WinRM"
 }
 
 # Service scanning function mapping
@@ -225,17 +225,25 @@ def scores():
 
 def addPoints(points, machine):
     print(f'add {points} points to Box {machine} ({box_to_service.get(machine, "Unknown")})')
-
+    cursor = mysql.connection.cursor()
+    sql = "UPDATE scoring SET health = health+%s WHERE service = %s"
+    cursor.execute(sql, (points, ({box_to_service.get(machine, "Unknown")})))
+    mysql.connection.commit()
 
 # Testing MYSQL Modifications Still
 def subPoints(points, machine):
     print(f'subtract {points} points from Box {machine} ({box_to_service.get(machine, "Unknown")})')
-    cursor = mysql.get_connection().cursor()
-    sql = "UPDATE scoring SET health = health-1 WHERE service = 'AD/DNS'"
-    cursor.execute(sql)
+    cursor = mysql.connection.cursor()
+    sql = "UPDATE scoring SET health = health-%s WHERE service = %s"
+    cursor.execute(sql, (points, ({box_to_service.get(machine, "Unknown")})))
+    mysql.connection.commit()
 
 def setPoints(points, machine):
     print(f'set Box {machine} ({box_to_service.get(machine, "Unknown")}) to {points} points')
+    cursor = mysql.connection.cursor()
+    sql = "UPDATE scoring SET health = %s WHERE service = %s"
+    cursor.execute(sql, (points, ({box_to_service.get(machine, "Unknown")})))
+    mysql.connection.commit()
 
 # Successfully starts connection
 def start():
@@ -248,7 +256,7 @@ def end():
     print('Competition ended')
     comp_state.set(False)
     
-    if mysql.get_connection is not None:
+    if mysql.connection is not None:
         mysql.close_connection()
 
 def help():
