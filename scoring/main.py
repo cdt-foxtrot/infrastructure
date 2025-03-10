@@ -23,9 +23,10 @@ class MySQL:
                 password=password,
                 database=database
             )
+            self.cursor = self.connection.cursor()
             if self.connection is not None:
                 print("Scoring DB Connection Established")
-        except Error as e:
+        except Error as e: # type: ignore
             print(f"Error: {e}") 
 
     def get_connection(self):
@@ -128,7 +129,7 @@ service_to_box = {
     "AD_DNS": 1,
     "Apache": 2,
     "ELK": 3,
-    "IIS_FTP": 4,
+    "IIS/FTP": 4,
     "Mail": 5,
     "MySQL": 6,
     "Nginx": 7,
@@ -142,7 +143,7 @@ box_to_service = {
     1: "AD/DNS",
     2: "Apache", 
     3: "ELK",
-    4: "IIS_FTP",
+    4: "IIS/FTP",
     5: "Mail",
     6: "MySQL",
     7: "Nginx",
@@ -171,6 +172,9 @@ service_scan_functions = [
 
 @app.route('/scan', methods=['GET'])
 def scan():
+    # String to print all results at end of scan
+    outString = ["\nScan Results:"]
+
     if comp_state.get():
         print("Starting scan of all services")
         results = []
@@ -184,66 +188,161 @@ def scan():
             # Process results as they complete
             for future in concurrent.futures.as_completed(future_to_service):
                 box_num, service_name = future_to_service[future]
+                
+                # Appends each box scan result to "outString" 
+                boxString = [f'\nBox {box_num} Scan:']
+
                 try:
                     service_up = future.result()
                     status = "online" if service_up else "offline"
-                    
-                    # If service is down, deduct 0.5 points
+                
+                # If service is down, deduct 0.5 points if health is above 0.
                     if not service_up:
-                        subPoints(0.5, box_num)
+                        subStr = subPoints(0.5, box_num)
+                        boxString.append(subStr)
+
+                    # If service is Down via Scan, but DB states its UP, update DB. 
+                        if isDBServiceStateUp(box_num):
+                            setServiceState (box_num, "Offline")
+
+                    # If service is Up via Scan, but DB states is DOWN, update DB.
+                    else:
+                        if not isDBServiceStateUp(box_num):
+                            setServiceState (box_num, "Online")
+
+                # If service has no more hp, display it.
+                    if checkIsDead(box_num) is True:
+                        deadStr = f'Box {box_num} ({box_to_service.get(box_num, "Unknown")}) is out of HP!'
+                        boxString.append(deadStr)
+                        # probably should incorporate a lives metric here
                     
-                    results.append({
-                        "box": box_num,
-                        "service": service_name,
-                        "status": status
-                    })
-                    print(f"Box {box_num} ({service_name}) scan complete - Status: {status}")
+                    boxScanFin = f"Box {box_num} scan complete - Status: {status}"
+                    boxString.append(boxScanFin)
                     
+                    for str in boxString:
+                        outString.append(str)
+
                 except Exception as exc:
-                    print(f"Box {box_num} ({service_name}) scan generated an exception: {exc}")
-                    results.append({
-                        "box": box_num,
-                        "service": service_name,
-                        "status": "error", 
-                        "error": str(exc)
-                    })
+                    err = f"Box {box_num} scan generated an exception: {exc}"
                     # Treat exceptions as service being down
                     subPoints(0.5, box_num)
+                    return err
         
-        return jsonify({'data': results})
-    else:
-        print("Competition hasn't started")
-        return jsonify({'comp': 'not started'})
+        for str in outString:
+            print(str)
+
+        return "Scan Complete!"
+    
+    return "Competition hasn't started! Scan not Attempted."
+
 
 @app.route('/scores', methods=['GET'])
 def scores():
-    return jsonify({'data2': 'test2'})
+    
+    if comp_state.get():
+        try:
+            sql = "SELECT * FROM scoring"
+            mysql.cursor.execute(sql)
+            res = mysql.cursor.fetchall()
+
+            # Get Column Names
+            col = [desc[0] for desc in mysql.cursor.description]
+
+            # Convert to list of dictionaries
+            data = [dict(zip(col, row)) for row in res]
+            return jsonify(data)
+        # Probably need a better exception here
+        except Exception as exc:
+            print (f"Could not retrieve data | Error: {exc}")
+    return None
+
 
 ############################
 # Helper Functions
 ############################
 
-def addPoints(points, machine):
-    print(f'add {points} points to Box {machine} ({box_to_service.get(machine, "Unknown")})')
-    cursor = mysql.connection.cursor()
-    sql = "UPDATE scoring SET health = health+%s WHERE service = %s"
-    cursor.execute(sql, (points, ({box_to_service.get(machine, "Unknown")})))
+# Checks Database to find current stored service 
+def isDBServiceStateUp (machine):
+    sql = "SELECT state FROM scoring WHERE service = %s"
+    mysql.cursor.execute(sql, (({box_to_service.get(machine, "Unknown")})))
+    status = str(mysql.cursor.fetchall()[0][0])
+    
+    if status == "Online":
+        return True
+    
+    return False
+
+# Sets the new DB states for a specific service
+def setServiceState (machine, state):
+    sql = "UPDATE scoring SET state = %s WHERE service = %s"
+    mysql.cursor.execute(sql, (state, ({box_to_service.get(machine, "Unknown")})))
     mysql.connection.commit()
 
-# Testing MYSQL Modifications Still
-def subPoints(points, machine):
-    print(f'subtract {points} points from Box {machine} ({box_to_service.get(machine, "Unknown")})')
-    cursor = mysql.connection.cursor()
-    sql = "UPDATE scoring SET health = health-%s WHERE service = %s"
-    cursor.execute(sql, (points, ({box_to_service.get(machine, "Unknown")})))
+# Check if box has 0 HP
+def checkIsDead (machine):
+    sql = "SELECT health FROM scoring WHERE service = %s"
+    mysql.cursor.execute(sql, {box_to_service.get(machine, "Unknown")})
+    hp = mysql.cursor.fetchall()[0][0]
+
+    if hp == 0:
+        return True
+    
+    return False
+
+# Check if points intended to add result in health > 20 or set = 20
+def checkMaxHP (points, machine, func):
+    
+    if func is "add":
+        sql = "SELECT health FROM scoring WHERE service = %s"
+        mysql.cursor.execute(sql, {box_to_service.get(machine, "Unknown")})
+        res = float(mysql.cursor.fetchall()[0][0]) + float(points)
+        
+        if res >= 20:
+            return True
+    else:
+        if float(points) >= 20:
+            return True
+    
+    return False
+
+
+def addPoints(points, machine):
+    
+    if checkMaxHP(points, machine, "add") is True:
+        print(f'Setting Box {machine} ({box_to_service.get(machine, "Unknown")}) to MAX Health')
+        sql = "UPDATE scoring SET health = 20 WHERE service = %s"
+        mysql.cursor.execute(sql, ({box_to_service.get(machine, "Unknown")}))
+    else:
+        print(f'add {points} points to Box {machine} ({box_to_service.get(machine, "Unknown")})')
+        sql = "UPDATE scoring SET health = health+%s WHERE service = %s"
+        mysql.cursor.execute(sql, (points, ({box_to_service.get(machine, "Unknown")})))
+    
     mysql.connection.commit()
+
+
+def subPoints(points, machine):
+
+    if checkIsDead(machine) is False:
+        sql = "UPDATE scoring SET health = health-%s WHERE service = %s"
+        mysql.cursor.execute(sql, (points, ({box_to_service.get(machine, "Unknown")})))
+        mysql.connection.commit()
+        return f'subtract {points} points from Box {machine} ({box_to_service.get(machine, "Unknown")})'
+    return ""
+
 
 def setPoints(points, machine):
-    print(f'set Box {machine} ({box_to_service.get(machine, "Unknown")}) to {points} points')
-    cursor = mysql.connection.cursor()
-    sql = "UPDATE scoring SET health = %s WHERE service = %s"
-    cursor.execute(sql, (points, ({box_to_service.get(machine, "Unknown")})))
+    
+    if checkMaxHP(points, machine, "set"):
+        print(f'Setting Box {machine} ({box_to_service.get(machine, "Unknown")}) to MAX Health')
+        sql = "UPDATE scoring SET health = 20 WHERE service = %s"
+        mysql.cursor.execute(sql, ({box_to_service.get(machine, "Unknown")}))
+    else:
+        print(f'set Box {machine} ({box_to_service.get(machine, "Unknown")}) to {points} points')
+        sql = "UPDATE scoring SET health = %s WHERE service = %s"
+        mysql.cursor.execute(sql, (points, ({box_to_service.get(machine, "Unknown")})))
+
     mysql.connection.commit()
+
 
 # Successfully starts connection
 def start():
@@ -258,6 +357,7 @@ def end():
     
     if mysql.connection is not None:
         mysql.close_connection()
+
 
 def help():
     print("\n========================= Available Commands =========================")
