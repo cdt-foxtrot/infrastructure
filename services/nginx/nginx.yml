@@ -1,0 +1,25 @@
+---
+- name: Configure Windows Server with Nginx
+  hosts: windows
+  tasks:
+    - name: Download Nginx zip file
+      win_get_url:
+        url: https://nginx.org/download/nginx-1.24.0.zip
+        dest: C:\nginx.zip
+
+    - name: Extract Nginx zip file
+      win_unzip:
+        src: C:\nginx.zip
+        dest: C:\nginx
+        overwrite: true
+
+    - name: Remove downloaded zip file
+      win_file:
+        path: C:\nginx.zip
+        state: absent
+
+    - name: Start Nginx
+      win_shell: |
+        start C:\nginx\nginx-1.24.0\nginx.exe
+      args:
+        executable: cmd.exe

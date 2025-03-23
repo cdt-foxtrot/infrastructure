@@ -14,12 +14,12 @@
 # 4. Valid Windows credentials w/ admin privileges
 #
 # Usage:
-# ansible-playbook -i inventory.ini site.yml
+# ansible-playbook -i inventory.ini deploy.yml
 
 - import_playbook: services/dc-adds-dns/dc.yml
 - import_playbook: services/iis-ftp/iis_ftp.yml
-# needs Nginx
-# needs WinRM
+- import_playbook: services/nginx/nginx.yml
+- import_playbook: services/winrm/winrm.yml
 - import_playbook: services/apache/apache.yml
 - import_playbook: services/mysql/mysql.yml
 - import_playbook: services/ms/ms.yml

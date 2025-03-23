@@ -1,5 +1,0 @@
-[all]
-ansible-target ansible_connection=community.general.incus
-[all:vars]
-ansible_incus_remote=“lcd4910-workarea"
-ansible_incus_project=“lcd4910-workarea“
