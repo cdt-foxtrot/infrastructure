@@ -40,10 +40,10 @@ DC="River"
 IIS="Swamp"
 Nginx="Beach"
 WinRM="Ocean"
-DC_IP="10.150.1.10"
-IIS_IP="10.150.1.11"
-Nginx_IP="10.150.1.12"
-WinRM_IP="10.150.1.13"
+DC_IP="10.150.1.1"
+IIS_IP="10.150.1.2"
+Nginx_IP="10.150.1.3"
+WinRM_IP="10.150.1.4"
 
 # Blue Team Linux
 Apache="Plains"
@@ -52,12 +52,12 @@ Mail="Savanna"
 NTP="Taiga"
 Samba="Jungle"
 ELK="Desert"
-Apache_IP="10.150.1.14"
-SQL_IP="10.150.1.15"
-Mail_IP="10.150.1.16"
-NTP_IP="10.150.1.17"
-Samba_IP="10.150.1.18"
-ELK_IP="10.150.1.19"
+Apache_IP="10.150.1.5"
+SQL_IP="10.150.1.6"
+Mail_IP="10.150.1.7"
+NTP_IP="10.150.1.8"
+Samba_IP="10.150.1.9"
+ELK_IP="10.150.1.10"
 
 # Red Team
 Nether1="Nether-1"
@@ -70,16 +70,16 @@ Nether7="Nether-7"
 Nether8="Nether-8"
 Nether9="Nether-9"
 Nether10="Nether-10"
-Nether1_IP="10.0.10.10"
-Nether2_IP="10.0.10.11"
-Nether3_IP="10.0.10.12"
-Nether4_IP="10.0.10.13"
-Nether5_IP="10.0.10.14"
-Nether6_IP="10.0.10.15"
-Nether7_IP="10.0.10.16"
-Nether8_IP="10.0.10.17"
-Nether9_IP="10.0.10.18"
-Nether10_IP="10.0.10.19"
+Nether1_IP="10.0.10.1"
+Nether2_IP="10.0.10.2"
+Nether3_IP="10.0.10.3"
+Nether4_IP="10.0.10.4"
+Nether5_IP="10.0.10.5"
+Nether6_IP="10.0.10.6"
+Nether7_IP="10.0.10.7"
+Nether8_IP="10.0.10.8"
+Nether9_IP="10.0.10.9"
+Nether10_IP="10.0.10.10"
 
 # Switches to correct Incus remote and project
 print_command "incus remote switch gcicompute02"
@@ -138,7 +138,7 @@ print_command "incus network delete ${GRAY_NETWORK} 2>/dev/null || true"
 # Creates a private network for the Gray Team VMs
 print_message "Creating Gray Team Network..."
 print_command "incus network create ${GRAY_NETWORK} \\
-ipv4.address=10.10.1.1/24 \\
+ipv4.address=10.10.1.0/24 \\
 ipv4.nat=true \\
 ipv6.address=none \\
 ipv6.nat=false"
@@ -146,7 +146,7 @@ ipv6.nat=false"
 # Creates a private network for the Blue Team VMs
 print_message "Creating Blue Team Network..."
 print_command "incus network create ${BLUE_NETWORK} \\
-ipv4.address=10.150.1.1/24 \\
+ipv4.address=10.150.1.0/24 \\
 ipv4.nat=true \\
 ipv6.address=none \\
 ipv6.nat=false"
@@ -154,7 +154,7 @@ ipv6.nat=false"
 # Creates a private network for the Red Team VMs
 print_message "Creating Red Team Network..."
 print_command "incus network create ${RED_NETWORK} \\
-ipv4.address=10.0.10.1/24 \\
+ipv4.address=10.0.10.0/24 \\
 ipv4.nat=true \\
 ipv6.address=none \\
 ipv6.nat=false"
@@ -259,51 +259,51 @@ print_command "incus launch images:ubuntu/noble ${ELK} \\
 
 # Creates Red Team Containers
 print_message "Creating Red Team Container (1)..."
-print_command "incus launch images:kali ${Nether1} \\
+print_command "incus launch images:ubuntu/noble ${Nether1} \\
 --network \"${RED_NETWORK}\" \\
 --device \"eth0,ipv4.address=${Nether1_IP}\" -t c4-m8"
 
 print_message "Creating Red Team Container (2)..."
-print_command "incus launch images:kali ${Nether2} \\
+print_command "incus launch images:ubuntu/noble ${Nether2} \\
 --network \"${RED_NETWORK}\" \\
 --device \"eth0,ipv4.address=${Nether2_IP}\" -t c4-m8"
 
 print_message "Creating Red Team Container (3)..."
-print_command "incus launch images:kali ${Nether3} \\
+print_command "incus launch images:ubuntu/noble ${Nether3} \\
 --network \"${RED_NETWORK}\" \\
 --device \"eth0,ipv4.address=${Nether3_IP}\" -t c4-m8"
 
 print_message "Creating Red Team Container (4)..."
-print_command "incus launch images:kali ${Nether4} \\
+print_command "incus launch images:ubuntu/noble ${Nether4} \\
 --network \"${RED_NETWORK}\" \\
 --device \"eth0,ipv4.address=${Nether4_IP}\" -t c4-m8"
 
 print_message "Creating Red Team Container (5)..."
-print_command "incus launch images:kali ${Nether5} \\
+print_command "incus launch images:ubuntu/noble ${Nether5} \\
 --network \"${RED_NETWORK}\" \\
 --device \"eth0,ipv4.address=${Nether5_IP}\" -t c4-m8"
 
 print_message "Creating Red Team Container (6)..."
-print_command "incus launch images:kali ${Nether6} \\
+print_command "incus launch images:ubuntu/noble ${Nether6} \\
 --network \"${RED_NETWORK}\" \\
 --device \"eth0,ipv4.address=${Nether6_IP}\" -t c4-m8"
 
 print_message "Creating Red Team Container (7)..."
-print_command "incus launch images:kali ${Nether7} \\
+print_command "incus launch images:ubuntu/noble ${Nether7} \\
 --network \"${RED_NETWORK}\" \\
 --device \"eth0,ipv4.address=${Nether7_IP}\" -t c4-m8"
 
 print_message "Creating Red Team Container (8)..."
-print_command "incus launch images:kali ${Nether8} \\
+print_command "incus launch images:ubuntu/noble ${Nether8} \\
 --network \"${RED_NETWORK}\" \\
 --device \"eth0,ipv4.address=${Nether8_IP}\" -t c4-m8"
 
 print_message "Creating Red Team Container (9)..."
-print_command "incus launch images:kali ${Nether9} \\
+print_command "incus launch images:ubuntu/noble ${Nether9} \\
 --network \"${RED_NETWORK}\" \\
 --device \"eth0,ipv4.address=${Nether9_IP}\" -t c4-m8"
 
 print_message "Creating Red Team Container (10)..."
-print_command "incus launch images:kali ${Nether10} \\
+print_command "incus launch images:ubuntu/noble ${Nether10} \\
 --network \"${RED_NETWORK}\" \\
 --device \"eth0,ipv4.address=${Nether10_IP}\" -t c4-m8"
