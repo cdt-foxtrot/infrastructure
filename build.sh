@@ -14,16 +14,11 @@ print_message() {
 # SCRIPT OVERVIEW:
 # This script sets up the Foxtrot Competition Infrastructure
 # It Creates:
-# 1. Two private networks for the Blue and Red Team
-# 2. 3 Windows Server 2019 VMs (DC, IIS/FTP, CA)
-# 3. 7 Ubuntu VMs (SQL, Samba, OSSEC, NTP, Apache, Mail, Worker)
+# 1. Three private networks for the Gray, Blue, and Red Team
+# 2. 4 Windows Server 2019 VMs (DC, IIS, Nginx, WinRM)
+# 3. 6 Ubuntu VMs (SQL, Samba, NTP, Apache, Mail, ELK)
 # 4. 10 Kali VMs (Red Team)
-# 5. 1 Gray Team Container
-# 6. 1 pfSense Router (CURRENTLY UNFINISHED)
-
-# Sets Gray Team Information
-GRAY_TEAM="foxtrot-grayteam"
-GRAY_TEAM_IP="10.150.1.100"
+# 5. 2 Gray Team Containers
 
 # Declares the work and project environment
 export ANSIBLE_INCUS_REMOTE=gcicompute02
@@ -32,14 +27,23 @@ export ANSIBLE_INCUS_PROJECT=cdtfoxtrot
 # Networks
 BLUE_NETWORK="minecraft.net"
 RED_NETWORK="herobrine.net"
+GRAY_NETWORK="notch.net"
+
+# Gray Team
+Admin1="Admin-1"
+Admin1_IP="10.10.1.1"
+Admin2="Admin-2"
+Admin2_IP="10.10.1.2"
 
 # Blue Team Windows
 DC="River"
-CA="Ocean"
 IIS="Swamp"
+Nginx="Beach"
+WinRM="Ocean"
 DC_IP="10.150.1.10"
-CA_IP="10.150.1.11"
-IIS_IP="10.150.1.12"
+IIS_IP="10.150.1.11"
+Nginx_IP="10.150.1.12"
+WinRM_IP="10.150.1.13"
 
 # Blue Team Linux
 Apache="Plains"
@@ -47,17 +51,13 @@ SQL="Forest"
 Mail="Savanna"
 NTP="Taiga"
 Samba="Jungle"
-OSSEC="Beach"
-Worker="Desert"
-Router="The-End"
-Apache_IP="10.150.1.13"
-SQL_IP="10.150.1.14"
-Mail_IP="10.150.1.15"
-NTP_IP="10.150.1.16"
-Samba_IP="10.150.1.17"
-OSSEC_IP="10.150.1.18"
-Worker_IP="10.150.1.19"
-Router_IP="10.150.1.254"
+ELK="Desert"
+Apache_IP="10.150.1.14"
+SQL_IP="10.150.1.15"
+Mail_IP="10.150.1.16"
+NTP_IP="10.150.1.17"
+Samba_IP="10.150.1.18"
+ELK_IP="10.150.1.19"
 
 # Red Team
 Nether1="Nether-1"
@@ -89,10 +89,12 @@ print_command "incus project switch cdtfoxtrot"
 print_message "Cleaning up existing resources..."
 print_command "incus stop --force ${DC} 2>/dev/null || true"
 print_command "incus delete ${DC} 2>/dev/null || true"
-print_command "incus stop --force ${CA} 2>/dev/null || true"
-print_command "incus delete ${CA} 2>/dev/null || true"
 print_command "incus stop --force ${IIS} 2>/dev/null || true"
 print_command "incus delete ${IIS} 2>/dev/null || true"
+print_command "incus stop --force ${Nginx} 2>/dev/null || true"
+print_command "incus delete ${Nginx} 2>/dev/null || true"
+print_command "incus stop --force ${WinRM} 2>/dev/null || true"
+print_command "incus delete ${WinRM} 2>/dev/null || true"
 print_command "incus stop --force ${Apache} 2>/dev/null || true"
 print_command "incus delete ${Apache} 2>/dev/null || true"
 print_command "incus stop --force ${SQL} 2>/dev/null || true"
@@ -103,12 +105,8 @@ print_command "incus stop --force ${NTP} 2>/dev/null || true"
 print_command "incus delete ${NTP} 2>/dev/null || true"
 print_command "incus stop --force ${Samba} 2>/dev/null || true"
 print_command "incus delete ${Samba} 2>/dev/null || true"
-print_command "incus stop --force ${OSSEC} 2>/dev/null || true"
-print_command "incus delete ${OSSEC} 2>/dev/null || true"
-print_command "incus stop --force ${Worker} 2>/dev/null || true"
-print_command "incus delete ${Worker} 2>/dev/null || true"
-print_command "incus stop --force ${Router} 2>/dev/null || true"
-print_command "incus delete ${Router} 2>/dev/null || true"
+print_command "incus stop --force ${ELK} 2>/dev/null || true"
+print_command "incus delete ${ELK} 2>/dev/null || true"
 print_command "incus stop --force ${Nether1} 2>/dev/null || true"
 print_command "incus delete ${Nether1} 2>/dev/null || true"
 print_command "incus stop --force ${Nether2} 2>/dev/null || true"
@@ -129,10 +127,21 @@ print_command "incus stop --force ${Nether9} 2>/dev/null || true"
 print_command "incus delete ${Nether9} 2>/dev/null || true"
 print_command "incus stop --force ${Nether10} 2>/dev/null || true"
 print_command "incus delete ${Nether10} 2>/dev/null || true"
-print_command "incus stop --force ${GRAY_TEAM} 2>/dev/null || true"
-print_command "incus delete ${GRAY_TEAM} 2>/dev/null || true"
+print_command "incus stop --force ${Admin1} 2>/dev/null || true"
+print_command "incus delete ${Admin1} 2>/dev/null || true"
+print_command "incus stop --force ${Admin2} 2>/dev/null || true"
+print_command "incus delete ${Admin2} 2>/dev/null || true"
 print_command "incus network delete ${BLUE_NETWORK} 2>/dev/null || true"
 print_command "incus network delete ${RED_NETWORK} 2>/dev/null || true"
+print_command "incus network delete ${GRAY_NETWORK} 2>/dev/null || true"
+
+# Creates a private network for the Gray Team VMs
+print_message "Creating Gray Team Network..."
+print_command "incus network create ${GRAY_NETWORK} \\
+ipv4.address=10.10.1.1/24 \\
+ipv4.nat=true \\
+ipv6.address=none \\
+ipv6.nat=false"
 
 # Creates a private network for the Blue Team VMs
 print_message "Creating Blue Team Network..."
@@ -150,11 +159,17 @@ ipv4.nat=true \\
 ipv6.address=none \\
 ipv6.nat=false"
 
-# Creates Gray Team Container
-print_message "Creating Gray Team Container..."
-print_command "incus launch images:ubuntu/noble ${GRAY_TEAM} \\
---network \"${BLUE_NETWORK}\" \\
---device \"eth0,ipv4.address=${GRAY_TEAM_IP}\" -t c4-m8"
+# Creates Admin1 (Gray) Container
+print_message "Creating Admin1 Container..."
+print_command "incus launch images:ubuntu/noble ${Admin1} \\
+--network \"${GRAY_NETWORK}\" \\
+--device \"eth0,ipv4.address=${Admin1_IP}\" -t c4-m8"
+
+# Creates Admin2 (Gray) Container
+print_message "Creating Admin2 Container..."
+print_command "incus launch images:ubuntu/noble ${Admin2} \\
+--network \"${GRAY_NETWORK}\" \\
+--device \"eth0,ipv4.address=${Admin2_IP}\" -t c4-m8"
 
 # Creates Windows DC VM
 print_message "Creating DC VM..."
@@ -167,17 +182,6 @@ ${DC} \\
 --device \"eth0,ipv4.address=${DC_IP}\" \\
 --device \"root,size=320GiB\""
 
-# Creates Windows CA VM
-print_message "Creating CA VM..."
-print_command "incus launch oszoo:winsrv/2019/ansible-cloud \\
-${CA} \\
---vm \\
---config limits.cpu=8 \\
---config limits.memory=16GiB \\
---network \"${BLUE_NETWORK}\" \\
---device \"eth0,ipv4.address=${CA_IP}\" \\
---device \"root,size=320GiB\""
-
 # Creates Windows IIS VM
 print_message "Creating IIS VM..."
 print_command "incus launch oszoo:winsrv/2019/ansible-cloud \\
@@ -187,6 +191,28 @@ ${IIS} \\
 --config limits.memory=16GiB \\
 --network \"${BLUE_NETWORK}\" \\
 --device \"eth0,ipv4.address=${IIS_IP}\" \\
+--device \"root,size=320GiB\""
+
+# Creates Windows Nginx VM
+print_message "Creating Nginx VM..."
+print_command "incus launch oszoo:winsrv/2019/ansible-cloud \\
+${Nginx} \\
+--vm \\
+--config limits.cpu=8 \\
+--config limits.memory=16GiB \\
+--network \"${BLUE_NETWORK}\" \\
+--device \"eth0,ipv4.address=${Nginx_IP}\" \\
+--device \"root,size=320GiB\""
+
+# Creates Windows WinRM VM
+print_message "Creating WinRM VM..."
+print_command "incus launch oszoo:winsrv/2019/ansible-cloud \\
+${WinRM} \\
+--vm \\
+--config limits.cpu=8 \\
+--config limits.memory=16GiB \\
+--network \"${BLUE_NETWORK}\" \\
+--device \"eth0,ipv4.address=${WinRM_IP}\" \\
 --device \"root,size=320GiB\""
 
 # Creates Ubuntu Apache VM
@@ -224,19 +250,12 @@ print_command "incus launch images:ubuntu/noble ${Samba} \\
 --network \"${BLUE_NETWORK}\" \\
 --device \"eth0,ipv4.address=${Samba_IP}\" -t c4-m8"
 
-# Creates Ubuntu OSSEC VM
-print_message "Creating OSSEC VM..."
-print_command "incus launch images:ubuntu/noble ${OSSEC} \\
+# Creates Ubuntu ELK VM
+print_message "Creating ELK VM..."
+print_command "incus launch images:ubuntu/noble ${ELK} \\
 --vm \\
 --network \"${BLUE_NETWORK}\" \\
---device \"eth0,ipv4.address=${OSSEC_IP}\" -t c4-m8"
-
-# Creates Ubuntu OSSEC Worker VM
-print_message "Creating OSSEC Worker VM..."
-print_command "incus launch images:ubuntu/noble ${Worker} \\
---vm \\
---network \"${BLUE_NETWORK}\" \\
---device \"eth0,ipv4.address=${Worker_IP}\" -t c4-m8"
+--device \"eth0,ipv4.address=${ELK_IP}\" -t c4-m8"
 
 # Creates Red Team Containers
 print_message "Creating Red Team Container (1)..."
