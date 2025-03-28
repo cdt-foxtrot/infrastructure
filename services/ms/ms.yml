@@ -1,13 +1,7 @@
-# Alex Rogoff
-# CSEC473 - Cyber Defense Techniques
-# Foxtrot
-# Spring 2025 Semester
-
 ---
--  name: Install Mail Server
-   hosts: ms
+-  name: Configure Mail Service
+   hosts: mail
    tasks:
-
    # Installing packages dovecot-imapd and dovecot-pop3d
    # IMAP and POP3 protocols
    - name: Install Dovecot

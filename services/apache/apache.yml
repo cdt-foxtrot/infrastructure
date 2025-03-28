@@ -1,24 +1,12 @@
-# Johnny Fagerlin
-# CSEC - 473
-# Team Foxtrot
-# Spring 2025
 ---
-- name: Creating Ubuntu Container
+- name: Creates Apache Service
   hosts: apache
   tasks:
-    # Actually creaters an instance of the needed container.
-    - name: Creating the Ubuntu Container 
-      command: incus init images:ubuntu/jammy/cloud ubuntu-apache
-
-    # Starts up the container for the next steps.
-    - name: Starting the container
-      command: incus start ubuntu-apache
-
     # Downloads Apache2 inside of the container.
     - name: Downloading Apache
       command: incus exec ubuntu-apache -- apt-get install apache2 -y
 
-    # Starts up the apache server within the container.
+    # Starts up the apache server within the container.s
     - name: Starting the Apache server
       command: incus exec ubuntu-apache -- sudo service apache2 start
     

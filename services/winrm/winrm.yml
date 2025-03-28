@@ -1,6 +1,6 @@
 ---
 - name: Configure WinRM on Windows Server
-  hosts: windows
+  hosts: winrm
   tasks:
     - name: Enable WinRM
       win_feature:

@@ -1,9 +1,5 @@
-# Nathan Trumble
-# CSEC - 473
-# Team Foxtrot
-# Spring 2025
 ---
-- name: Install Samba
+- name: Configure Samba Service
   hosts: samba
   become: true
   tasks:

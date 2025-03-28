@@ -7,34 +7,7 @@
         name: Web-Server
         state: present
         include_management_tools: yes
-
-    - name: Installs FTP Feature
-      win_feature:
-        name: Web-FTP-Server
-        state: present
-        include_management_tools: yes
-
-    - name: Creates FTP Root Directory
-      win_file:
-        path: "C:\inetpub\ftproot"
-        state: directory
-
-    - name: Creates FTP Site
-      win_iis_website:
-        name: "DefaultFTP"
-        state: started
-        port: 21
-        physical_path: "C:\inetpub\ftproot"
-
-    - name: Opens FTP Ports in Windows Firewall
-      win_firewall_rule:
-        name: FTP Server
-        localport: 21
-        action: allow
-        direction: in
-        protocol: TCP
-        state: present
-
+        
     - name: Removes the Default IIS Website
       win_iis_website:
         name: "Default Web Site"
@@ -146,18 +119,6 @@
         action: allow
         direction: in
         protocol: TCP
-        state: present
-
-    - name: Installs PHP
-      win_chocolatey:
-        name: php
-        state: present
-
-    - name: Configures PHP in IIS
-      win_iis_handler:
-        name: PHP_via_FastCGI
-        path: "*.php"
-        script_processor: "C:\\Program Files\\PHP\\php-cgi.exe"
         state: present
 
     - name: Restarts IIS

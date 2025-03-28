@@ -18,7 +18,7 @@ print_message() {
 # 2. 4 Windows Server 2019 VMs (DC, IIS, Nginx, WinRM)
 # 3. 6 Ubuntu VMs (SQL, Samba, NTP, Apache, Mail, ELK)
 # 4. 10 Kali VMs (Red Team)
-# 5. 2 Gray Team Containers
+# 5. 3 Gray Team Containers
 
 # Declares the work and project environment
 export ANSIBLE_INCUS_REMOTE=gcicompute02
@@ -34,6 +34,8 @@ Admin1="Admin-1"
 Admin1_IP="10.10.1.1"
 Admin2="Admin-2"
 Admin2_IP="10.10.1.2"
+Admin3="Admin-3"
+Admin3_IP="10.10.1.3"
 
 # Blue Team Windows
 DC="River"
@@ -131,14 +133,47 @@ print_command "incus stop --force ${Admin1} 2>/dev/null || true"
 print_command "incus delete ${Admin1} 2>/dev/null || true"
 print_command "incus stop --force ${Admin2} 2>/dev/null || true"
 print_command "incus delete ${Admin2} 2>/dev/null || true"
-print_command "incus network delete ${BLUE_NETWORK} 2>/dev/null || true"
-print_command "incus network delete ${RED_NETWORK} 2>/dev/null || true"
-print_command "incus network delete ${GRAY_NETWORK} 2>/dev/null || true"
+print_command "incus stop --force ${Admin3} 2>/dev/null || true"
+print_command "incus delete ${Admin3} 2>/dev/null || true"
+
+# Deleting Networks
+delete_peering() {
+    local network=$1
+    local peering_name=$2
+    if incus network show "$network" >/dev/null 2>&1; then
+        if incus network peer list "$network" | grep -q "$peering_name"; then
+            print_command "incus network peer delete \"$network\" \"$peering_name\""
+        else
+            echo "Peering $peering_name not found on $network (skipping)"
+        fi
+    else
+        echo "Network $network not found (skipping peering deletion)"
+    fi
+}
+
+# Delete peerings (with existence checks)
+print_message "Deleting network peerings..."
+delete_peering "$BLUE_NETWORK" "blue-to-red"
+delete_peering "$BLUE_NETWORK" "blue-to-gray"
+delete_peering "$RED_NETWORK" "red-to-blue"
+delete_peering "$RED_NETWORK" "red-to-gray"
+delete_peering "$GRAY_NETWORK" "gray-to-blue"
+delete_peering "$GRAY_NETWORK" "gray-to-red"
+
+# Delete networks (with force and error suppression)
+print_message "Deleting networks..."
+for network in "$GRAY_NETWORK" "$BLUE_NETWORK" "$RED_NETWORK"; do
+    if incus network show "$network" >/dev/null 2>&1; then
+        print_command "incus network delete \"$network\" 2>/dev/null || true"
+    else
+        echo "Network $network not found (skipping deletion)"
+    fi
+done
 
 # Creates a private network for the Gray Team VMs
 print_message "Creating Gray Team Network..."
 print_command "incus network create ${GRAY_NETWORK} \\
-ipv4.address=10.10.1.0/24 \\
+ipv4.address=10.10.1.100/24 \\
 ipv4.nat=true \\
 ipv6.address=none \\
 ipv6.nat=false"
@@ -146,7 +181,7 @@ ipv6.nat=false"
 # Creates a private network for the Blue Team VMs
 print_message "Creating Blue Team Network..."
 print_command "incus network create ${BLUE_NETWORK} \\
-ipv4.address=10.150.1.0/24 \\
+ipv4.address=10.150.1.100/24 \\
 ipv4.nat=true \\
 ipv6.address=none \\
 ipv6.nat=false"
@@ -154,10 +189,25 @@ ipv6.nat=false"
 # Creates a private network for the Red Team VMs
 print_message "Creating Red Team Network..."
 print_command "incus network create ${RED_NETWORK} \\
-ipv4.address=10.0.10.0/24 \\
+ipv4.address=10.0.10.100/24 \\
 ipv4.nat=true \\
 ipv6.address=none \\
 ipv6.nat=false"
+
+# Connecting Networks with bidirectional peering
+print_message "Setting up network peering..."
+
+# Blue ↔ Red peering
+print_command "incus network peer create ${BLUE_NETWORK} blue-to-red ${RED_NETWORK}"
+print_command "incus network peer create ${RED_NETWORK} red-to-blue ${BLUE_NETWORK}"
+
+# Blue ↔ Gray peering
+print_command "incus network peer create ${BLUE_NETWORK} blue-to-gray ${GRAY_NETWORK}"
+print_command "incus network peer create ${GRAY_NETWORK} gray-to-blue ${BLUE_NETWORK}"
+
+# Red ↔ Gray peering
+print_command "incus network peer create ${RED_NETWORK} red-to-gray ${GRAY_NETWORK}"
+print_command "incus network peer create ${GRAY_NETWORK} gray-to-red ${RED_NETWORK}"
 
 # Creates Admin1 (Gray) Container
 print_message "Creating Admin1 Container..."
@@ -168,8 +218,20 @@ print_command "incus launch images:ubuntu/noble ${Admin1} \\
 # Creates Admin2 (Gray) Container
 print_message "Creating Admin2 Container..."
 print_command "incus launch images:ubuntu/noble ${Admin2} \\
+--vm \\
 --network \"${GRAY_NETWORK}\" \\
 --device \"eth0,ipv4.address=${Admin2_IP}\" -t c4-m8"
+
+# Creates Admin3 (Gray) Windows VM
+print_message "Creating Admin3 Container..."
+print_command "incus launch oszoo:winsrv/2019/ansible-cloud \\
+${Admin3} \\
+--vm \\
+--config limits.cpu=8 \\
+--config limits.memory=16GiB \\
+--network \"${GRAY_NETWORK}\" \\
+--device \"eth0,ipv4.address=${Admin3_IP}\" \\
+--device \"root,size=320GiB\""
 
 # Creates Windows DC VM
 print_message "Creating DC VM..."
@@ -214,6 +276,13 @@ ${WinRM} \\
 --network \"${BLUE_NETWORK}\" \\
 --device \"eth0,ipv4.address=${WinRM_IP}\" \\
 --device \"root,size=320GiB\""
+
+# Open VGA consoles for Windows VMs in background
+print_message "Launching Windows VMs"
+print_command "incus console --type=vga ${DC} &"
+print_command "incus console --type=vga ${IIS} &"
+print_command "incus console --type=vga ${Nginx} &"
+print_command "incus console --type=vga ${WinRM} &"
 
 # Creates Ubuntu Apache VM
 print_message "Creating Apache VM..."
@@ -307,3 +376,45 @@ print_message "Creating Red Team Container (10)..."
 print_command "incus launch images:ubuntu/noble ${Nether10} \\
 --network \"${RED_NETWORK}\" \\
 --device \"eth0,ipv4.address=${Nether10_IP}\" -t c4-m8"
+
+# Checks State of Windows VMs
+print_message "Waiting for Windows VMs with progressive checks..."
+
+# Improved check function
+check_windows_vm() {
+    local vm=$1
+    local attempts=3
+    local delay=5
+    
+    for ((i=1; i<=attempts; i++)); do
+        if timeout 10 incus exec "$vm" -- cmd /c "echo Ready" 2>/dev/null; then
+            return 0
+        fi
+        sleep $delay
+    done
+    return 1
+}
+
+total_wait=0
+max_wait=900  # 15 minutes maximum
+interval=30   # Check every 30 seconds
+
+while [ $total_wait -lt $max_wait ]; do
+    all_ready=true
+    
+    for windows_vm in ${DC} ${IIS} ${Nginx} ${WinRM}; do
+        if ! check_windows_vm "$windows_vm"; then
+            all_ready=false
+            break
+        fi
+    done
+    
+    if $all_ready; then
+        print_message "All Windows VMs ready after ${total_wait} seconds!"
+        break
+    fi
+    
+    print_message "Waiting ${interval} more seconds (${total_wait}/${max_wait})..."
+    sleep $interval
+    total_wait=$((total_wait + interval))
+done

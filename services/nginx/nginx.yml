@@ -1,6 +1,6 @@
 ---
 - name: Configure Windows Server with Nginx
-  hosts: windows
+  hosts: nginx
   tasks:
     - name: Download Nginx zip file
       win_get_url:

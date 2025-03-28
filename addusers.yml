@@ -1,0 +1,59 @@
+---
+- name: Deploy users with restricted admin privileges
+  hosts: blueteamlin
+  gather_facts: yes
+  vars:
+    standard_users:
+      - { name: "Nitwit", password: "Un3mpl0y3d" }
+      - { name: "Armorer", password: "Bl@st_Furn@c3" }
+      - { name: "Butcher", password: "F00d_Smok3r" }
+      - { name: "Cleric", password: "8rew1ng_St@nd" }
+      - { name: "Farmer", password: "Comp0st3r_S33ds" }
+      - { name: "Fisherman", password: "B@rrel_St0rag3" }
+      - { name: "Fletcher", password: "Fl3tch1ng_T@bl3" }
+      - { name: "Leatherworker", password: "C@uldr0n_W@t3r" }
+      - { name: "Librarian", password: "L3ct3rn_B00k" }
+      - { name: "Toolsmith", password: "Sm1th1ng_T@bl3" }
+    admin_user:
+      - { name: "Notch", password: "I_H@t3_Th3_Nether@!" }
+
+  tasks:
+    # Creates Linux Users
+    - name: Create standard Linux users
+      ansible.builtin.user:
+        name: "{{ item.name }}"
+        password: "{{ item.password | password_hash('sha512') }}"
+        shell: /bin/bash
+        state: present
+      loop: "{{ standard_users }}"
+      when: inventory_hostname not in groups['blueteamwin']
+      tags: linux
+
+    - name: Create Linux admin user (Notch)
+      ansible.builtin.user:
+        name: "Notch"
+        password: "{{ 'I_H@t3_Th3_Nether@!' | password_hash('sha512') }}"
+        shell: /bin/bash
+        groups: "sudo"
+        append: yes
+      when: inventory_hostname not in groups['blueteamwin']
+      tags: linux
+
+    - name: Configure Notch sudo privileges
+      ansible.builtin.lineinfile:
+        path: /etc/sudoers.d/notch
+        line: "Notch ALL=(ALL) NOPASSWD:ALL"
+        create: yes
+        validate: 'visudo -cf %s'
+      when: inventory_hostname not in groups['blueteamwin']
+      tags: linux
+
+    - name: Secure SSH directory for Notch
+      ansible.builtin.file:
+        path: "/home/Notch/.ssh"
+        state: directory
+        owner: "Notch"
+        group: "Notch"
+        mode: '0700'
+      when: inventory_hostname not in groups['blueteamwin']
+      tags: linux
