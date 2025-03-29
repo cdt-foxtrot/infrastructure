@@ -36,8 +36,8 @@ Admin2="Admin-2"
 Admin2_IP="10.10.1.2"
 Admin3="Admin-3"
 Admin3_IP="10.10.1.3"
-Admin3="Admin-4"
-Admin3_IP="10.10.1.4"
+Admin4="Admin-4"
+Admin4_IP="10.10.1.4"
 
 # Blue Team Windows
 DC="River"
