@@ -1,3 +1,4 @@
+import socket
 import threading
 from flask import Flask, jsonify, request
 import time
@@ -43,7 +44,7 @@ class MySQL:
     def load_box_info(self):
         """Load box information from the database"""
         try:
-            sql = "SELECT box, service, building, os, ip FROM scoring"
+            sql = "SELECT box, service, building, os, ip, port FROM scoring"
             self.cursor.execute(sql)
             results = self.cursor.fetchall()
             
@@ -54,12 +55,13 @@ class MySQL:
             
             # Populate mappings from database
             for row in results:
-                box_num, service_name, building_name, os_name, ip_address = row
+                box_num, service_name, building_name, os_name, ip_address, port = row
                 box_info[box_num] = {
                     "service": service_name,
                     "os": os_name,
                     "buildingName": building_name,
-                    "ip": ip_address
+                    "ip": ip_address,
+                    "port" : port
                 }
                 service_to_box[service_name.replace("/", "_")] = box_num
                 
@@ -111,49 +113,124 @@ def get_box_ip(box_num):
 def get_box_os(box_num):
     return box_info.get(box_num, {}).get("os", "Unknown")
 
+def get_box_ports(box_num):
+    return box_info.get(box_num, {}).get("port", "Unknown").split(",")
+
 ############################
 # Service scanning functions
 ############################
-
+def is_port_open(ip, port, timeout=2):
+    """Check if a port is open on the target IP."""
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(timeout)
+        result = sock.connect_ex((ip, int(port)))
+        sock.close()
+        return result == 0
+    except Exception as e:
+        print(f"Error checking port {port} on {ip}: {e}")
+        return False
+    
 def scan_service(box_num):
     """Generic service scanning function"""
     service = get_box_service(box_num)
     box_ip = get_box_ip(box_num)
     building = get_box_building(box_num)
-    
+    ports = get_box_ports(box_num)
+
     print(f"Scanning Box {box_num}: {service} at {box_ip} ({building})")
     
-    # For now, using random choice - replace with actual service checks in production
-    return random.choice([True, False])
+    # Check if all required ports are open
+    port_results = []
+    for port in ports:
+        port_open = is_port_open(box_ip, port)
+        port_status = "open" if port_open else "closed"
+        print(f"Port {port} on {box_ip} is {port_status}")
+        port_results.append(port_open)
+    
+    # Return True only if all ports are open
+    return all(port_results)
 
 def scan_AD_DNS():
+    # 389
+
+    # check to see if the port is up
+    if not scan_service(1):
+        return False
+    
     return scan_service(1)
 
 def scan_IIS():
+    # 80
+
+    # check to see if the port is up
+    if not scan_service(2):
+        return False
+    
     return scan_service(2)
 
 def scan_Nginx():
+    # 80
+    # check to see if the port is up
+    if not scan_service(3):
+        return False
+    
     return scan_service(3)
 
 def scan_WinRM():
+    # 5985
+    # check to see if the port is up
+    if not scan_service(4):
+        return False
+    
     return scan_service(4)
 
 def scan_Apache():
+    # 80
+    # check to see if the port is up
+    if not scan_service(5):
+        return False
+    
     return scan_service(5)
 
 def scan_MySQL():
+    # 3306
+    # check to see if the port is up
+    if not scan_service(6):
+        return False
+    
     return scan_service(6)
 
 def scan_Mail():
+    # 25
+    # check to see if the port is up
+    if not scan_service(7):
+        return False
+    
     return scan_service(7)
 
 def scan_FTP():
+    # 20 & 21
+    # check to see if the port is up
+    if not scan_service(8):
+        return False
+    
     return scan_service(8)
 
 def scan_Samba():
+    # 139
+    # check to see if the port is up
+    if not scan_service(9):
+        return False
+    
     return scan_service(9)
 
 def scan_ELK():
+    # 9200 & 5044 & 5601
+    # check to see if the port is up
+    if not scan_service(10):
+        return False
+    
     return scan_service(10)
 
 ############################
@@ -169,20 +246,36 @@ def scan():
         try:
             print("Starting scan of all services")
             
-            # Dynamically create scanning tasks based on box_info
-            service_scan_functions = []
-            for box_num in sorted(box_info.keys()):
-                service_scan_functions.append((lambda bn=box_num: scan_service(bn), box_num))
+            # Map of box numbers to their respective scan functions
+            box_to_scan_function = {
+                1: scan_AD_DNS,
+                2: scan_IIS,
+                3: scan_Nginx,
+                4: scan_WinRM,
+                5: scan_Apache,
+                6: scan_MySQL,
+                7: scan_Mail,
+                8: scan_FTP,
+                9: scan_Samba,
+                10: scan_ELK
+            }
             
             # Use a thread pool to scan machines in parallel (hopefully means fast scans)
             with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
                 # Submit all machine scanning functions
-                future_to_service = {executor.submit(scan_func): box_num 
-                                   for scan_func, box_num in service_scan_functions}
+                future_to_box = {}
+                for box_num in sorted(box_info.keys()):
+                    # Use the specific scan function for each box if available, otherwise fall back to a basic port check
+                    if box_num in box_to_scan_function:
+                        future = executor.submit(box_to_scan_function[box_num])
+                    else:
+                        # For unknown boxes, scan common ports
+                        future = executor.submit(lambda bn=box_num: scan_service(bn, [22, 80, 443]))
+                    future_to_box[future] = box_num
                 
                 # Process results as they complete
-                for future in concurrent.futures.as_completed(future_to_service):
-                    box_num = future_to_service[future]
+                for future in concurrent.futures.as_completed(future_to_box):
+                    box_num = future_to_box[future]
                     
                     # Appends each box scan result to "outString" 
                     boxString = [f'\nBox {box_num} ({get_box_building(box_num)}) Scan:']
@@ -231,7 +324,6 @@ def scan():
             return jsonify({"error": "Scan failed due to an internal error"}), 500
     
     return jsonify({"error": "Competition hasn't started! Scan not attempted."}), 403
-
 
 @app.route('/scores', methods=['GET'])
 def scores():
