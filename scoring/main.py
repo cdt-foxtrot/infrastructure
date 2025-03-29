@@ -282,7 +282,13 @@ def scan_ELK():
     if not scan_service(box_num):
         return False
     
-    return scan_service(box_num)
+    # try to get the ELK dashboard
+    try:
+        response = requests.get(f"http://{box_ip}:9200", timeout=3)
+        return response.status_code == 200
+    except Exception as e:
+        print(f"ELK check failed: {e}")
+        return False
 
 ############################
 # Routes
