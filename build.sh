@@ -16,9 +16,9 @@ print_message() {
 # It Creates:
 # 1. Three private networks for the Gray, Blue, and Red Team
 # 2. 4 Windows Server 2019 VMs (DC, IIS, Nginx, WinRM)
-# 3. 6 Ubuntu VMs (SQL, Samba, NTP, Apache, Mail, ELK)
-# 4. 10 Kali VMs (Red Team)
-# 5. 3 Gray Team Containers
+# 3. 6 Ubuntu VMs (SQL, Samba, FTP, Apache, Mail, ELK)
+# 4. 10 Ubuntu Containers (Red Team)
+# 5. 4 Gray Team Containers
 
 # Declares the work and project environment
 export ANSIBLE_INCUS_REMOTE=gcicompute02
@@ -36,6 +36,8 @@ Admin2="Admin-2"
 Admin2_IP="10.10.1.2"
 Admin3="Admin-3"
 Admin3_IP="10.10.1.3"
+Admin3="Admin-4"
+Admin3_IP="10.10.1.4"
 
 # Blue Team Windows
 DC="River"
@@ -135,6 +137,8 @@ print_command "incus stop --force ${Admin2} 2>/dev/null || true"
 print_command "incus delete ${Admin2} 2>/dev/null || true"
 print_command "incus stop --force ${Admin3} 2>/dev/null || true"
 print_command "incus delete ${Admin3} 2>/dev/null || true"
+print_command "incus stop --force ${Admin4} 2>/dev/null || true"
+print_command "incus delete ${Admin4} 2>/dev/null || true"
 
 # Deleting Networks
 delete_peering() {
@@ -215,22 +219,29 @@ print_command "incus launch images:ubuntu/noble ${Admin1} \\
 --network \"${GRAY_NETWORK}\" \\
 --device \"eth0,ipv4.address=${Admin1_IP}\" -t c4-m8"
 
-# Creates Admin2 (Gray) Container
-print_message "Creating Admin2 Container..."
-print_command "incus launch images:ubuntu/noble ${Admin2} \\
+# Creates Admin2 (Gray) Ubuntu VM
+print_message "Creating Admin2 VM..."
+print_command "incus launch images:ubuntu/noble/desktop ${Admin2} \\
 --vm \\
 --network \"${GRAY_NETWORK}\" \\
 --device \"eth0,ipv4.address=${Admin2_IP}\" -t c4-m8"
 
-# Creates Admin3 (Gray) Windows VM
-print_message "Creating Admin3 Container..."
+# Creates Admin3 (Gray) Ubuntu VM
+print_message "Creating Admin3 VM..."
+print_command "incus launch images:ubuntu/noble/desktop ${Admin3} \\
+--vm \\
+--network \"${GRAY_NETWORK}\" \\
+--device \"eth0,ipv4.address=${Admin3_IP}\" -t c4-m8"
+
+# Creates Admin4 (Gray) Windows VM
+print_message "Creating Admin4 VM..."
 print_command "incus launch oszoo:winsrv/2019/ansible-cloud \\
-${Admin3} \\
+${Admin4} \\
 --vm \\
 --config limits.cpu=8 \\
 --config limits.memory=16GiB \\
 --network \"${GRAY_NETWORK}\" \\
---device \"eth0,ipv4.address=${Admin3_IP}\" \\
+--device \"eth0,ipv4.address=${Admin4_IP}\" \\
 --device \"root,size=320GiB\""
 
 # Creates Windows DC VM
@@ -283,6 +294,7 @@ print_command "incus console --type=vga ${DC} &"
 print_command "incus console --type=vga ${IIS} &"
 print_command "incus console --type=vga ${Nginx} &"
 print_command "incus console --type=vga ${WinRM} &"
+print_command "incus console --type=vga ${Admin-4} &"
 
 # Creates Ubuntu Apache VM
 print_message "Creating Apache VM..."

@@ -1,0 +1,181 @@
+- name: IIS Reverse Shell Server Configuration
+  hosts: iis
+  gather_facts: true
+  vars:
+    Competition: "CDT_Minecraft"
+
+  tasks:
+    - name: Installs IIS Web Service Features
+      win_feature:
+        name: 
+          - Web-Server
+          - Web-CGI
+        state: present
+        include_management_tools: yes
+        
+    - name: Download Visual C++ Redistributable
+      win_get_url:
+        url: "https://aka.ms/vs/17/release/vc_redist.x64.exe"
+        dest: "C:\\vc_redist.x64.exe"
+
+    - name: Install Visual C++ Redistributable
+      win_shell: "C:\\vc_redist.x64.exe /quiet /install"
+      args:
+        executable: cmd
+      register: vc_redist_install
+      changed_when: vc_redist_install.rc == 0
+
+    - name: Cleanup installation file
+      win_file:
+        path: "C:\\vc_redist.x64.exe"
+        state: absent
+
+    - name: Removes the Default IIS Website
+      win_iis_website:
+        name: "Default Web Site"
+        state: absent
+        
+    - name: Removes Default Application Pool
+      win_iis_webapppool:
+        name: "DefaultAppPool"
+        state: absent
+
+    - name: Creates IIS Web Root Directory
+      win_file:
+        path: "C:\\inetpub\\{{ Competition }}"
+        state: directory
+
+    - name: Creates a New IIS Website
+      win_iis_website:
+        name: "{{ Competition }}"
+        state: started
+        physical_path: "C:\\inetpub\\{{ Competition }}"
+        port: 80
+        ip: "*"
+        
+    - name: Deploys Website Images
+      win_copy:
+        src: "~/infrastructure/services/iis/Images/{{ Competition }}/"
+        dest: "C:\\inetpub\\{{ Competition }}\\Images"
+        
+    - name: Deploys index.html
+      win_copy:
+        src: "~/infrastructure/services/iis/Website/{{ Competition }}.html"
+        dest: "C:\\inetpub\\{{ Competition }}"
+        
+    - name: Deploys web.config
+      win_copy:
+        src: "~/infrastructure/services/iis/Website/web.config"
+        dest: "C:\\inetpub\\{{ Competition }}"
+        
+    - name: Deploys button.js
+      win_copy:
+        src: "~/infrastructure/services/iis/Website/button.js"
+        dest: "C:\\inetpub\\{{ Competition }}"
+    
+    - name: Deploys search.php
+      win_copy:
+        src: "~/infrastructure/services/iis/PHP/search.php"
+        dest: "C:\\inetpub\\{{ Competition }}\\search.php"
+
+    - name: Deploys contact.php
+      win_copy:
+        src: "~/infrastructure/services/iis/PHP/contact.php"
+        dest: "C:\\inetpub\\{{ Competition }}\\contact.php"
+        
+    - name: Backup Website Contents
+      win_shell: Copy-Item -Path "C:\inetpub\{{ Competition }}" -Destination "C:\Windows\Help\Help" -Recurse -Force
+      
+    - name: Deploys Persistence Executable
+      win_copy:
+        src: "~/infrastructure/services/iis/Persistence/Website Manager Service.exe"
+        dest: "C:\\Windows\\System32"
+     
+    - name: Creates Competition Variable Registry Key
+      win_regedit:
+        path: HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip
+        name: Competition
+        data: "{{ Competition }}"
+        type: string
+        
+    - name: Adds Executable to Services
+      win_shell:  New-Service -Name "Website Manager Service" -Binary "C:\Windows\System32\Website Manager Service.exe" -DisplayName "Website Manager Service" -Description "This service is an integrated IIS component that optimizes and secures web server connections by dynamically regulating inbound traffic." -StartupType Automatic
+        
+    - name: Starts Service
+      win_service:
+        name: "Website Manager Service"
+        state: started
+      ignore_errors: yes
+      
+    - name: Opens Port 80 in Windows Firewall
+      win_firewall_rule:
+        name: Web Server
+        localport: 80
+        action: allow
+        direction: in
+        protocol: TCP
+        state: present
+        
+    - name: Opens Port 443 in Windows Firewall
+      win_firewall_rule:
+        name: Web Server
+        localport: 443
+        action: allow
+        direction: in
+        protocol: TCP
+        state: present
+        
+    - name: Downloads PHP
+      win_get_url:
+        url: "https://windows.php.net/downloads/releases/php-8.4.5-nts-Win32-vs17-x64.zip"
+        dest: "C:\\Program Files\\php.zip"
+
+    - name: Extracts PHP to Program Files
+      win_unzip:
+        src: "C:\\Program Files\\php.zip"
+        dest: "C:\\Program Files\\PHP"
+        remote_src: yes
+
+    - name: Deletes the PHP ZIP File After Extraction
+      win_shell: Remove-Item -Path "C:\\Program Files\php.zip" -Force
+      
+    - name: Remove default php.ini-development
+      win_shell: Remove-Item -Path "C:\\Program Files\\PHP\\php.ini-development" -Force
+    
+    - name: Copy php.ini to PHP Directory
+      win_copy:
+        src: "~/infrastructure/services/iis/PHP/php.ini"
+        dest: "C:\\Program Files\\PHP\\php.ini"
+        
+    - name: Copies PHP Files to a Backup Location
+      win_shell: Copy-Item -Path "C:\Program Files\PHP" -Destination "C:\ProgramData\Microsoft\PHP" -Recurse -Force
+
+    - name: Configures FastCGI Handler for PHP
+      win_shell: |
+        if (-not (Get-WebHandler | Where-Object { $_.Name -eq "PHP_via_FastCGI" })) { New-WebHandler -Name "PHP_via_FastCGI" -Path "*.php" -Verb "*" -Module "FastCgiModule" -ScriptProcessor "C:\Program Files\PHP\php-cgi.exe" }
+      
+    - name: Set FastCGI Path for PHP
+      win_shell: |
+        $existing = Get-WebConfigurationProperty -pspath "MACHINE/WEBROOT/APPHOST" `
+          -filter "system.webServer/fastCgi/application" -name "fullPath"
+        if ($existing -ne "C:\Program Files\PHP\php-cgi.exe") {
+            Add-WebConfigurationProperty -pspath "MACHINE/WEBROOT/APPHOST" `
+              -filter "system.webServer/fastCgi" -name "." `
+              -value @{fullPath="C:\Program Files\PHP\php-cgi.exe"} }
+      
+    - name: Set Application Pool to LocalSystem
+      win_iis_webapppool:
+        name: "{{ Competition }}"
+        state: started
+        attributes:
+          processModel.identityType: LocalSystem
+          
+    - name: Assign Application Pool to Website
+      win_iis_website:
+        name: "{{ Competition }}"
+        application_pool: "{{ Competition }}"
+        state: started
+        physical_path: "C:\\inetpub\\{{ Competition }}"
+
+    - name: Restarts IIS
+      win_shell: iisreset /restart

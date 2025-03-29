@@ -1,0 +1,187 @@
+---
+- name: Configures ELK Stack with Filebeat
+  hosts: elk
+  become: true
+  tasks:
+  
+    # Install dependencies for Elasticsearch, Logstash, and Filebeat
+    - name: Install apt-transport-https and dependencies
+      apt:
+        name:
+          - apt-transport-https
+          - openjdk-11-jre
+          - wget
+          - curl
+        state: present
+        update_cache: yes
+
+    # Add the Elasticsearch GPG key and repository manually
+    - name: Add the Elasticsearch GPG key
+      shell: |
+        curl -fsSL https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo gpg --dearmor -o /usr/share/keyrings/elastic.gpg
+      args:
+        creates: /usr/share/keyrings/elastic.gpg
+
+    - name: Add the Elasticsearch APT repository
+      shell: |
+        echo "deb [signed-by=/usr/share/keyrings/elastic.gpg] https://artifacts.elastic.co/packages/7.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-7.x.list
+      args:
+        creates: /etc/apt/sources.list.d/elastic-7.x.list
+
+    # Update apt cache after adding the repository
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    # Install Elasticsearch
+    - name: Install Elasticsearch
+      apt:
+        name: elasticsearch
+        state: latest
+        update_cache: yes
+
+    # Configure Elasticsearch (disable bootstrap.memory_lock, set network.host to 0.0.0.0 for accessibility)
+    - name: Configure Elasticsearch
+      lineinfile:
+        path: /etc/elasticsearch/elasticsearch.yml
+        regexp: '^#?{{ item.key }}:'
+        line: "{{ item.key }}: {{ item.value }}"
+      loop:
+        - { key: "network.host", value: "0.0.0.0" }
+        - { key: "discovery.type", value: "single-node" }
+        - { key: "bootstrap.memory_lock", value: "false" }
+      notify: restart elasticsearch
+
+    # Enable and start Elasticsearch service
+    - name: Ensure Elasticsearch service is enabled and started
+      service:
+        name: elasticsearch
+        state: started
+        enabled: yes
+
+    # Install Logstash
+    - name: Install Logstash
+      apt:
+        name: logstash
+        state: latest
+        update_cache: yes
+
+    # Configure Logstash pipeline (simple config to take logs from /var/log and output to Elasticsearch)
+    - name: Create Logstash pipeline configuration
+      copy:
+        dest: /etc/logstash/conf.d/02-beats-input.conf
+        content: |
+          input {
+            beats {
+              port => 5044
+            }
+          }
+      notify: restart logstash
+
+    - name: Create Logstash output configuration
+      copy:
+        dest: /etc/logstash/conf.d/30-elasticsearch-output.conf
+        content: |
+          output {
+            if [@metadata][pipeline] {
+              elasticsearch {
+                hosts => ["localhost:9200"]
+                manage_template => false
+                index => "%{[@metadata][beat]}-%{[@metadata][version]}-%{+YYYY.MM.dd}"
+                pipeline => "%{[@metadata][pipeline]}"
+              }
+            } else {
+              elasticsearch {
+                hosts => ["localhost:9200"]
+                manage_template => false
+                index => "%{[@metadata][beat]}-%{[@metadata][version]}-%{+YYYY.MM.dd}"
+              }
+            }
+          }
+      notify: restart logstash
+
+    # Enable and start Logstash service
+    - name: Ensure Logstash service is enabled and started
+      service:
+        name: logstash
+        state: started
+        enabled: yes
+
+    # Install Kibana
+    - name: Install Kibana
+      apt:
+        name: kibana
+        state: latest
+        update_cache: yes
+
+    # Configure Kibana (set server.host to 0.0.0.0 for accessibility)
+    - name: Configure Kibana
+      lineinfile:
+        path: /etc/kibana/kibana.yml
+        regexp: '^#?{{ item.key }}:'
+        line: "{{ item.key }}: {{ item.value }}"
+      loop:
+        - { key: "server.host", value: "0.0.0.0" }
+        - { key: "elasticsearch.hosts", value: "http://localhost:9200" }
+      notify: restart kibana
+
+    # Enable and start Kibana service
+    - name: Ensure Kibana service is enabled and started
+      service:
+        name: kibana
+        state: started
+        enabled: yes
+
+    # Install Filebeat
+    - name: Install Filebeat
+      apt:
+        name: filebeat
+        state: latest
+        update_cache: yes
+
+    # Configure Filebeat to ship logs to Logstash
+    - name: Configure Filebeat output to Logstash
+      copy:
+        dest: /etc/filebeat/filebeat.yml
+        content: |
+          filebeat.inputs:
+            - type: log
+              enabled: true
+              paths:
+                - /var/log/*.log
+
+          output.logstash:
+            hosts: ["localhost:5044"]
+      
+    # Enable and start Filebeat service
+    - name: Ensure Filebeat service is enabled and started
+      service:
+        name: filebeat
+        state: started
+        enabled: yes
+
+  handlers:
+    # Restart Elasticsearch service
+    - name: restart elasticsearch
+      service:
+        name: elasticsearch
+        state: restarted
+
+    # Restart Logstash service
+    - name: restart logstash
+      service:
+        name: logstash
+        state: restarted
+
+    # Restart Kibana service
+    - name: restart kibana
+      service:
+        name: kibana
+        state: restarted
+
+    # Restart Filebeat service
+    - name: restart filebeat
+      service:
+        name: filebeat
+        state: restarted
+

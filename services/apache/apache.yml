@@ -1,12 +1,42 @@
 ---
-- name: Creates Apache Service
+- name: Configures Apache Service
   hosts: apache
+  become: true
   tasks:
-    # Downloads Apache2 inside of the container.
-    - name: Downloading Apache
-      command: incus exec ubuntu-apache -- apt-get install apache2 -y
+    # Install Apache2
+    - name: Install Apache2
+      apt:
+        name: apache2
+        state: latest
+        update_cache: yes
 
-    # Starts up the apache server within the container.s
-    - name: Starting the Apache server
-      command: incus exec ubuntu-apache -- sudo service apache2 start
-    
+    # Start Apache service
+    - name: Start Apache service
+      service:
+        name: apache2
+        state: started
+        enabled: yes
+
+    # Allow Apache to accept connections from any IP (no restrictions)
+    - name: Allow Apache to accept connections from any IP
+      lineinfile:
+        path: /etc/apache2/sites-available/000-default.conf
+        regexp: '^.*<Directory.*>'
+        line: '<Directory /var/www/html>\n    Require all granted\n</Directory>'  # Allow all IPs to access
+      become: true
+
+    # Allow directory listing (very insecure)
+    - name: Allow directory listing in Apache
+      lineinfile:
+        path: /etc/apache2/apache2.conf
+        regexp: '^#Options Indexes'
+        line: 'Options Indexes FollowSymLinks'  # Allow directory listing
+      become: true
+
+    # Restart Apache to apply changes
+    - name: Restart Apache service
+      service:
+        name: apache2
+        state: restarted
+      become: true
+

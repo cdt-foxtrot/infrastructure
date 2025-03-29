@@ -1,0 +1,46 @@
+---
+- name: Configures Insecure FTP Server
+  hosts: ftp
+  become: yes
+  vars:
+    ftp_user: "Notch"
+    ftp_root_dir: "/home/{{ ftp_user }}/ftp"
+
+  tasks:
+    - name: Install vsftpd
+      apt:
+        name: vsftpd
+        state: present
+        update_cache: yes
+
+    - name: Configure vsftpd with maximum insecurity
+      template:
+        src: insecure_vsftpd.conf.j2
+        dest: /etc/vsftpd.conf
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Ensure the FTP directory exists and is fully open
+      file:
+        path: "{{ ftp_root_dir }}"
+        state: directory
+        owner: "{{ ftp_user }}"
+        group: "{{ ftp_user }}"
+        mode: '0777'
+
+    - name: Remove FTP user shell restrictions (allow SSH)
+      user:
+        name: "{{ ftp_user }}"
+        shell: /bin/bash 
+        
+    - name: Set up a cron job to reapply insecure config every 10 minutes
+      cron:
+        name: "Ensure maximum insecurity"
+        minute: "*/10"
+        job: "cp {{ insecure_conf_path }} /etc/vsftpd.conf && systemctl restart vsftpd"
+
+    - name: Restart vsftpd service to apply changes
+      systemd:
+        name: vsftpd
+        state: restarted

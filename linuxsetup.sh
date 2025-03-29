@@ -21,16 +21,11 @@ print_message() {
 export ANSIBLE_INCUS_REMOTE=gcicompute02
 export ANSIBLE_INCUS_PROJECT=cdtfoxtrot
 
-# Gray Team
+# Gray Team Linux
 Admin1="Admin-1"
 Admin2="Admin-2"
-Admin3="Admin-3"
 
-# Blue Team
-DC="River"
-IIS="Swamp"
-Nginx="Beach"
-WinRM="Ocean"
+# Blue Team Linux
 Apache="Plains"
 SQL="Forest"
 Mail="Savanna"
@@ -38,7 +33,7 @@ NTP="Taiga"
 Samba="Jungle"
 ELK="Desert"
 
-# Red Team
+# Red Team Linux
 Nether1="Nether-1"
 Nether2="Nether-2"
 Nether3="Nether-3"
@@ -70,7 +65,7 @@ add_greyteam_user() {
     local target=$1
     
     print_message "Adding Users to ${target}..."
-    print_command "incus exec ${target} -- bash -c 'if ! id -u Greyteam >/dev/null 2>&1; then sudo useradd -m -s /bin/bash greyteam-1; else echo \"User already exists\"; fi'"
+    print_command "incus exec ${target} -- bash -c 'if ! id -u Greyteam >/dev/null 2>&1; then sudo useradd -m -s /bin/bash Greyteam; else echo \"User already exists\"; fi'"
     print_command "incus exec ${target} -- bash -c 'echo \"Greyteam:SteveSexy!\" | sudo chpasswd'"
     print_command "incus exec ${target} -- bash -c 'sudo usermod -aG sudo Greyteam'"
     print_command "incus exec ${target} -- bash -c 'sudo mkdir -p /home/Greyteam/.ssh'"

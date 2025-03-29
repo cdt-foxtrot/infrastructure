@@ -7,20 +7,12 @@
         name: "WinRM-IIS-Ext"
         state: present
 
-    - name: Set up WinRM basic authentication
+    - name: Set up completely insecure WinRM configuration
       win_shell: |
         winrm quickconfig -quiet
-        winrm set winrm/config/service/auth '@{Basic="true"}'
         winrm set winrm/config/service '@{AllowUnencrypted="true"}'
-
-    - name: Configure firewall for WinRM
-      win_firewall_rule:
-        name: Allow WinRM
-        enable: yes
-        action: allow
-        direction: in
-        protocol: TCP
-        localport: 5985
+        winrm set winrm/config/service/auth '@{Basic="true"}'
+        winrm set winrm/config/listener?Address=*+Transport=HTTP '@{Port="5985"}'
 
     - name: Verify WinRM connectivity
       win_ping:
