@@ -129,11 +129,11 @@ service_to_box = {
     "AD_DNS": 1,
     "Apache": 2,
     "ELK": 3,
-    "IIS/FTP": 4,
+    "IIS": 4,
     "Mail": 5,
     "MySQL": 6,
     "Nginx": 7,
-    "NTP": 8,
+    "FTP": 8,
     "Samba": 9,
     "WinRM": 10
 }
@@ -143,11 +143,11 @@ box_to_service = {
     1: "AD/DNS",
     2: "Apache", 
     3: "ELK",
-    4: "IIS/FTP",
+    4: "IIS",
     5: "Mail",
     6: "MySQL",
     7: "Nginx",
-    8: "NTP",
+    8: "FTP",
     9: "Samba",
     10: "WinRM"
 }
@@ -155,7 +155,7 @@ box_to_service = {
 # Service scanning function mapping
 service_scan_functions = [
     (scan_AD_DNS, "AD/DNS"),
-    (scan_IIS_FTP, "IIS/FTP"),
+    (scan_IIS_FTP, "IIS"),
     (scan_Nginx, "Nginx"),
     (scan_WinRM, "WinRM"),
     (scan_Apache, "Apache"),
@@ -163,7 +163,7 @@ service_scan_functions = [
     (scan_Mail, "Mail"),
     (scan_Samba, "Samba"),
     (scan_ELK, "ELK"),
-    (scan_NTP, "NTP")
+    (scan_NTP, "FTP")
 ]
 
 ############################
