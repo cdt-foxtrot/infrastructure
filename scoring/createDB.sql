@@ -23,7 +23,7 @@ CREATE TABLE scoring (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Inits Starting Data for Table
-INSERT INTO scoring (box, service, building, os, ip, port, health, state) values (1, "AD/DNS", "River", "Windows", "10.150.1.1", "139" 20, "UP");
+INSERT INTO scoring (box, service, building, os, ip, port, health, state) values (1, "AD/DNS", "River", "Windows", "10.150.1.1", "139", 20, "UP");
 INSERT INTO scoring (box, service, building, os, ip, port, health, state) values (5, "Apache", "Plains", "Ubuntu", "10.150.1.5", "80", 20, "UP");
 INSERT INTO scoring (box, service, building, os, ip, port, health, state) values (10, "ELK", "Desert", "Ubuntu", "10.150.1.10", "9200,5044,5601", 20, "UP");
 INSERT INTO scoring (box, service, building, os, ip, port, health, state) values (2, "IIS", "Swamp", "Windows", "10.150.1.2", "80", 20, "UP");
