@@ -1,44 +1,44 @@
 ---
--  name: Configure Mail Service
-   hosts: mail
-   tasks:
+- name: Configure Mail Service
+  hosts: mail
+  tasks:
    # Installing packages dovecot-imapd and dovecot-pop3d
    # IMAP and POP3 protocols
-   - name: Install Dovecot
-     apt:
-       pkg:
-       - dovecot-imapd
-       - dovecot-pop3d
-       update_cache: yes
-       state: latest
-     become: yes
+  - name: Install Dovecot
+    apt:
+      pkg:
+      - dovecot-imapd
+      - dovecot-pop3d
+      update_cache: yes
+      state: latest
+    become: yes
 
    # Creates user mail with hashed password
-   - name: Create mail user
-     user:
-       name: mail
-       password: "{{ 'mail' | password_hash('sha512') }}"
-       system: yes
-       create_home: yes
-       home: /var/mail
-       shell: /bin/bash
-     become: yes
+  - name: Create mail user
+    user:
+      name: mail
+      password: "{{ 'mail' | password_hash('sha512') }}"
+      system: yes
+      create_home: yes
+      home: /var/mail
+      shell: /bin/bash
+    become: yes
 
    # Replaces the default configuration file with the provided config
-   - name: Configure Dovecot Config
-     template:
-       src: dovecot.conf
-       dest: /etc/dovecot/dovecot.conf
-       owner: root
-       group: root
-       mode: '0644'
-     become: yes
-     notify: restart dovecot
-   
+  - name: Configure Dovecot Config
+    template:
+      src: dovecot.conf
+      dest: /etc/dovecot/dovecot.conf
+      owner: root
+      group: root
+      mode: '0644'
+    become: yes
+    notify: restart dovecot
+
    # restarts dovecot
-   handlers:
-     - name: restart dovecot
-     service:
-       name: dovecot
-       state: restarted
-     become: yes
+  handlers:
+    - name: restart dovecot
+      service:
+        name: dovecot
+        state: restarted
+      become: yes
