@@ -17,12 +17,12 @@ CREATE TABLE scoring (
   os varchar(30),
   ip varchar (15),
   health decimal(3, 1) unsigned,
-  state varchar(7),
+  state varchar(4),
   CONSTRAINT service_pk PRIMARY KEY (service)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Inits Starting Data for Table
-INSERT INTO scoring (box, service, building, os, ip, health, state) values (1, "AD/DNS", "River", "Windows" "10.150.1.1", 20, "UP");
+INSERT INTO scoring (box, service, building, os, ip, health, state) values (1, "AD/DNS", "River", "Windows", "10.150.1.1", 20, "UP");
 INSERT INTO scoring (box, service, building, os, ip, health, state) values (5, "Apache", "Plains", "Ubuntu", "10.150.1.5", 20, "UP");
 INSERT INTO scoring (box, service, building, os, ip, health, state) values (10, "ELK", "Desert", "Ubuntu", "10.150.1.10", 20, "UP");
 INSERT INTO scoring (box, service, building, os, ip, health, state) values (2, "IIS", "Swamp", "Windows", "10.150.1.2", 20, "UP");
