@@ -5,6 +5,7 @@ import time
 import concurrent.futures
 import random
 import pymysql
+import requests
 
 app = Flask(__name__)
 
@@ -153,85 +154,135 @@ def scan_service(box_num):
 
 def scan_AD_DNS():
     # 389
+    box_num = 1
+    box_ip = get_box_ip(box_num)
 
     # check to see if the port is up
-    if not scan_service(1):
+    if not scan_service(box_num):
         return False
     
-    return scan_service(1)
+    return scan_service(box_num)
 
 def scan_IIS():
     # 80
+    box_num = 2
+    box_ip = get_box_ip(box_num)
 
     # check to see if the port is up
-    if not scan_service(2):
+    if not scan_service(box_num):
         return False
     
-    return scan_service(2)
+    # try to get the webpage
+    try:
+        response = requests.get(f"http://{box_ip}", timeout=3)
+        server_header = response.headers.get('Server', '')
+        return 'IIS' in server_header or 'Microsoft' in server_header or response.status_code < 400
+    except Exception as e:
+        print(f"IIS check failed: {e}")
+        return False
 
 def scan_Nginx():
     # 80
+    box_num = 3
+    box_ip = get_box_ip(box_num)
+
     # check to see if the port is up
-    if not scan_service(3):
+    if not scan_service(box_num):
         return False
     
-    return scan_service(3)
+    # try to get the webpage
+    try:
+        response = requests.get(f"http://{box_ip}", timeout=3)
+        server_header = response.headers.get('Server', '')
+        return 'nginx' in server_header.lower() or response.status_code < 400
+    except Exception as e:
+        print(f"Nginx check failed: {e}")
+        return False
 
 def scan_WinRM():
     # 5985
+    box_num = 4
+    box_ip = get_box_ip(box_num)
+
     # check to see if the port is up
-    if not scan_service(4):
+    if not scan_service(box_num):
         return False
     
-    return scan_service(4)
+    return scan_service(box_num)
 
 def scan_Apache():
     # 80
+    box_num = 5
+    box_ip = get_box_ip(box_num)
+
     # check to see if the port is up
-    if not scan_service(5):
+    if not scan_service(box_num):
         return False
     
-    return scan_service(5)
+    # try to get the webpage
+    try:
+        response = requests.get(f"http://{box_ip}", timeout=3)
+        server_header = response.headers.get('Server', '')
+        return 'apache' in server_header.lower() or response.status_code < 400
+    except Exception as e:
+        print(f"Apache check failed: {e}")
+        return False
+    
 
 def scan_MySQL():
     # 3306
+    box_num = 6
+    box_ip = get_box_ip(box_num)
+
     # check to see if the port is up
-    if not scan_service(6):
+    if not scan_service(box_num):
         return False
     
-    return scan_service(6)
+    return scan_service(box_num)
 
 def scan_Mail():
     # 25
+    box_num = 7
+    box_ip = get_box_ip(box_num)
+
     # check to see if the port is up
-    if not scan_service(7):
+    if not scan_service(box_num):
         return False
     
-    return scan_service(7)
+    return scan_service(box_num)
 
 def scan_FTP():
     # 20 & 21
+    box_num = 8
+    box_ip = get_box_ip(box_num)
+
     # check to see if the port is up
-    if not scan_service(8):
+    if not scan_service(box_num):
         return False
     
-    return scan_service(8)
+    return scan_service(box_num)
 
 def scan_Samba():
     # 139
+    box_num = 9
+    box_ip = get_box_ip(box_num)
+
     # check to see if the port is up
-    if not scan_service(9):
+    if not scan_service(box_num):
         return False
     
-    return scan_service(9)
+    return scan_service(box_num)
 
 def scan_ELK():
     # 9200 & 5044 & 5601
+    box_num = 10
+    box_ip = get_box_ip(box_num)
+
     # check to see if the port is up
-    if not scan_service(10):
+    if not scan_service(box_num):
         return False
     
-    return scan_service(10)
+    return scan_service(box_num)
 
 ############################
 # Routes
