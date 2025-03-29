@@ -155,7 +155,7 @@ box_to_service = {
 # Service scanning function mapping
 service_scan_functions = [
     (scan_AD_DNS, "AD/DNS"),
-    (scan_IIS_FTP, "IIS"),
+    (scan_IIS, "IIS"),
     (scan_Nginx, "Nginx"),
     (scan_WinRM, "WinRM"),
     (scan_Apache, "Apache"),
@@ -163,7 +163,7 @@ service_scan_functions = [
     (scan_Mail, "Mail"),
     (scan_Samba, "Samba"),
     (scan_ELK, "ELK"),
-    (scan_NTP, "FTP")
+    (scan_FTP, "FTP")
 ]
 
 ############################
