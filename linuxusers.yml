@@ -28,6 +28,7 @@
       loop: "{{ standard_users }}"
       when: inventory_hostname not in groups['blueteamwin']
       tags: linux
+      become: yes
 
     - name: Create Linux admin user (Notch)
       ansible.builtin.user:
@@ -38,6 +39,7 @@
         append: yes
       when: inventory_hostname not in groups['blueteamwin']
       tags: linux
+      become: yes
 
     - name: Configure Notch sudo privileges
       ansible.builtin.lineinfile:
@@ -47,6 +49,7 @@
         validate: 'visudo -cf %s'
       when: inventory_hostname not in groups['blueteamwin']
       tags: linux
+      become: yes
 
     - name: Secure SSH directory for Notch
       ansible.builtin.file:
@@ -57,3 +60,4 @@
         mode: '0700'
       when: inventory_hostname not in groups['blueteamwin']
       tags: linux
+      become: yes
