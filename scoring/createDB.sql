@@ -24,8 +24,8 @@ CREATE TABLE scoring (
 
 -- Inits Starting Data for Table
 INSERT INTO scoring (box, service, building, os, ip, port, health, state) values (1, "AD/DNS", "River", "Windows", "10.150.1.1", "139" 20, "UP");
-INSERT INTO scoring (box, service, building, os, ip, port, health, state) values (5, "Apache", "Plains", "Ubuntu", "10.150.1.5", 20, "80", "UP");
-INSERT INTO scoring (box, service, building, os, ip, port, health, state) values (10, "ELK", "Desert", "Ubuntu", "10.150.1.10", 20, "9200,5044,5601", "UP");
+INSERT INTO scoring (box, service, building, os, ip, port, health, state) values (5, "Apache", "Plains", "Ubuntu", "10.150.1.5", "80", 20, "UP");
+INSERT INTO scoring (box, service, building, os, ip, port, health, state) values (10, "ELK", "Desert", "Ubuntu", "10.150.1.10", "9200,5044,5601", 20, "UP");
 INSERT INTO scoring (box, service, building, os, ip, port, health, state) values (2, "IIS", "Swamp", "Windows", "10.150.1.2", "80", 20, "UP");
 INSERT INTO scoring (box, service, building, os, ip, port, health, state) values (7, "Mail", "Savanna", "Ubuntu", "10.150.1.7", "25", 20, "UP");
 INSERT INTO scoring (box, service, building, os, ip, port, health, state) values (6, "MySQL", "Forest", "Ubuntu", "10.150.1.6", "3306", 20, "UP");
