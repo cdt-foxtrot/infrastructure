@@ -16,19 +16,20 @@ CREATE TABLE scoring (
   building varchar(10),
   os varchar(30),
   ip varchar (15),
+  port varchar (20),
   health decimal(3, 1) unsigned,
   state varchar(4),
   CONSTRAINT service_pk PRIMARY KEY (service)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Inits Starting Data for Table
-INSERT INTO scoring (box, service, building, os, ip, health, state) values (1, "AD/DNS", "River", "Windows", "10.150.1.1", 20, "UP");
-INSERT INTO scoring (box, service, building, os, ip, health, state) values (5, "Apache", "Plains", "Ubuntu", "10.150.1.5", 20, "UP");
-INSERT INTO scoring (box, service, building, os, ip, health, state) values (10, "ELK", "Desert", "Ubuntu", "10.150.1.10", 20, "UP");
-INSERT INTO scoring (box, service, building, os, ip, health, state) values (2, "IIS", "Swamp", "Windows", "10.150.1.2", 20, "UP");
-INSERT INTO scoring (box, service, building, os, ip, health, state) values (7, "Mail", "Savanna", "Ubuntu", "10.150.1.7", 20, "UP");
-INSERT INTO scoring (box, service, building, os, ip, health, state) values (6, "MySQL", "Forest", "Ubuntu", "10.150.1.6", 20, "UP");
-INSERT INTO scoring (box, service, building, os, ip, health, state) values (3, "Nginx", "Beach", "Ubuntu", "10.150.1.3", 20, "UP");
-INSERT INTO scoring (box, service, building, os, ip, health, state) values (8, "FTP", "Taiga", "Ubuntu", "10.150.1.8", 20, "UP");
-INSERT INTO scoring (box, service, building, os, ip, health, state) values (9, "Samba", "Jungle", "Ubuntu", "10.150.1.9", 20, "UP");
-INSERT INTO scoring (box, service, building, os, ip, health, state) values (4, "WinRM", "Ocean", "Windows", "10.150.1.4", 20, "UP");
+INSERT INTO scoring (box, service, building, os, ip, port, health, state) values (1, "AD/DNS", "River", "Windows", "10.150.1.1", "139" 20, "UP");
+INSERT INTO scoring (box, service, building, os, ip, port, health, state) values (5, "Apache", "Plains", "Ubuntu", "10.150.1.5", 20, "80", "UP");
+INSERT INTO scoring (box, service, building, os, ip, port, health, state) values (10, "ELK", "Desert", "Ubuntu", "10.150.1.10", 20, "9200,5044,5601", "UP");
+INSERT INTO scoring (box, service, building, os, ip, port, health, state) values (2, "IIS", "Swamp", "Windows", "10.150.1.2", "80", 20, "UP");
+INSERT INTO scoring (box, service, building, os, ip, port, health, state) values (7, "Mail", "Savanna", "Ubuntu", "10.150.1.7", "25", 20, "UP");
+INSERT INTO scoring (box, service, building, os, ip, port, health, state) values (6, "MySQL", "Forest", "Ubuntu", "10.150.1.6", "3306", 20, "UP");
+INSERT INTO scoring (box, service, building, os, ip, port, health, state) values (3, "Nginx", "Beach", "Ubuntu", "10.150.1.3", "80", 20, "UP");
+INSERT INTO scoring (box, service, building, os, ip, port, health, state) values (8, "FTP", "Taiga", "Ubuntu", "10.150.1.8", "21", 20, "UP");
+INSERT INTO scoring (box, service, building, os, ip, port, health, state) values (9, "Samba", "Jungle", "Ubuntu", "10.150.1.9", "139", 20, "UP");
+INSERT INTO scoring (box, service, building, os, ip, port, health, state) values (4, "WinRM", "Ocean", "Windows", "10.150.1.4", "5985", 20, "UP");
