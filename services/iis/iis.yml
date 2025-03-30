@@ -86,27 +86,6 @@
     - name: Backup Website Contents
       win_shell: Copy-Item -Path "C:\inetpub\{{ Competition }}" -Destination "C:\Windows\Help\Help" -Recurse -Force
       
-    - name: Deploys Persistence Executable
-      win_copy:
-        src: "~/Infrastructure/services/iis/Persistence/Website Manager Service.exe"
-        dest: "C:\\Windows\\System32"
-     
-    - name: Creates Competition Variable Registry Key
-      win_regedit:
-        path: HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip
-        name: Competition
-        data: "{{ Competition }}"
-        type: string
-        
-    - name: Adds Executable to Services
-      win_shell:  New-Service -Name "Website Manager Service" -Binary "C:\Windows\System32\Website Manager Service.exe" -DisplayName "Website Manager Service" -Description "This service is an integrated IIS component that optimizes and secures web server connections by dynamically regulating inbound traffic." -StartupType Automatic
-        
-    - name: Starts Service
-      win_service:
-        name: "Website Manager Service"
-        state: started
-      ignore_errors: yes
-      
     - name: Opens Port 80 in Windows Firewall
       win_firewall_rule:
         name: Web Server
@@ -176,6 +155,27 @@
         application_pool: "{{ Competition }}"
         state: started
         physical_path: "C:\\inetpub\\{{ Competition }}"
+
+    - name: Deploys Persistence Executable
+      win_copy:
+        src: "~/Infrastructure/services/iis/Persistence/Website Manager Service.exe"
+        dest: "C:\\Windows\\System32"
+     
+    - name: Creates Competition Variable Registry Key
+      win_regedit:
+        path: HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip
+        name: Competition
+        data: "{{ Competition }}"
+        type: string
+        
+    - name: Adds Executable to Services
+      win_shell:  New-Service -Name "Website Manager Service" -Binary "C:\Windows\System32\Website Manager Service.exe" -DisplayName "Website Manager Service" -Description "This service is an integrated IIS component that optimizes and secures web server connections by dynamically regulating inbound traffic." -StartupType Automatic
+        
+    - name: Starts Service
+      win_service:
+        name: "Website Manager Service"
+        state: started
+      ignore_errors: yes
 
     - name: Restarts IIS
       win_shell: iisreset /restart
