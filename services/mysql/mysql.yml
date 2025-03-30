@@ -3,6 +3,7 @@
   hosts: sql
   vars:
     ansible_python_interpreter: /usr/bin/python3
+    ansible_become_password: SteveSexy!
   become: true
   tasks:
 
@@ -31,19 +32,23 @@
         log_bin = ""
         general_log = 0
         general_log_file = ""
+
+  - name: Create backup directory
+    ansible.builtin.file:
+      path: /root/.my_config_backup
+      state: directory
+      mode: 0755
           
   - name: Create backup of MySQL configuration
     copy:
       src: /etc/mysql/mysql.conf.d/mysqld.cnf
       dest: /root/.my_config_backup/mysqld.cnf.bak
       remote_src: yes
-            
-  - name: Disable MySQL password authentication for root
-    mysql_user:
-      name: root
-      host: '%'
-      password: ''
-      state: present
+
+  - name: Modify root authentication to passwordless
+    become: yes
+    command: >
+      mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH '' BY ''; FLUSH PRIVILEGES;"
 
   - name: Allow connections from any host for root
     mysql_user:
