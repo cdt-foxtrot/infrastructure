@@ -15,13 +15,13 @@
         password: "{{ domain_admin_password }}"
         state: present
         password_never_expires: yes
-    
+
     # install AD DS and DNS via powershell
     - name: Install AD Domain Services
       win_shell: |
         Install-WindowsFeature -Name AD-Domain-Services, DNS -IncludeManagementTools
       register: install
-      
+
     # create the AD domain and safe mode password  
     - name: Create AD Domain
       win_domain:
@@ -33,7 +33,7 @@
     - name: Reboot after domain creation
       win_reboot:
       when: domain_install.reboot_required
-    
+
     # ensures that the DC is booted before moving forward with other tasks
     - name: Wait for domain controller to become available
       win_ping:
@@ -41,7 +41,7 @@
       until: ping_result is success
       retries: 10
       delay: 30
-      
+
     # Installation of ADWS
     - name: Install RSAT-AD-PowerShell feature
       win_feature:
@@ -81,28 +81,28 @@
       delay: 30
 
     # Setting up OUs
-    
+
     # Red-Team OU
     - name: Create red-team OU
       community.windows.win_domain_ou:
         name: red-team
         path: "DC={{ domain_name.split('.')[0] }},DC={{ domain_name.split('.')[1] }}"
         state: present
-    
+
     # Blue-Team OU
     - name: Create blue-team OU
       community.windows.win_domain_ou:
         name: blue-team
         path: "DC={{ domain_name.split('.')[0] }},DC={{ domain_name.split('.')[1] }}"
         state: present
-        
+
     # Competition Groups OU
     - name: Create Competition Groups OU
       community.windows.win_domain_ou:
         name: competition-groups
         path: "DC={{ domain_name.split('.')[0] }},DC={{ domain_name.split('.')[1] }}"
         state: present
-        
+
     # Create a user group for Red-Team in the appropriate OU
     - name: Create Red User group in competition-groups OU
       community.windows.win_domain_group:
@@ -111,7 +111,7 @@
         category: security
         path: "OU=competition-groups,DC={{ domain_name.split('.')[0] }},DC={{ domain_name.split('.')[1] }}"
         state: present
-    
+
     #  Create a user group for Blue-Team in the appropriate OU
     - name: Create Blue User group in competition-groups OU
       community.windows.win_domain_group:
@@ -120,7 +120,7 @@
         category: security
         path: "OU=competition-groups,DC={{ domain_name.split('.')[0] }},DC={{ domain_name.split('.')[1] }}"
         state: present
-    
+
     # Pull from all.yml for any users that have been declared and set them accordingly. Will add them to the specified OU and any declared groups.
     - name: Create domain users
       win_domain_user:
@@ -134,7 +134,7 @@
         firstname: "{{ item.name.split(' ')[0] }}"
         surname: "{{ item.name.split(' ')[1] }}"
       loop: "{{ domain_users }}"
-      
+
     - name: Print console command
       debug:
         msg: "incus console --type=vga foxtrot-DC01-ADDS-DNS"

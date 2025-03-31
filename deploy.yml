@@ -20,9 +20,9 @@
 #- import_playbook: services/iis/iis.yml
 #- import_playbook: services/nginx/nginx.yml
 #- import_playbook: services/winrm/winrm.yml
-- import_playbook: services/apache/apache.yml
+#- import_playbook: services/apache/apache.yml
 - import_playbook: services/mysql/mysql.yml
-- import_playbook: services/ms/ms.yml
-- import_playbook: services/ftp/ftp.yml
-- import_playbook: services/samba/samba.yml
-- import_playbook: services/elk/elk.yml
+#- import_playbook: services/ms/ms.yml
+#- import_playbook: services/ftp/ftp.yml
+#- import_playbook: services/samba/samba.yml
+#- import_playbook: services/elk/elk.yml

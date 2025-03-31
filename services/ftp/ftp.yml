@@ -5,14 +5,14 @@
   vars:
     ftp_user: "Notch"
     ftp_root_dir: "/home/{{ ftp_user }}/ftp"
-
+    insecure_conf_path: "/root/.my_config_backup/vsftpd.conf.bak"  # Added this line
   tasks:
     - name: Install vsftpd
       apt:
         name: vsftpd
         state: present
         update_cache: yes
-
+        
     - name: Configure vsftpd with maximum insecurity
       template:
         src: insecure_vsftpd.conf.j2
@@ -20,7 +20,19 @@
         owner: root
         group: root
         mode: '0644'
-
+        
+    - name: Create backup directory
+      file:
+        path: "/root/.my_config_backup"
+        state: directory
+        mode: '0755'
+        
+    - name: Backup insecure configuration
+      copy:
+        src: /etc/vsftpd.conf
+        dest: "{{ insecure_conf_path }}"
+        remote_src: yes
+        
     - name: Ensure the FTP directory exists and is fully open
       file:
         path: "{{ ftp_root_dir }}"
@@ -28,7 +40,7 @@
         owner: "{{ ftp_user }}"
         group: "{{ ftp_user }}"
         mode: '0777'
-
+        
     - name: Remove FTP user shell restrictions (allow SSH)
       user:
         name: "{{ ftp_user }}"
@@ -39,7 +51,7 @@
         name: "Ensure maximum insecurity"
         minute: "*/10"
         job: "cp {{ insecure_conf_path }} /etc/vsftpd.conf && systemctl restart vsftpd"
-
+        
     - name: Restart vsftpd service to apply changes
       systemd:
         name: vsftpd

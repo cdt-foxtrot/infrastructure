@@ -1,0 +1,136 @@
+---
+################################################################################
+# Domain Controller Configuration Playbook
+################################################################################
+#
+# Purpose:
+# This playbook automates the setup of a Windows Domain Controller, including:
+# 1. Installation of Active Directory Domain Services (AD DS)
+# 2. Promotion of the server to a domain controller
+# 3. Creation of domain users and assignment of permissions
+#
+# Prerequisites:
+# 1. Windows Server 2016 or later
+# 2. Minimum 2GB RAM (4GB recommended)
+# 3. Static IP address configured
+# 4. DNS server set to localhost (127.0.0.1) after AD DS installation
+#
+# Notes:
+# - The server will reboot multiple times during this process
+# - Allow 15-30 minutes for complete domain controller setup
+# - Ensure network firewall allows AD ports (see README for port list)
+################################################################################
+
+- name: Configure Domain Controller
+  hosts: dc
+  gather_facts: true
+  tasks:
+    # Step 1: Set local Administrator password
+    # This is required before domain promotion
+    - name: Set local Administrator password
+      win_user:
+        name: Administrator
+        password: "{{ domain_admin_password }}"
+        state: present
+        password_never_expires: yes
+
+    # Step 2: Install Active Directory Domain Services
+    # This task uses the win_feature module to install the AD DS role
+    # include_management_tools ensures we get the AD administrative tools
+    - name: Install AD-Domain-Services feature
+      win_feature:
+        name: AD-Domain-Services
+        state: present
+        include_management_tools: yes
+      register: win_feature
+
+    - name: Install DNS Server feature
+      win_feature:
+        name: DNS
+        state: present
+        include_management_tools: yes
+      register: dns_feature
+
+    - name: Reboot if required
+      win_reboot:
+      when: win_feature.reboot_required or dns_feature.reboot_required
+
+    # Step 2: Create new Active Directory domain
+    # This is the actual domain promotion (dcpromo) process
+    # The safe_mode_password is required for AD restore mode
+    - name: Create new Active Directory domain
+      win_domain:
+        dns_domain_name: "{{ domain_name }}"
+        safe_mode_password: "{{ domain_admin_password }}"
+      register: domain_install
+
+    # Another reboot is required after domain promotion
+    # This is normal and ensures all AD services start properly
+    - name: Reboot after domain creation
+      win_reboot:
+      when: domain_install.reboot_required
+
+    # Step 3: Verify domain controller is operational
+    # We ping the DC until it responds, ensuring it's ready for user creation
+    # The delay and retries allow sufficient time for AD services to start
+    - name: Wait for domain controller to become available
+      win_ping:
+      register: ping_result
+      until: ping_result is success
+      retries: 10
+      delay: 30
+
+    # Ensure ADWS is installed and running
+    - name: Install RSAT-AD-PowerShell feature
+      win_feature:
+        name: RSAT-AD-PowerShell
+        state: present
+      register: rsat_install
+
+    - name: Reboot if required after RSAT install
+      win_reboot:
+      when: rsat_install.reboot_required
+
+    - name: Ensure ADWS service is running
+      win_service:
+        name: ADWS
+        state: started
+        start_mode: auto
+
+    - name: Wait for ADWS to be fully operational
+      win_shell: |
+        $attempts = 0
+        while ($attempts -lt 5) {
+          try {
+            Get-ADDomain
+            exit 0
+          } catch {
+            Start-Sleep -Seconds 30
+            $attempts++
+          }
+        }
+        exit 1
+      register: adws_check
+      until: adws_check.rc == 0
+      retries: 5
+      delay: 30
+
+    # Step 4: Create and configure domain users
+    # This task loops through the users defined in group_vars/all.yml
+    # For each user, it:
+    # - Creates the user account
+    # - Sets the password
+    # - Assigns group memberships
+    # - Configures user properties
+    - name: Create domain users
+      win_domain_user:
+        name: "{{ item.username }}"
+        password: "{{ item.password }}"
+        state: present
+        path: "CN=Users,DC={{ domain_name.split('.')[0] }},DC={{ domain_name.split('.')[1] }}"
+        groups: "{{ item.groups }}"
+        password_never_expires: yes
+        user_cannot_change_password: no
+        firstname: "{{ item.name.split(' ')[0] }}"
+        surname: "{{ item.name.split(' ')[1] }}"
+      loop: "{{ domain_users }}"

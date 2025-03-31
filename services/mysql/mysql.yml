@@ -18,7 +18,7 @@
       name: mysql-server
       update_cache: yes
       state: present
-      
+
   - name: Deploy insecure MySQL configuration
     copy:
       dest: /etc/mysql/mysql.conf.d/mysqld.cnf
@@ -38,17 +38,12 @@
       path: /root/.my_config_backup
       state: directory
       mode: 0755
-          
+
   - name: Create backup of MySQL configuration
     copy:
       src: /etc/mysql/mysql.conf.d/mysqld.cnf
       dest: /root/.my_config_backup/mysqld.cnf.bak
       remote_src: yes
-
-  - name: Modify root authentication to passwordless
-    become: yes
-    command: >
-      mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH '' BY ''; FLUSH PRIVILEGES;"
 
   - name: Allow connections from any host for root
     mysql_user:
@@ -56,12 +51,21 @@
       host: '%'
       state: present
 
+#  - name: Modify root authentication to passwordless
+#    community.mysql.mysql.query:
+#      login_user: root
+#      login_password: ""
+#      login_host: localhost
+#      query:  "ALTER USER 'root'@'localhost' IDENTIFIED WITH '' BY ''; FLUSH PRIVILEGES;"
+#    register: query_result
+#    become: yes
+
   - name: Start MySQL
     service:
       name: mysql
       state: started
       enabled: yes
-      
+
   - name: Ensure MySQL remains insecure every 10 minutes
     cron:
       name: "Restore MySQL config"
