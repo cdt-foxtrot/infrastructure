@@ -12,6 +12,7 @@
           - openjdk-11-jre
           - wget
           - curl
+          - gnupg
         state: present
         update_cache: yes
 
