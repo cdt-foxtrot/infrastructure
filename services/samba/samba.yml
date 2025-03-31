@@ -29,13 +29,21 @@
           browseable = yes
           create mask = 0777
           directory mask = 0777
+<<<<<<< HEAD
           
+=======
+    
+>>>>>>> 183463cd719179d619f9b56930ee265fc6ee39d9
     - name: Create backup directory
       file:
         path: /root/.my_config_backup
         state: directory
         mode: '0755'
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> 183463cd719179d619f9b56930ee265fc6ee39d9
     - name: Backup Samba config
       copy:
         src: /etc/samba/smb.conf
