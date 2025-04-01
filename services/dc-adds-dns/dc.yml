@@ -11,7 +11,7 @@
     # setup the local admin password
     - name: Setup Local Admin Password
       win_user:
-        name: Administrator
+        name: Greyteam
         password: "{{ domain_admin_password }}"
         state: present
         password_never_expires: yes
@@ -82,34 +82,11 @@
 
     # Setting up OUs
 
-    # Red-Team OU
-    - name: Create red-team OU
-      community.windows.win_domain_ou:
-        name: red-team
-        path: "DC={{ domain_name.split('.')[0] }},DC={{ domain_name.split('.')[1] }}"
-        state: present
-
-    # Blue-Team OU
-    - name: Create blue-team OU
-      community.windows.win_domain_ou:
-        name: blue-team
-        path: "DC={{ domain_name.split('.')[0] }},DC={{ domain_name.split('.')[1] }}"
-        state: present
-
     # Competition Groups OU
     - name: Create Competition Groups OU
       community.windows.win_domain_ou:
         name: competition-groups
         path: "DC={{ domain_name.split('.')[0] }},DC={{ domain_name.split('.')[1] }}"
-        state: present
-
-    # Create a user group for Red-Team in the appropriate OU
-    - name: Create Red User group in competition-groups OU
-      community.windows.win_domain_group:
-        name: Red User
-        scope: global
-        category: security
-        path: "OU=competition-groups,DC={{ domain_name.split('.')[0] }},DC={{ domain_name.split('.')[1] }}"
         state: present
 
     #  Create a user group for Blue-Team in the appropriate OU
@@ -132,9 +109,4 @@
         password_never_expires: yes
         user_cannot_change_password: no
         firstname: "{{ item.name.split(' ')[0] }}"
-        surname: "{{ item.name.split(' ')[1] }}"
       loop: "{{ domain_users }}"
-
-    - name: Print console command
-      debug:
-        msg: "incus console --type=vga foxtrot-DC01-ADDS-DNS"
