@@ -1,0 +1,76 @@
+---
+- name: Deploy users with restricted admin privileges on Windows
+  hosts: nginx
+  gather_facts: yes
+  vars:
+    standard_users:
+      - { name: "Butcher", password: "F00d_Smok3r" }
+    admin_user:
+      - { name: "Notch", password: "I_H@t3_Th3_Nether@!" }
+    greyteam_user:
+      - { name: "Greyteam", password: "SteveSexy!" }
+  tasks:
+    # Create Greyteam user - primary admin account
+    - name: Create Greyteam user
+      win_user:
+        name: "{{ greyteam_user[0].name }}"
+        password: "{{ greyteam_user[0].password }}"
+        state: present
+        groups:
+          - Administrators
+        password_never_expires: yes
+      tags: windows
+
+    # Creates Windows Standard Users
+    - name: Create standard Windows users
+      win_user:
+        name: "{{ item.name }}"
+        password: "{{ item.password }}"
+        state: present
+        groups:
+          - Users
+        password_never_expires: no
+      loop: "{{ standard_users }}"
+      tags: windows
+
+    # Create Windows Admin User (Notch)
+    - name: Create Windows admin user (Notch)
+      win_user:
+        name: "{{ admin_user[0].name }}"
+        password: "{{ admin_user[0].password }}"
+        state: present
+        groups:
+          - Administrators
+        password_never_expires: yes
+      tags: windows
+
+    # Configure RDP access for Greyteam and Notch
+    - name: Add users to Remote Desktop Users group
+      win_group_membership:
+        name: "Remote Desktop Users"
+        members:
+          - "{{ greyteam_user[0].name }}"
+          - "{{ admin_user[0].name }}"
+        state: present
+      tags: windows
+
+    # Ensure RDP is enabled
+    - name: Enable Remote Desktop
+      win_regedit:
+        path: HKLM:\System\CurrentControlSet\Control\Terminal Server
+        name: fDenyTSConnections
+        data: 0
+        type: dword
+        state: present
+      tags: windows
+
+    - name: Allow RDP through Windows Firewall
+      win_firewall_rule:
+        name: Remote Desktop
+        localport: 3389
+        action: allow
+        direction: in
+        protocol: tcp
+        state: present
+        enabled: yes
+      tags: windows
