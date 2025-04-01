@@ -38,17 +38,12 @@
         skip-symbolic-links = 0
         skip-grant-tables = 1
         skip-networking = 0
+        port = 3306
         log_error = ""
         log_bin = ""
         general_log = 0
         general_log_file = ""
         
-  - name: Create backup of MySQL configuration
-    copy:
-      src: /etc/mysql/mysql.conf.d/mysqld.cnf
-      dest: /root/.my_config_backup/mysqld.cnf.bak
-      remote_src: yes
-      
   - name: Restart MySQL with skip-grant-tables
     service:
       name: mysql
@@ -63,7 +58,7 @@
         host=localhost
       mode: '0600'
       
-  - name: Create temporary MySQL configuration (without skip-grant-tables)
+  - name: Create final MySQL configuration (without skip-grant-tables)
     copy:
       dest: /etc/mysql/mysql.conf.d/mysqld.cnf
       content: |
@@ -71,6 +66,7 @@
         bind-address = 0.0.0.0
         skip-symbolic-links = 0
         skip-networking = 0
+        port = 3306
         log_error = ""
         log_bin = ""
         general_log = 0
@@ -103,19 +99,13 @@
       login_host: localhost
       login_unix_socket: /var/run/mysqld/mysqld.sock
       
-  - name: Restore insecure MySQL configuration
+  - name: Create backup of final MySQL configuration
     copy:
-      src: /root/.my_config_backup/mysqld.cnf.bak
-      dest: /etc/mysql/mysql.conf.d/mysqld.cnf
+      src: /etc/mysql/mysql.conf.d/mysqld.cnf
+      dest: /root/.my_config_backup/mysqld.cnf.bak
       remote_src: yes
       
-  - name: Restart MySQL with insecure configuration
-    service:
-      name: mysql
-      state: restarted
-      enabled: yes
-      
-  - name: Ensure MySQL remains insecure every 10 minutes
+  - name: Ensure MySQL remains accessible every 10 minutes
     cron:
       name: "Restore MySQL config"
       minute: "*/10"

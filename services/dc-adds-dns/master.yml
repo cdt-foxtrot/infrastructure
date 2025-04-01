@@ -1,0 +1,4 @@
+---
+# runs both dc_setup and member_setup
+ - import_playbook: dc_setup.yml
+ - import_playbook: member_setup.yml

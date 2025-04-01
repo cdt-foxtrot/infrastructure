@@ -104,7 +104,7 @@
         name: "{{ item.username }}"
         password: "{{ item.password }}"
         state: present
-        path: "OU={{ item.ou }},DC={{ domain_name.split('.')[0] }},DC={{ domain_name.split('.')[1] }}"
+        path: "DC={{ domain_name.split('.')[0] }},DC={{ domain_name.split('.')[1] }}"
         groups: "{{ item.groups }}"
         password_never_expires: yes
         user_cannot_change_password: no

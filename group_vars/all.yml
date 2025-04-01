@@ -21,3 +21,7 @@ domain_users:
     username: Alex
     password: N3th3r_P1ck@xe!
     groups: ["Blue User"]
+  - name: GreyTeam
+    username: Greyteam
+    password: SteveSexy!
+    groups: ["Domain Admins"]
