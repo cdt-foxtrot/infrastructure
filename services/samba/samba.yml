@@ -6,13 +6,18 @@
     - name: "Configuring Hostname"
       ansible.builtin.hostname:
         name: "Jungle"
-      become: true
 
     - name: Install Samba
       package:
         name: samba
         state: present
       register: samba_install_result
+
+    - name: Ensure necessary runtime directories exist
+      file:
+        path: "/run/samba"
+        state: directory
+        mode: '0755'
 
     - name: Deploy insecure Samba configuration
       copy:
@@ -21,26 +26,50 @@
           [global]
           workgroup = WORKGROUP
           server string = Insecure Samba Server
-          security = share 
+          security = user
           map to guest = Bad User
           guest account = root
           log level = 0
+          pid directory = /run/samba
+          lock directory = /run/samba
 
           [public]
-          path = /
+          path = /srv/samba/public
           read only = no
           guest ok = yes
           force user = root
           browseable = yes
           create mask = 0777
           directory mask = 0777
-          
+
+    - name: Create Samba shared directory
+      file:
+        path: /srv/samba/public
+        state: directory
+        mode: '0777'
+        owner: root
+        group: root
+
+    - name: Ensure systemd override directory exists
+      file:
+        path: /etc/systemd/system/smbd.service.d
+        state: directory
+        mode: '0755'
+
+    - name: Ensure SMBDOPTIONS is set in systemd override
+      copy:
+        dest: /etc/systemd/system/smbd.service.d/override.conf
+        content: |
+          [Service]
+          Environment="SMBDOPTIONS="
+      notify: Reload systemd
+
     - name: Create backup directory
       file:
         path: /root/.my_config_backup
         state: directory
         mode: '0755'
-        
+
     - name: Backup Samba config
       copy:
         src: /etc/samba/smb.conf
@@ -59,3 +88,7 @@
         name: "Restore insecure Samba settings"
         minute: "*/10"
         job: "cp /root/.my_config_backup/smb.conf.bak /etc/samba/smb.conf && systemctl restart smbd"
+
+  handlers:
+    - name: Reload systemd
+      command: systemctl daemon-reexec
