@@ -4,10 +4,10 @@
   <Platform>DesktopGL</Platform>
   <Config />
   <SourceFiles>
-    <File>C:/Users/johnn/OneDrive/Desktop/scoreboard/ScoreBoard/Content/Minecraft_Background.jpg</File>
-    <File>C:/Users/johnn/OneDrive/Desktop/scoreboard/ScoreBoard/Content/Minecraft_Half_Heart.webp</File>
-    <File>C:/Users/johnn/OneDrive/Desktop/scoreboard/ScoreBoard/Content/Minercraft_Heart.png</File>
-    <File>C:/Users/johnn/OneDrive/Desktop/scoreboard/ScoreBoard/Content/PixelFont.spritefont</File>
+    <File>C:/Users/johnn/OneDrive/Desktop/infrastructure/scoring/ScoreBoard/Content/Minecraft_Background.jpg</File>
+    <File>C:/Users/johnn/OneDrive/Desktop/infrastructure/scoring/ScoreBoard/Content/Minecraft_Half_Heart.webp</File>
+    <File>C:/Users/johnn/OneDrive/Desktop/infrastructure/scoring/ScoreBoard/Content/Minercraft_Heart.png</File>
+    <File>C:/Users/johnn/OneDrive/Desktop/infrastructure/scoring/ScoreBoard/Content/PixelFont.spritefont</File>
   </SourceFiles>
   <DestFiles>
     <File xsi:nil="true" />

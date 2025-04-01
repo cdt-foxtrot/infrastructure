@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "pTcgF1X9eU2qqmOLUKR82GMFvFvZQtBNHvCvrVbpu9/m/Ohuhp+gP3G7FIULg5hFv7rVCCZORMsZQ9o2wY/6Ng==",
+  "dgSpecHash": "K6wrDUN6MxsJSmKgPKC+dc+dBnXXAcLF+ofRvClqrq4rk+KsZsfkM8/uOdAYG+gyqB9m4SjTspH8bldUrXZWOg==",
   "success": true,
-  "projectFilePath": "C:\\Users\\johnn\\OneDrive\\Desktop\\scoreboard\\ScoreBoard\\Scoreboard.csproj",
+  "projectFilePath": "C:\\Users\\johnn\\OneDrive\\Desktop\\infrastructure\\scoring\\ScoreBoard\\Scoreboard.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\johnn\\.nuget\\packages\\monogame.content.builder.task\\3.8.1.303\\monogame.content.builder.task.3.8.1.303.nupkg.sha512",
     "C:\\Users\\johnn\\.nuget\\packages\\monogame.framework.desktopgl\\3.8.1.303\\monogame.framework.desktopgl.3.8.1.303.nupkg.sha512"

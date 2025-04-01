@@ -27,6 +27,7 @@ namespace Scoreboard
 
         // Server connection fields.
         private ScoreboardServer m_pServer;
+        private ScoreDTO m_pCurrentScores;
         private const float SERVER_UPDATE_TIME = 0.25f;
         private float m_fTotalTimer = 0;
 
@@ -49,9 +50,13 @@ namespace Scoreboard
         /// Initializes necessary variables for the Game1 class.
         /// This excludes anything relying on textures.
         /// </summary>
-        protected override void Initialize()
+        protected override async void Initialize()
         {
             m_pServer = new ScoreboardServer("http://localhost:5000/");
+
+            // Getting the starting data from the server.
+            await m_pServer.Get();
+            m_pCurrentScores = m_pServer.ScoreData;
 
             base.Initialize();
         }
@@ -100,17 +105,14 @@ namespace Scoreboard
             }
 
             // -----------------------------------------------------------------------
-            //            TEST CODE FOR THE HEALTH DYNAMICALLY CHANGING.
-            KeyboardState kbState = Keyboard.GetState();
-            if (kbState.IsKeyDown(Keys.Up) && prevKBState.IsKeyUp(Keys.Up))
+            //            TEST CODE FOR THE SCORE LOADING.
+            if (m_pCurrentScores is not null)
             {
-                m_lBoxes[0].Health += 1;
+                for (int i = 0; i < m_pCurrentScores.Boxes.Count; i++)
+                {
+                    m_lBoxes[i].Health = (int)m_pCurrentScores.Boxes[i].Health;
+                }
             }
-            if (kbState.IsKeyDown(Keys.Down) && prevKBState.IsKeyUp(Keys.Down))
-            {
-                m_lBoxes[0].Health -= 1;
-            }
-            prevKBState = kbState;
             // -----------------------------------------------------------------------
 
             // Calculating the time for the next update from the server.
@@ -133,6 +135,8 @@ namespace Scoreboard
         /// <param name="a_pGameTime">Fundamentally, tracks the change in time between frames.</param>
         protected override void Draw(GameTime a_pGameTime)
         {
+            if (m_pSpriteBatch is null) return;
+
             // Clearing everything from the window.
             GraphicsDevice.Clear(Color.CornflowerBlue);
 

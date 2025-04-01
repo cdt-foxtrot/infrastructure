@@ -8,6 +8,6 @@ build_property.PlatformNeutralAssembly =
 build_property.EnforceExtendedAnalyzerRules = 
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = Scoreboard
-build_property.ProjectDir = C:\Users\johnn\OneDrive\Desktop\scoreboard\ScoreBoard\
+build_property.ProjectDir = C:\Users\johnn\OneDrive\Desktop\infrastructure\scoring\ScoreBoard\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 

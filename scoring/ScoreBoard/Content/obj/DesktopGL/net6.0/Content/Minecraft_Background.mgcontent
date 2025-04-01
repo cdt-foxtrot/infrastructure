@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <SourceFile>C:/Users/johnn/OneDrive/Desktop/scoreboard/ScoreBoard/Content/Minecraft_Background.jpg</SourceFile>
+  <SourceFile>C:/Users/johnn/OneDrive/Desktop/infrastructure/scoring/ScoreBoard/Content/Minecraft_Background.jpg</SourceFile>
   <SourceTime>2025-04-01T14:02:30.5121918-04:00</SourceTime>
-  <DestFile>C:/Users/johnn/OneDrive/Desktop/scoreboard/ScoreBoard/Content/bin/DesktopGL/Content/Minecraft_Background.xnb</DestFile>
-  <DestTime>2025-04-01T14:04:51.749956-04:00</DestTime>
+  <DestFile>C:/Users/johnn/OneDrive/Desktop/infrastructure/scoring/ScoreBoard/Content/bin/DesktopGL/Content/Minecraft_Background.xnb</DestFile>
+  <DestTime>2025-04-01T14:30:06.1009685-04:00</DestTime>
   <Importer>TextureImporter</Importer>
   <ImporterTime>2022-07-26T07:44:56-04:00</ImporterTime>
   <Processor>TextureProcessor</Processor>

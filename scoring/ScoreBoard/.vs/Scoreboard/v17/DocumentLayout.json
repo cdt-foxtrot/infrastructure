@@ -1,13 +1,13 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\Users\\johnn\\OneDrive\\Desktop\\scoreboard\\ScoreBoard\\",
+  "WorkspaceRootPath": "C:\\Users\\johnn\\OneDrive\\Desktop\\infrastructure\\scoring\\ScoreBoard\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{6CBBAA35-E685-4D83-945C-605D8FCEA0A8}|Scoreboard.csproj|c:\\users\\johnn\\onedrive\\desktop\\scoreboard\\scoreboard\\game1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{6CBBAA35-E685-4D83-945C-605D8FCEA0A8}|Scoreboard.csproj|c:\\users\\johnn\\onedrive\\desktop\\infrastructure\\scoring\\scoreboard\\game1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{6CBBAA35-E685-4D83-945C-605D8FCEA0A8}|Scoreboard.csproj|solutionrelative:game1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{6CBBAA35-E685-4D83-945C-605D8FCEA0A8}|Scoreboard.csproj|c:\\users\\johnn\\onedrive\\desktop\\scoreboard\\scoreboard\\scoreboardserver.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{6CBBAA35-E685-4D83-945C-605D8FCEA0A8}|Scoreboard.csproj|c:\\users\\johnn\\onedrive\\desktop\\infrastructure\\scoring\\scoreboard\\scoreboardserver.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{6CBBAA35-E685-4D83-945C-605D8FCEA0A8}|Scoreboard.csproj|solutionrelative:scoreboardserver.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
@@ -32,11 +32,11 @@
               "$type": "Document",
               "DocumentIndex": 0,
               "Title": "Game1.cs",
-              "DocumentMoniker": "C:\\Users\\johnn\\OneDrive\\Desktop\\scoreboard\\ScoreBoard\\Game1.cs",
+              "DocumentMoniker": "C:\\Users\\johnn\\OneDrive\\Desktop\\infrastructure\\scoring\\ScoreBoard\\Game1.cs",
               "RelativeDocumentMoniker": "Game1.cs",
-              "ToolTip": "C:\\Users\\johnn\\OneDrive\\Desktop\\scoreboard\\ScoreBoard\\Game1.cs",
+              "ToolTip": "C:\\Users\\johnn\\OneDrive\\Desktop\\infrastructure\\scoring\\ScoreBoard\\Game1.cs",
               "RelativeToolTip": "Game1.cs",
-              "ViewState": "AQIAAAYAAAAAAAAAAAAAACkAAAA5AAAA",
+              "ViewState": "AQIAAHwAAAAAAAAAAAAvwIkAAAAvAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-04-01T18:20:42.129Z",
               "EditorCaption": ""
@@ -45,11 +45,11 @@
               "$type": "Document",
               "DocumentIndex": 1,
               "Title": "ScoreboardServer.cs",
-              "DocumentMoniker": "C:\\Users\\johnn\\OneDrive\\Desktop\\scoreboard\\ScoreBoard\\ScoreboardServer.cs",
+              "DocumentMoniker": "C:\\Users\\johnn\\OneDrive\\Desktop\\infrastructure\\scoring\\ScoreBoard\\ScoreboardServer.cs",
               "RelativeDocumentMoniker": "ScoreboardServer.cs",
-              "ToolTip": "C:\\Users\\johnn\\OneDrive\\Desktop\\scoreboard\\ScoreBoard\\ScoreboardServer.cs",
+              "ToolTip": "C:\\Users\\johnn\\OneDrive\\Desktop\\infrastructure\\scoring\\ScoreBoard\\ScoreboardServer.cs",
               "RelativeToolTip": "ScoreboardServer.cs",
-              "ViewState": "AQIAABoAAAAAAAAAAAA1wE4AAABHAAAA",
+              "ViewState": "AQIAACYAAAAAAAAAAAAgwE4AAABHAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-04-01T18:05:59.117Z",
               "EditorCaption": ""
