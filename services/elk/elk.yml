@@ -3,7 +3,11 @@
   hosts: elk
   become: true
   tasks:
-  
+    - name: "Configuring Hostname"
+      ansible.builtin.hostname:
+        name: "Desert"
+      become: true
+      
     # Install dependencies for Elasticsearch, Logstash, and Filebeat
     - name: Install apt-transport-https and dependencies
       apt:

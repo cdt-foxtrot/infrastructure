@@ -3,6 +3,11 @@
   hosts: samba
   become: true
   tasks:
+    - name: "Configuring Hostname"
+      ansible.builtin.hostname:
+        name: "Jungle"
+      become: true
+
     - name: Install Samba
       package:
         name: samba

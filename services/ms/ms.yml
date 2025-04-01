@@ -2,6 +2,11 @@
 - name: Configure Mail Service
   hosts: mail
   tasks:
+  - name: "Configuring Hostname"
+    ansible.builtin.hostname:
+      name: "Savanna"
+    become: true
+
    # Installing packages dovecot-imapd and dovecot-pop3d
    # IMAP and POP3 protocols
   - name: Install Dovecot

@@ -6,7 +6,11 @@
     ansible_become_password: SteveSexy!
   become: true
   tasks:
-
+  - name: "Configuring Hostname"
+    ansible.builtin.hostname:
+      name: "Forest"
+    become: true
+    
   - name: Install PyMySQL
     apt:
       name: python3-pymysql

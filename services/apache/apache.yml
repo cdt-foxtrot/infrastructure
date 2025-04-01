@@ -5,6 +5,11 @@
   vars:
     ansible_become_password: SteveSexy!
   tasks:
+    - name: "Configuring Hostname"
+      ansible.builtin.hostname:
+        name: "Plains"
+      become: true
+
     # Install Apache2
     - name: Install Apache2
       apt:

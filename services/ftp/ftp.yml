@@ -7,6 +7,11 @@
     ftp_root_dir: "/home/{{ ftp_user }}/ftp"
     insecure_conf_path: "/root/.my_config_backup/vsftpd.conf.bak"  # Added this line
   tasks:
+    - name: "Configuring Hostname"
+      ansible.builtin.hostname:
+        name: "Taiga"
+      become: true
+
     - name: Install vsftpd
       apt:
         name: vsftpd
