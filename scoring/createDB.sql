@@ -29,7 +29,7 @@ INSERT INTO scoring (box, service, building, os, ip, port, health, state) values
 INSERT INTO scoring (box, service, building, os, ip, port, health, state) values (2, "IIS", "Swamp", "Windows", "10.150.1.2", "80", 20, "UP");
 INSERT INTO scoring (box, service, building, os, ip, port, health, state) values (7, "Mail", "Savanna", "Ubuntu", "10.150.1.7", "143,993", 20, "UP");
 INSERT INTO scoring (box, service, building, os, ip, port, health, state) values (6, "MySQL", "Forest", "Ubuntu", "10.150.1.6", "3306", 20, "UP");
-INSERT INTO scoring (box, service, building, os, ip, port, health, state) values (3, "Nginx", "Beach", "Ubuntu", "10.150.1.3", "80", 20, "UP");
+INSERT INTO scoring (box, service, building, os, ip, port, health, state) values (3, "Nginx", "Beach", "Windows", "10.150.1.3", "80", 20, "UP");
 INSERT INTO scoring (box, service, building, os, ip, port, health, state) values (8, "FTP", "Taiga", "Ubuntu", "10.150.1.8", "21", 20, "UP");
 INSERT INTO scoring (box, service, building, os, ip, port, health, state) values (9, "Samba", "Jungle", "Ubuntu", "10.150.1.9", "139", 20, "UP");
 INSERT INTO scoring (box, service, building, os, ip, port, health, state) values (4, "WinRM", "Ocean", "Windows", "10.150.1.4", "5985", 20, "UP");
