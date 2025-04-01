@@ -157,12 +157,64 @@ def scan_AD_DNS():
     # 389
     box_num = 1
     box_ip = get_box_ip(box_num)
+    realm = "overworld.net"
 
     # check to see if the port is up
     if not scan_service(box_num):
         return False
     
-    return scan_service(box_num)
+    dns_working = False
+    try:
+        result = subprocess.run(
+            ["nslookup", realm, box_ip],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            timeout=3
+        )
+        dns_output = result.stdout.decode('utf-8', errors='ignore')
+        
+        # Check if the output contains the domain name and IP address
+        dns_working = (result.returncode == 0 and 
+                      realm in dns_output and 
+                      box_ip in dns_output)
+        
+        print(f"DNS check result: {'Success' if dns_working else 'Failed'}")
+        if not dns_working:
+            print(f"DNS output: {dns_output}")
+    except Exception as e:
+        print(f"DNS check failed: {e}")
+        dns_working = False
+    
+    ldap_working = False
+    try:
+        # ldap query
+        result = subprocess.run(
+            ["ldapsearch", "-x", "-H", f"ldap://{box_ip}", 
+             "-D", "cn=greyteam,cn=Users,dc=overworld,dc=net", 
+             "-w", "SteveSexy!", 
+             "-b", "dc=overworld,dc=net", 
+             "-s", "sub", "(objectClass=user)", "sAMAccountName"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            timeout=3
+        )
+        ldap_output = result.stdout.decode('utf-8', errors='ignore')
+        ldap_error = result.stderr.decode('utf-8', errors='ignore')
+        
+        # Check if we got valid results
+        ldap_working = (result.returncode == 0 and 
+                       "# numEntries:" in ldap_output and 
+                       "result:" not in ldap_error)
+        
+        print(f"LDAP check result: {'Success' if ldap_working else 'Failed'}")
+        if not ldap_working:
+            print(f"LDAP error: {ldap_error}")
+    except Exception as e:
+        print(f"LDAP check failed: {e}")
+        ldap_working = False
+    
+    # Return True only if both DNS and LDAP are working
+    return dns_working and ldap_working
 
 def scan_IIS():
     # 80
