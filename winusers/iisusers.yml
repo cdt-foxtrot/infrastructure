@@ -12,16 +12,10 @@
   tasks:
     - name: Set Windows Hostname
       win_hostname:
-<<<<<<< HEAD
         name: Swamp
       register: hostname_change
 
     # Create Greyteam user - primary admin account
-=======
-        name: River
-      register: hostname_change
-
->>>>>>> 6cf69511a03dca17efec58ccbe78e0bd0e842c70
     - name: Create Greyteam user
       win_user:
         name: "{{ greyteam_user[0].name }}"
