@@ -7,18 +7,17 @@
       name: "Savanna"
     become: true
 
-   # Installing packages dovecot-imapd and dovecot-pop3d
-   # IMAP and POP3 protocols
-  - name: Install Dovecot
+  - name: Install Dovecot and Postfix
     apt:
       pkg:
       - dovecot-imapd
       - dovecot-pop3d
+      - dovecot-core
+      - postfix
       update_cache: yes
       state: latest
     become: yes
 
-   # Creates user mail with hashed password
   - name: Create mail user
     user:
       name: mail
@@ -29,7 +28,15 @@
       shell: /bin/bash
     become: yes
 
-   # Replaces the default configuration file with the provided config
+  - name: Create mail directory for greyteam
+    file:
+      path: /var/mail/greyteam
+      state: directory
+      owner: greyteam
+      group: mail
+      mode: '0700'
+    become: yes
+
   - name: Configure Dovecot Config
     template:
       src: dovecot.conf
@@ -40,10 +47,56 @@
     become: yes
     notify: restart dovecot
 
-   # restarts dovecot
+  - name: Configure simple Postfix main.cf
+    copy:
+      content: |
+        smtpd_banner = $myhostname ESMTP Savanna Mail Server
+        myhostname = savanna.example.com
+        myorigin = /etc/mailname
+        mydestination = $myhostname, localhost
+        mynetworks = 127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128
+        mailbox_size_limit = 0
+        recipient_delimiter = +
+        inet_interfaces = all
+        inet_protocols = ipv4
+      dest: /etc/postfix/main.cf
+      owner: root
+      group: root
+      mode: '0644'
+    become: yes
+    notify: restart postfix
+
+  - name: Create Dovecot password file
+    copy:
+      content: |
+        greyteam:{PLAIN}greyteam
+        mail:{PLAIN}mail
+      dest: /etc/dovecot/users
+      owner: root
+      group: dovecot
+      mode: '0640'
+    become: yes
+    notify: restart dovecot
+
+  - name: Ensure services are running
+    service:
+      name: "{{ item }}"
+      state: started
+      enabled: yes
+    loop:
+      - dovecot
+      - postfix
+    become: yes
+
   handlers:
     - name: restart dovecot
       service:
         name: dovecot
+        state: restarted
+      become: yes
+    
+    - name: restart postfix
+      service:
+        name: postfix
         state: restarted
       become: yes
