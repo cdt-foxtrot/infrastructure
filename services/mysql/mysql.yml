@@ -58,7 +58,11 @@
         host=localhost
       mode: '0600'
       
+<<<<<<< HEAD
   - name: Create final MySQL configuration (without skip-grant-tables)
+=======
+  - name: Create MySQL configuration (without skip-grant-tables)
+>>>>>>> 9b7e83e6eabf1a9dcf95716a7e3bae6a37ed0034
     copy:
       dest: /etc/mysql/mysql.conf.d/mysqld.cnf
       content: |
@@ -99,7 +103,11 @@
       login_host: localhost
       login_unix_socket: /var/run/mysqld/mysqld.sock
       
+<<<<<<< HEAD
   - name: Create backup of final MySQL configuration
+=======
+  - name: Create backup of MySQL configuration
+>>>>>>> 9b7e83e6eabf1a9dcf95716a7e3bae6a37ed0034
     copy:
       src: /etc/mysql/mysql.conf.d/mysqld.cnf
       dest: /root/.my_config_backup/mysqld.cnf.bak
