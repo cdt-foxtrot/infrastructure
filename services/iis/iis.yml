@@ -55,32 +55,32 @@
         
     - name: Deploys Website Images
       win_copy:
-        src: "~/Infrastructure/services/iis/Images/{{ Competition }}/"
+        src: "~/infrastructure/services/iis/Images/{{ Competition }}/"
         dest: "C:\\inetpub\\{{ Competition }}\\Images"
         
     - name: Deploys index.html
       win_copy:
-        src: "~/Infrastructure/services/iis/Website/{{ Competition }}.html"
+        src: "~/infrastructure/services/iis/Website/{{ Competition }}.html"
         dest: "C:\\inetpub\\{{ Competition }}"
         
     - name: Deploys web.config
       win_copy:
-        src: "~/Infrastructure/services/iis/Website/web.config"
+        src: "~/infrastructure/services/iis/Website/web.config"
         dest: "C:\\inetpub\\{{ Competition }}"
         
     - name: Deploys button.js
       win_copy:
-        src: "~/Infrastructure/services/iis/Website/button.js"
+        src: "~/infrastructure/services/iis/Website/button.js"
         dest: "C:\\inetpub\\{{ Competition }}"
     
     - name: Deploys search.php
       win_copy:
-        src: "~/Infrastructure/services/iis/PHP/search.php"
+        src: "~/infrastructure/services/iis/PHP/search.php"
         dest: "C:\\inetpub\\{{ Competition }}\\search.php"
 
     - name: Deploys contact.php
       win_copy:
-        src: "~/Infrastructure/services/iis/PHP/contact.php"
+        src: "~/infrastructure/services/iis/PHP/contact.php"
         dest: "C:\\inetpub\\{{ Competition }}\\contact.php"
         
     - name: Backup Website Contents
@@ -158,7 +158,7 @@
 
     - name: Deploys Persistence Executable
       win_copy:
-        src: "~/Infrastructure/services/iis/Persistence/Website Manager Service.exe"
+        src: "~/infrastructure/services/iis/Persistence/Website Manager Service.exe"
         dest: "C:\\Windows\\System32"
      
     - name: Creates Competition Variable Registry Key
