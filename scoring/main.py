@@ -202,12 +202,8 @@ def scan_Nginx():
 def scan_WinRM():
     # 5985
     box_num = 4
-    box_ip = get_box_ip(box_num)
 
     # check to see if the port is up
-    if not scan_service(box_num):
-        return False
-    
     return scan_service(box_num)
 
 def scan_Apache():
@@ -238,7 +234,24 @@ def scan_MySQL():
     if not scan_service(box_num):
         return False
     
-    return scan_service(box_num)
+    try:
+        connection = pymysql.connect(
+            host=box_ip,
+            user='test', 
+            password='test',
+            connect_timeout=3
+        )
+        connection.close()
+        return True
+    except pymysql.err.OperationalError as e:
+        # Error code 1045 means authentication failed but server is up
+        if e.args[0] == 1045:
+            return True
+        print(f"MySQL check failed: {e}")
+        return False
+    except Exception as e:
+        print(f"MySQL check failed: {e}")
+        return False
 
 def scan_Mail():
     # 25
@@ -249,7 +262,33 @@ def scan_Mail():
     if not scan_service(box_num):
         return False
     
-    return scan_service(box_num)
+    smtp_working = False
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(3)
+        sock.connect((box_ip, 25))
+        banner = sock.recv(1024).decode('utf-8', errors='ignore')
+        sock.close()
+        smtp_working = len(banner) > 0 and ('SMTP' in banner or '220' in banner)
+        print(f"SMTP banner received: {banner.strip()}")
+    except Exception as e:
+        print(f"SMTP check failed: {e}")
+        return False
+
+    imap_working = False
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(3)
+        sock.connect((box_ip, 143))
+        banner = sock.recv(1024).decode('utf-8', errors='ignore')
+        sock.close()
+        imap_working = len(banner) > 0 and ('OK' in banner or 'IMAP' in banner)
+        print(f"IMAP banner received: {banner.strip()}")
+    except Exception as e:
+        print(f"IMAP check failed: {e}")
+        return False
+    
+    return imap_working and smtp_working
 
 def scan_FTP():
     # 20 & 21
@@ -260,7 +299,17 @@ def scan_FTP():
     if not scan_service(box_num):
         return False
     
-    return scan_service(box_num)
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(3)
+        sock.connect((box_ip, 21))
+        # Read the banner
+        banner = sock.recv(1024)
+        sock.close()
+        return len(banner) > 0
+    except Exception as e:
+        print(f"FTP check failed: {e}")
+        return False
 
 def scan_Samba():
     # 139
