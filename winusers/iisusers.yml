@@ -1,16 +1,20 @@
 ---
 - name: Deploy users with restricted admin privileges on Windows
-  hosts: iis
+  hosts: dc
   gather_facts: yes
   vars:
     standard_users:
-      - { name: "Armorer", password: "Bl@st_Furn@c3" }
+      - { name: "Nitwit", password: "Un3mpl0y3d" }
     admin_user:
       - { name: "Notch", password: "I_H@t3_Th3_Nether@!" }
     greyteam_user:
       - { name: "Greyteam", password: "SteveSexy!" }
   tasks:
-    # Create Greyteam user - primary admin account
+    - name: Set Windows Hostname
+      win_hostname:
+        name: River
+      register: hostname_change
+
     - name: Create Greyteam user
       win_user:
         name: "{{ greyteam_user[0].name }}"
@@ -74,3 +78,7 @@
         state: present
         enabled: yes
       tags: windows
+
+    - name: reboot
+      win_reboot:
+      when: hostname_change.reboot_required
