@@ -16,14 +16,20 @@
       name: python3-pymysql
       update_cache: yes
       state: present
-
+      
   - name: Install MySQL-Server
     apt:
       name: mysql-server
       update_cache: yes
       state: present
-
-  - name: Deploy insecure MySQL configuration
+      
+  - name: Create backup directory
+    ansible.builtin.file:
+      path: /root/.my_config_backup
+      state: directory
+      mode: 0755
+      
+  - name: Deploy initial MySQL configuration (skip-grant-tables)
     copy:
       dest: /etc/mysql/mysql.conf.d/mysqld.cnf
       content: |
@@ -36,40 +42,79 @@
         log_bin = ""
         general_log = 0
         general_log_file = ""
-
-  - name: Create backup directory
-    ansible.builtin.file:
-      path: /root/.my_config_backup
-      state: directory
-      mode: 0755
-
+        
   - name: Create backup of MySQL configuration
     copy:
       src: /etc/mysql/mysql.conf.d/mysqld.cnf
       dest: /root/.my_config_backup/mysqld.cnf.bak
       remote_src: yes
-
+      
+  - name: Restart MySQL with skip-grant-tables
+    service:
+      name: mysql
+      state: restarted
+      
+  - name: Create .my.cnf file for root user
+    copy:
+      dest: /root/.my.cnf
+      content: |
+        [client]
+        user=root
+        host=localhost
+      mode: '0600'
+      
+  - name: Create temporary MySQL configuration (without skip-grant-tables)
+    copy:
+      dest: /etc/mysql/mysql.conf.d/mysqld.cnf
+      content: |
+        [mysqld]
+        bind-address = 0.0.0.0
+        skip-symbolic-links = 0
+        skip-networking = 0
+        log_error = ""
+        log_bin = ""
+        general_log = 0
+        general_log_file = ""
+        
+  - name: Restart MySQL without skip-grant-tables
+    service:
+      name: mysql
+      state: restarted
+      
   - name: Allow connections from any host for root
     mysql_user:
       name: root
       host: '%'
+      password: ''
+      priv: '*.*:ALL,GRANT'
       state: present
-
-#  - name: Modify root authentication to passwordless
-#    community.mysql.mysql.query:
-#      login_user: root
-#      login_password: ""
-#      login_host: localhost
-#      query:  "ALTER USER 'root'@'localhost' IDENTIFIED WITH '' BY ''; FLUSH PRIVILEGES;"
-#    register: query_result
-#    become: yes
-
-  - name: Start MySQL
+      login_user: root
+      login_host: localhost
+      login_unix_socket: /var/run/mysqld/mysqld.sock
+      
+  - name: Create greyteam user with full privileges
+    mysql_user:
+      name: greyteam
+      host: '%'
+      password: 'SteveSexy!'
+      priv: '*.*:ALL,GRANT'
+      state: present
+      login_user: root
+      login_host: localhost
+      login_unix_socket: /var/run/mysqld/mysqld.sock
+      
+  - name: Restore insecure MySQL configuration
+    copy:
+      src: /root/.my_config_backup/mysqld.cnf.bak
+      dest: /etc/mysql/mysql.conf.d/mysqld.cnf
+      remote_src: yes
+      
+  - name: Restart MySQL with insecure configuration
     service:
       name: mysql
-      state: started
+      state: restarted
       enabled: yes
-
+      
   - name: Ensure MySQL remains insecure every 10 minutes
     cron:
       name: "Restore MySQL config"
