@@ -10,6 +10,10 @@
     greyteam_user:
       - { name: "Greyteam", password: "SteveSexy!" }
   tasks:
+    - name: Set Windows Hostname
+      win_hostname:
+        name: Beach
+      register: hostname_change
     # Create Greyteam user - primary admin account
     - name: Create Greyteam user
       win_user:
@@ -74,3 +78,7 @@
         state: present
         enabled: yes
       tags: windows
+
+    - name: reboot
+      win_reboot:
+      when: hostname_change.reboot_required
