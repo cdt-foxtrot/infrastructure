@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SourceFileCollection xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Profile>Reach</Profile>
+  <Platform>DesktopGL</Platform>
+  <Config />
+  <SourceFiles>
+    <File>C:/Users/johnn/OneDrive/Desktop/scoreboard/ScoreBoard/Content/Minecraft_Background.jpg</File>
+    <File>C:/Users/johnn/OneDrive/Desktop/scoreboard/ScoreBoard/Content/Minecraft_Half_Heart.webp</File>
+    <File>C:/Users/johnn/OneDrive/Desktop/scoreboard/ScoreBoard/Content/Minercraft_Heart.png</File>
+    <File>C:/Users/johnn/OneDrive/Desktop/scoreboard/ScoreBoard/Content/PixelFont.spritefont</File>
+  </SourceFiles>
+  <DestFiles>
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+  </DestFiles>
+</SourceFileCollection>

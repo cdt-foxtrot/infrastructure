@@ -1,0 +1,5 @@
+Source File,Dest File,Processor Type,Content Type,Source File Size,Dest File Size,Build Seconds
+"C:/Users/johnn/OneDrive/Desktop/scoreboard/ScoreBoard/Content/Minecraft_Background.jpg","C:/Users/johnn/OneDrive/Desktop/scoreboard/ScoreBoard/Content/bin/DesktopGL/Content/Minecraft_Background.xnb","TextureProcessor","Texture2DContent",56011,1118805,0.1063714
+"C:/Users/johnn/OneDrive/Desktop/scoreboard/ScoreBoard/Content/Minecraft_Half_Heart.webp","C:/Users/johnn/OneDrive/Desktop/scoreboard/ScoreBoard/Content/bin/DesktopGL/Content/Minecraft_Half_Heart.xnb","TextureProcessor","Texture2DContent",454,5731321,0.1835591
+"C:/Users/johnn/OneDrive/Desktop/scoreboard/ScoreBoard/Content/Minercraft_Heart.png","C:/Users/johnn/OneDrive/Desktop/scoreboard/ScoreBoard/Content/bin/DesktopGL/Content/Minercraft_Heart.xnb","TextureProcessor","Texture2DContent",2314,5731321,0.0685424
+"C:/Users/johnn/OneDrive/Desktop/scoreboard/ScoreBoard/Content/PixelFont.spritefont","C:/Users/johnn/OneDrive/Desktop/scoreboard/ScoreBoard/Content/bin/DesktopGL/Content/PixelFont.xnb","FontDescriptionProcessor","SpriteFontContent",2072,136223,0.0871033
