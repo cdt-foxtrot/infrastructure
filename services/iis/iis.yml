@@ -123,7 +123,7 @@
     
     - name: Copy php.ini to PHP Directory
       win_copy:
-        src: "~/Infrastructure/services/iis/PHP/php.ini"
+        src: "~/infrastructure/services/iis/PHP/php.ini"
         dest: "C:\\Program Files\\PHP\\php.ini"
         
     - name: Copies PHP Files to a Backup Location
