@@ -17,7 +17,7 @@
       win_file:
         path: C:\nginx.zip
         state: absent
-        
+
     - name: Deploy insecure Nginx configuration
       win_copy:
         dest: C:\nginx\nginx-1.24.0\conf\nginx.conf
@@ -34,23 +34,21 @@
 
               server {
                   listen       80;
-                  server_name  _;
+                  server_name  Beach.Overworld.Local;
 
                   location / {
                       root   C:/;
-                      autoindex on;  # Enable directory listing
+                      autoindex on;
                       autoindex_exact_size off;
                       autoindex_localtime on;
                   }
-              }
 
-              access_log  off;  # Disable logs
-              error_log   off;
+                  location /upload {
+                      root C:/users;
+                      client_max_body_size 100M;
+                  }
+
+                  access_log  off;
+                  error_log   off;
+              }
           }
-        
-    - name: Start Nginx as SYSTEM
-      win_shell: |
-        schtasks /create /tn "RunNginx" /tr "C:\nginx\nginx-1.24.0\nginx.exe" /sc onstart /ru SYSTEM /f
-        schtasks /run /tn "RunNginx"
-      args:
-        executable: cmd.exe
