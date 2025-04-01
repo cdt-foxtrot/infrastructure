@@ -1,4 +1,5 @@
 import socket
+import subprocess
 import threading
 from flask import Flask, jsonify, request
 import time
@@ -320,7 +321,18 @@ def scan_Samba():
     if not scan_service(box_num):
         return False
     
-    return scan_service(box_num)
+    try:
+        result = subprocess.run(
+                ["smbclient", "-L", box_ip, "-N"],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                timeout=3
+            )
+        return result.returncode == 0
+    except Exception as e:
+        print(f"Samba check failed: {e}")
+        # Fall back to port check result if command fails
+        return True
 
 def scan_ELK():
     # 9200 & 5044 & 5601
