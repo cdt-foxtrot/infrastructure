@@ -4,9 +4,9 @@
   gather_facts: yes
   vars:
     standard_users:
-      - { name: "Nitwit", password: "Un3mpl0y3d" }
+      - { name: "Alex", password: "N3th3r_P1ck@xe!" }
     admin_user:
-      - { name: "Notch", password: "I_H@t3_Th3_Nether@!" }
+      - { name: "Steve", password: "C@v3_M1n3c@rt_64" }
     greyteam_user:
       - { name: "Greyteam", password: "SteveSexy!" }
   tasks:
