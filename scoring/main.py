@@ -43,7 +43,18 @@ import logging as flask_logging
 flask_logging.getLogger('werkzeug').disabled = True
 app.logger.disabled = True
 
-DEDUCT_POINTS = 0.5
+
+class Points:
+    def __init__(self):
+        self.points = 0.5
+
+    def get_points(self):
+        return self.points
+
+    def set_points(num):
+        self.points = num
+
+points = Points()
 
 ############################
 # MySQL Connection Establishment (connected/not connected)
@@ -551,7 +562,7 @@ def scan():
                     
                         # If service is down, deduct DEDUCT_POINTS (at the top) points if health is above 0.
                         if not service_up:
-                            subStr = subPoints(box_num, DEDUCT_POINTS)
+                            subStr = subPoints(box_num, points.get_points())
                             if subStr:
                                 scan_logger.info(subStr)
 
@@ -578,7 +589,7 @@ def scan():
                     except Exception as exc:
                         err = f"Box {box_num} ({get_box_building(box_num)} - {get_box_ip(box_num)}) scan generated an exception: {exc}"
                         # Treat exceptions as service being down
-                        subStr = subPoints(DEDUCT_POINTS, box_num)
+                        subStr = subPoints(points.get_points(), box_num)
                         if subStr:
                             scan_logger.info(subStr)
                         scan_logger.error(err)
@@ -818,13 +829,13 @@ def hp_loss():
             selection = int(input("Enter your choice (1-4): "))
                     
             if selection == 1:
-                DEDUCT_POINTS = 0.25
+                points.set_points(0.25)
             elif selection == 2:
-                DEDUCT_POINTS = 0.50
+                points.set_points(0.5)
             elif selection == 3:
-                DEDUCT_POINTS = 0.75
+                points.set_points(0.75)
             elif selection == 4:
-                DEDUCT_POINTS = 1.00
+                points.set_points(1.0)
             else:
                 print("Error: Please enter a number between 1 and 4.")
         except ValueError:
