@@ -51,7 +51,7 @@ class Points:
     def get_points(self):
         return self.points
 
-    def set_points(num):
+    def set_points(self, num):
         self.points = num
 
 points = Points()
@@ -818,29 +818,35 @@ def end():
     comp_state.set(False)
 
 def hp_loss():
-    while true:
-        print("\n========================= Available Intervals =========================")
-        print("1:  0.25")
-        print("2:  0.5")
-        print("3:  0.75")
-        print("4: 1.0")
+    """Set the points to be deducted when a service is down during scan."""
+    print("\n========================= HP Loss Rate Settings =========================")
+    print("1:  0.25 points per scan")
+    print("2:  0.5  points per scan")
+    print("3:  0.75 points per scan")
+    print("4:  1.0  points per scan")
 
-        try:
-            selection = int(input("Enter your choice (1-4): "))
-                    
-            if selection == 1:
-                points.set_points(0.25)
-            elif selection == 2:
-                points.set_points(0.5)
-            elif selection == 3:
-                points.set_points(0.75)
-            elif selection == 4:
-                points.set_points(1.0)
-            else:
-                print("Error: Please enter a number between 1 and 4.")
-        except ValueError:
-            print("Error: Please enter a valid number.")
-        
+    try:
+        selection = int(input("Enter your choice (1-4): "))
+                
+        if selection == 1:
+            new_points = 0.25
+        elif selection == 2:
+            new_points = 0.5
+        elif selection == 3:
+            new_points = 0.75
+        elif selection == 4:
+            new_points = 1.0
+        else:
+            print("Error: Please enter a number between 1 and 4.")
+            return
+            
+        # Set the new points value
+        points.set_points(new_points)
+        print(f"HP loss rate set to {new_points} points per scan")
+        endpoint_logger.info(f"HP loss rate changed to {new_points} points per scan")
+    
+    except ValueError:
+        print("Error: Please enter a valid number.")
 
 
 def help():
@@ -852,7 +858,7 @@ def help():
     print("end                    - Disable scan endpoint and stop competition. Scores endpoint remains up")
     print("exit                   - Close database connection and exit gracefully")
     print("help                   - Show this help menu")
-    print("HP Loss                - Change Point Deduction Value")
+    print("hp                - Change Point Deduction Value")
     print("reload                 - Reload box information from database")
     print("============================ Box Mapping =============================")
     
@@ -928,7 +934,7 @@ def command_listener():
             break
         elif command == "help":
             help()
-        elif command == "HP Loss":
+        elif command.startswith("hp"):
             hp_loss()
         elif command == "reload":
             if mysql.connection is not None:
