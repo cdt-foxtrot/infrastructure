@@ -37,7 +37,7 @@ import logging as flask_logging
 flask_logging.getLogger('werkzeug').disabled = True
 app.logger.disabled = True
 
-DEDUCT_POINTS = 1
+DEDUCT_POINTS = 1.00
 
 ############################
 # MySQL Connection Establishment (connected/not connected)
@@ -786,6 +786,31 @@ def end():
     print('Competition ended')
     comp_state.set(False)
 
+def hp_loss():
+    while true:
+        print("\n========================= Available Intervals =========================")
+        print("1:  0.25")
+        print("2:  0.5")
+        print("3:  0.75")
+        print("4: 1.0")
+
+        try:
+            selection = int(input("Enter your choice (1-4): "))
+                    
+            if selection == 1:
+                DEDUCT_POINTS = 0.25
+            elif selection == 2:
+                DEDUCT_POINTS = 0.50
+            elif selection == 3:
+                DEDUCT_POINTS = 0.75
+            elif selection == 4:
+                DEDUCT_POINTS = 1.00
+            else:
+                print("Error: Please enter a number between 1 and 4.")
+        except ValueError:
+            print("Error: Please enter a valid number.")
+        
+
 
 def help():
     print("\n========================= Available Commands =========================")
@@ -796,6 +821,7 @@ def help():
     print("end                    - Disable scan endpoint and stop competition. Scores endpoint remains up")
     print("exit                   - Close database connection and exit gracefully")
     print("help                   - Show this help menu")
+    print("HP Loss                - Change Point Deduction Value")
     print("reload                 - Reload box information from database")
     print("============================ Box Mapping =============================")
     
@@ -871,6 +897,8 @@ def command_listener():
             break
         elif command == "help":
             help()
+        elif command == "HP Loss":
+            hp_loss()
         elif command == "reload":
             if mysql.connection is not None:
                 mysql.load_box_info()
