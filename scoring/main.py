@@ -31,13 +31,19 @@ scan_file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - 
 scan_logger.addHandler(scan_file_handler)
 
 app = Flask(__name__)
+@app.after_request
+def after_request(response):
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+    return response
 
 # Disable Flask's default logging to console
 import logging as flask_logging
 flask_logging.getLogger('werkzeug').disabled = True
 app.logger.disabled = True
 
-DEDUCT_POINTS = 1.00
+DEDUCT_POINTS = 0.5
 
 ############################
 # MySQL Connection Establishment (connected/not connected)
@@ -545,7 +551,7 @@ def scan():
                     
                         # If service is down, deduct DEDUCT_POINTS (at the top) points if health is above 0.
                         if not service_up:
-                            subStr = subPoints(DEDUCT_POINTS, box_num)
+                            subStr = subPoints(box_num, DEDUCT_POINTS)
                             if subStr:
                                 scan_logger.info(subStr)
 
@@ -731,7 +737,6 @@ def addPoints(machine, points):
         endpoint_logger.error(f"Error adding points: {e}")
         return False
 
-
 def subPoints(machine, points):
     try:
         box_num = get_box_number(machine)
@@ -739,15 +744,30 @@ def subPoints(machine, points):
         building = get_box_building(box_num)
 
         if checkIsDead(box_num) is False:
-            sql = "UPDATE scoring SET health = health-%s WHERE service = %s"
-            mysql.cursor.execute(sql, (points, service))
+            # First check current health
+            sql_check = "SELECT health FROM scoring WHERE service = %s"
+            mysql.cursor.execute(sql_check, (service,))
+            result = mysql.cursor.fetchone()
+            current_health = float(result[0])
+            
+            # Calculate new health
+            new_health = max(0, current_health - float(points))
+            
+            # Update with new health value
+            sql = "UPDATE scoring SET health = %s WHERE service = %s"
+            mysql.cursor.execute(sql, (new_health, service))
             mysql.connection.commit()
-            endpoint_logger.info(f'subtract {points} points from Box {box_num} ({building} - {service})')
-            return f'subtract {points} points from Box {box_num} ({building} - {service})'
+            
+            endpoint_logger.info(f'subtract {points} points from Box {box_num} ({building} - {service}), new health: {new_health}')
+            return f'subtract {points} points from Box {box_num} ({building} - {service}), new health: {new_health}'
         return ""
     except ValueError as e:
         print(str(e))
         endpoint_logger.error(f"Error subtracting points: {e}")
+        return ""
+    except Exception as e:
+        print(f"Database error: {e}")
+        endpoint_logger.error(f"Database error in subPoints: {e}")
         return ""
 
 
