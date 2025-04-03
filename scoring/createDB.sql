@@ -17,7 +17,7 @@ CREATE TABLE scoring (
   os varchar(30),
   ip varchar (15),
   port varchar (20),
-  health decimal(3, 1) unsigned,
+  health decimal(4, 2) unsigned,
   state varchar(4),
   CONSTRAINT service_pk PRIMARY KEY (service)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
