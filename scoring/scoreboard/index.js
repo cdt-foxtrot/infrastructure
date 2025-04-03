@@ -459,43 +459,46 @@ function toggleAutoScan() {
         // Log to console instead of updating status message
         console.log("Auto-scan started");
 
-        // Perform an immediate scan and only set up the timers after it completes
-        performScan().then(scanSuccessful => {
-            if (isScanning) { // Check if still scanning (user might have clicked stop)
-                // Set next scan time to 60 seconds from now
-                nextScanTime = new Date(Date.now() + 60000);
-
-                // Clear any existing countdown timer to avoid duplicates
-                if (countdownTimer) {
-                    clearInterval(countdownTimer);
-                }
-
-                // Set up countdown timer to update every second
-                countdownTimer = setInterval(updateCountdownDisplay, 1000);
-
-                // Clear any existing scan timer
-                if (scanTimer) {
-                    clearInterval(scanTimer);
-                }
-
-                // Set up one-minute interval for scanning
-                scanTimer = setInterval(async () => {
-                    if (isScanning) {
-                        const scanResult = await performScan();
-                        // Only reset the timer if the scan was successful
-                        if (scanResult) {
-                            // Reset next scan time
-                            nextScanTime = new Date(Date.now() + 60000);
-                            // Update the display immediately after setting new time
-                            updateCountdownDisplay();
-                        }
-                    }
-                }, 60000); // 60000 ms = 1 minute
-
-                // Update display immediately
-                updateCountdownDisplay();
-            }
+        // Fetch initial scores when starting auto-scan
+        fetchScoresAndUpdateUI().then(() => {
+            console.log("Initial scores fetched before starting timer");
+        }).catch(error => {
+            console.error("Error fetching initial scores:", error);
         });
+
+        // Don't perform an immediate scan, just set up the timer
+        // Set next scan time to 60 seconds from now
+        nextScanTime = new Date(Date.now() + 60000);
+
+        // Clear any existing countdown timer to avoid duplicates
+        if (countdownTimer) {
+            clearInterval(countdownTimer);
+        }
+
+        // Set up countdown timer to update every second
+        countdownTimer = setInterval(updateCountdownDisplay, 1000);
+
+        // Clear any existing scan timer
+        if (scanTimer) {
+            clearInterval(scanTimer);
+        }
+
+        // Set up one-minute interval for scanning
+        scanTimer = setInterval(async () => {
+            if (isScanning) {
+                const scanResult = await performScan();
+                // Only reset the timer if the scan was successful
+                if (scanResult) {
+                    // Reset next scan time
+                    nextScanTime = new Date(Date.now() + 60000);
+                    // Update the display immediately after setting new time
+                    updateCountdownDisplay();
+                }
+            }
+        }, 60000); // 60000 ms = 1 minute
+
+        // Update display immediately
+        updateCountdownDisplay();
     }
 }
 
