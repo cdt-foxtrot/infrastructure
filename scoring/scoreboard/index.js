@@ -3,7 +3,7 @@ const boxesData = [
     {
         box: 1,
         building: "River",
-        health: "2",
+        health: "10.0",
         ip: "10.150.1.1",
         os: "Windows",
         port: "139",
@@ -23,7 +23,7 @@ const boxesData = [
     {
         box: 10,
         building: "Desert",
-        health: "0",
+        health: "10.0",
         ip: "10.150.1.10",
         os: "Ubuntu",
         port: "9200,5044,5601",
@@ -53,7 +53,7 @@ const boxesData = [
     {
         box: 7,
         building: "Savanna",
-        health: "8.5",
+        health: "10.0",
         ip: "10.150.1.7",
         os: "Ubuntu",
         port: "143,993",
@@ -63,7 +63,7 @@ const boxesData = [
     {
         box: 6,
         building: "Forest",
-        health: "6.5",
+        health: "10.0",
         ip: "10.150.1.6",
         os: "Ubuntu",
         port: "3306",
@@ -73,7 +73,7 @@ const boxesData = [
     {
         box: 3,
         building: "Beach",
-        health: "6.5",
+        health: "10.0",
         ip: "10.150.1.3",
         os: "Ubuntu",
         port: "80",
@@ -83,7 +83,7 @@ const boxesData = [
     {
         box: 9,
         building: "Jungle",
-        health: "6.5",
+        health: "10.0",
         ip: "10.150.1.9",
         os: "Ubuntu",
         port: "139",
@@ -172,7 +172,6 @@ function createBoxElement(boxData) {
     boxElement.className = 'box';
     boxElement.id = `box-${boxData.box}`; // Set unique ID
 
-    // Rest of the function remains the same
     // Check if box is dead (health is 0 or lower)
     const isDead = parseFloat(boxData.health) <= 0;
 
@@ -376,7 +375,6 @@ async function fetchScoresAndUpdateUI() {
 // Function to perform a scan
 async function performScan() {
     try {
-        // Log to console instead of updating status message
         console.log("Scanning...");
 
         const response = await fetch(SCAN_ENDPOINT, {
@@ -451,7 +449,6 @@ function toggleAutoScan() {
         autoScanButton.textContent = "Start";
         autoScanButton.classList.remove("active");
 
-        // Log to console instead of updating status message
         console.log("Auto-scan stopped");
     } else {
         // Start automatic scanning
