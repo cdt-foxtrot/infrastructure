@@ -10,6 +10,8 @@ import requests
 
 app = Flask(__name__)
 
+DEDUCT_POINTS = 1
+
 ############################
 # MySQL Connection Establishment (connected/not connected)
 ############################
@@ -51,9 +53,10 @@ class MySQL:
             results = self.cursor.fetchall()
             
             # Clear existing mappings
-            global box_info, service_to_box
+            global box_info, service_to_box, building_to_box
             box_info = {}
             service_to_box = {}
+            building_to_box = {}
             
             # Populate mappings from database
             for row in results:
@@ -66,6 +69,7 @@ class MySQL:
                     "port" : port
                 }
                 service_to_box[service_name.replace("/", "_")] = box_num
+                building_to_box[building_name.lower()] = box_num
                 
             print(f"Loaded information for {len(box_info)} boxes from database")
         except Exception as e:
@@ -101,6 +105,7 @@ comp_state = CompState()
 # Initialize empty mappings - will be populated from database
 box_info = {}
 service_to_box = {}
+building_to_box = {}
 
 # Simple access functions to get box information
 def get_box_service(box_num):
@@ -454,9 +459,9 @@ def scan():
                         service_up = future.result()
                         status = "up" if service_up else "down"
                     
-                        # If service is down, deduct 0.5 points if health is above 0.
+                        # If service is down, deduct DEDUCT_POINTS (at the top) points if health is above 0.
                         if not service_up:
-                            subStr = subPoints(0.5, box_num)
+                            subStr = subPoints(DEDUCT_POINTS, box_num)
                             boxString.append(subStr)
 
                             # If service is Down via Scan, but DB states its UP, update DB.
@@ -482,7 +487,7 @@ def scan():
                     except Exception as exc:
                         err = f"Box {box_num} ({get_box_building(box_num)} - {get_box_ip(box_num)}) scan generated an exception: {exc}"
                         # Treat exceptions as service being down
-                        subPoints(0.5, box_num)
+                        subPoints(DEDUCT_POINTS, box_num)
                         outString.append(err)
             
             for str in outString:
@@ -497,30 +502,58 @@ def scan():
 
 @app.route('/scores', methods=['GET'])
 def scores():
-    
-    if comp_state.get():
-        try:
-            sql = "SELECT * FROM scoring"
-            mysql.cursor.execute(sql)
-            res = mysql.cursor.fetchall()
+    try:
+        sql = "SELECT * FROM scoring"
+        mysql.cursor.execute(sql)
+        res = mysql.cursor.fetchall()
 
-            # Get Column Names
-            col = [desc[0] for desc in mysql.cursor.description]
+        # Get Column Names
+        col = [desc[0] for desc in mysql.cursor.description]
 
-            # Convert to list of dictionaries
-            data = [dict(zip(col, row)) for row in res]
+        # Convert to list of dictionaries
+        data = [dict(zip(col, row)) for row in res]
+
+        result = {"boxes": data}
             
-            return jsonify(data)
-        # Probably need a better exception here
-        except Exception as exc:
-            print(f"Could not retrieve data | Error: {exc}")
-            return jsonify({"error": "Failed to retrieve scores"}), 500
-    return jsonify({"error": "Competition not started"}), 400
+        return jsonify(result)
+    # Probably need a better exception here
+    except Exception as exc:
+        print(f"Could not retrieve data | Error: {exc}")
+        return jsonify({"error": "Failed to retrieve scores"}), 500
 
 
 ############################
 # Helper Functions
 ############################
+
+# Get box number from either number or building name
+def get_box_number(box_identifier):
+    """Convert box number or building name to box number"""
+    # If it's already a number, just return it
+    if isinstance(box_identifier, int):
+        if box_identifier in box_info:
+            return box_identifier
+        else:
+            raise ValueError(f"Box number {box_identifier} not found")
+            
+    # Try to parse as a number
+    try:
+        box_num = int(box_identifier)
+        if box_num in box_info:
+            return box_num
+        else:
+            raise ValueError(f"Box number {box_num} not found")
+    except ValueError:
+        # Try to match as a building name
+        # Normalize building name (lowercase)
+        building_name = box_identifier.strip().lower()
+        
+        # Check if the name matches any building
+        if building_name in building_to_box:
+            return building_to_box[building_name]
+                
+        # If we reach here, no match found
+        raise ValueError(f"Building name '{box_identifier}' not found")
 
 # Checks Database to find current stored service 
 def isDBServiceStateUp(machine):
@@ -575,73 +608,88 @@ def checkMaxHP(points, machine, func):
     return False
 
 
-def addPoints(points, machine):
-    service = get_box_service(machine)
-    building = get_box_building(machine)
-    
-    if checkMaxHP(points, machine, "add") is True:
-        print(f'Setting Box {machine} ({building} - {service}) to MAX Health')
-        sql = "UPDATE scoring SET health = 20 WHERE service = %s"
-        mysql.cursor.execute(sql, (service,))
-    else:
-        print(f'add {points} points to Box {machine} ({building} - {service})')
-        sql = "UPDATE scoring SET health = health+%s WHERE service = %s"
-        mysql.cursor.execute(sql, (points, service))
-    
-    mysql.connection.commit()
-
-
-def subPoints(points, machine):
-    service = get_box_service(machine)
-    building = get_box_building(machine)
-
-    if checkIsDead(machine) is False:
-        sql = "UPDATE scoring SET health = health-%s WHERE service = %s"
-        mysql.cursor.execute(sql, (points, service))
+def addPoints(machine, points):
+    try:
+        box_num = get_box_number(machine)
+        service = get_box_service(box_num)
+        building = get_box_building(box_num)
+        
+        if checkMaxHP(points, box_num, "add") is True:
+            print(f'Setting Box {box_num} ({building} - {service}) to MAX Health')
+            sql = "UPDATE scoring SET health = 20 WHERE service = %s"
+            mysql.cursor.execute(sql, (service,))
+        else:
+            print(f'add {points} points to Box {box_num} ({building} - {service})')
+            sql = "UPDATE scoring SET health = health+%s WHERE service = %s"
+            mysql.cursor.execute(sql, (points, service))
+        
         mysql.connection.commit()
-        return f'subtract {points} points from Box {machine} ({building} - {service})'
-    return ""
+        return True
+    except ValueError as e:
+        print(str(e))
+        return False
 
 
-def setPoints(points, machine):
-    service = get_box_service(machine)
-    building = get_box_building(machine)
-    
-    if checkMaxHP(points, machine, "set"):
-        print(f'Setting Box {machine} ({building} - {service}) to MAX Health')
-        sql = "UPDATE scoring SET health = 20 WHERE service = %s"
-        mysql.cursor.execute(sql, (service,))
-    else:
-        print(f'set Box {machine} ({building} - {service}) to {points} points')
-        sql = "UPDATE scoring SET health = %s WHERE service = %s"
-        mysql.cursor.execute(sql, (points, service))
+def subPoints(machine, points):
+    try:
+        box_num = get_box_number(machine)
+        service = get_box_service(box_num)
+        building = get_box_building(box_num)
 
-    mysql.connection.commit()
+        if checkIsDead(box_num) is False:
+            sql = "UPDATE scoring SET health = health-%s WHERE service = %s"
+            mysql.cursor.execute(sql, (points, service))
+            mysql.connection.commit()
+            return f'subtract {points} points from Box {box_num} ({building} - {service})'
+        return ""
+    except ValueError as e:
+        print(str(e))
+        return ""
+
+
+def setPoints(machine, points):
+    try:
+        box_num = get_box_number(machine)
+        service = get_box_service(box_num)
+        building = get_box_building(box_num)
+        
+        if checkMaxHP(points, box_num, "set"):
+            print(f'Setting Box {box_num} ({building} - {service}) to MAX Health')
+            sql = "UPDATE scoring SET health = 20 WHERE service = %s"
+            mysql.cursor.execute(sql, (service,))
+        else:
+            print(f'set Box {box_num} ({building} - {service}) to {points} points')
+            sql = "UPDATE scoring SET health = %s WHERE service = %s"
+            mysql.cursor.execute(sql, (points, service))
+
+        mysql.connection.commit()
+        return True
+    except ValueError as e:
+        print(str(e))
+        return False
 
 
 # Successfully starts connection
 def start():
     print('Competition started')
     comp_state.set(True)
-    mysql.start_connection('localhost', 'greyteam', 'greyteam', 'Scoring')
     
 
 def end():
     print('Competition ended')
     comp_state.set(False)
-    
-    if mysql.connection is not None:
-        mysql.close_connection()
 
 
 def help():
     print("\n========================= Available Commands =========================")
-    print("add <points> <box>     - Add points to the box's score")
-    print("sub <points> <box>     - Subtract points from the box's score")
-    print("set <points> <box>     - Set box points")
-    print("start                  - Start competition and make endpoints reachable")
-    print("end                    - Disable endpoints and stop competition")
+    print("add <box> <points>     - Add points to the box's score (box can be number or building name)")
+    print("sub <box> <points>     - Subtract points from the box's score (box can be number or building name)")
+    print("set <box> <points>     - Set box points (box can be number or building name)")
+    print("start                  - Start competition and make scan endpoint reachable")
+    print("end                    - Disable scan endpoint and stop competition. Scores endpoint remains up")
+    print("exit                   - Close database connection and exit gracefully")
     print("help                   - Show this help menu")
+    print("reload                 - Reload box information from database")
     print("============================ Box Mapping =============================")
     
     if box_info:
@@ -664,32 +712,54 @@ def command_listener():
         if command.startswith("add"):
             try:
                 cmd_parts = command.split()
-                points = cmd_parts[1]
-                machine = int(cmd_parts[2])
-                addPoints(points, machine)
-            except (IndexError, ValueError):
-                print("Command arguments not provided or invalid. Correct usage: add <points> <box_number>")
+                if len(cmd_parts) < 3:
+                    raise ValueError("Not enough arguments")
+                    
+                # Changed order: the second part is now the machine, the third part is the points
+                # Join parts 1 to n-1 as they might be a building name with spaces
+                machine = " ".join(cmd_parts[1:-1])
+                points = cmd_parts[-1]
+                addPoints(machine, points)
+            except (IndexError, ValueError) as e:
+                print(f"Error: {e}")
+                print("Command arguments not provided or invalid. Correct usage: add <box_number_or_building_name> <points>")
             
         elif command.startswith("sub"):
             try:
                 cmd_parts = command.split()
-                points = cmd_parts[1]
-                machine = int(cmd_parts[2])
-                subPoints(points, machine)
-            except (IndexError, ValueError):
-                print("Command arguments not provided or invalid. Correct usage: sub <points> <box_number>")
+                if len(cmd_parts) < 3:
+                    raise ValueError("Not enough arguments")
+                    
+                # Changed order: the second part is now the machine, the third part is the points
+                machine = " ".join(cmd_parts[1:-1])
+                points = cmd_parts[-1]
+                result = subPoints(machine, points)
+                if result:
+                    print(result)
+            except (IndexError, ValueError) as e:
+                print(f"Error: {e}")
+                print("Command arguments not provided or invalid. Correct usage: sub <box_number_or_building_name> <points>")
         elif command.startswith("set"):
             try:
                 cmd_parts = command.split()
-                points = cmd_parts[1]
-                machine = int(cmd_parts[2])
-                setPoints(points, machine)
-            except (IndexError, ValueError):
-                print("Command arguments not provided or invalid. Correct usage: set <points> <box_number>")
+                if len(cmd_parts) < 3:
+                    raise ValueError("Not enough arguments")
+                    
+                # Changed order: the second part is now the machine, the third part is the points
+                machine = " ".join(cmd_parts[1:-1])
+                points = cmd_parts[-1]
+                setPoints(machine, points)
+            except (IndexError, ValueError) as e:
+                print(f"Error: {e}")
+                print("Command arguments not provided or invalid. Correct usage: set <box_number_or_building_name> <points>")
         elif command.startswith("start"):
             start()
         elif command.startswith("end"):
             end()
+        elif command.startswith("exit"):
+            if mysql.connection is not None:
+                mysql.close_connection()
+
             print("Shutting down...")
             break
         elif command == "help":
@@ -707,11 +777,14 @@ if __name__ == '__main__':
     # Initialize help message
     help()
     
+    # connect to db
+    mysql.start_connection('localhost', 'greyteam', 'greyteam', 'Scoring')
+
     # Start Flask in a separate thread
     flask_thread = threading.Thread(target=app.run, kwargs={'host': '0.0.0.0', 'port': 5000, 'debug': False})
     flask_thread.daemon = True
     flask_thread.start()
     print("Flask server started at http://0.0.0.0:5000/")
-
+    
     # Start listening for terminal commands
     command_listener()
