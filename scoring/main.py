@@ -705,7 +705,7 @@ def checkIsDead(machine):
     
     return False
 
-# Check if points intended to add result in health > 20 or set = 20
+# Check if points intended to add result in health > 10 or set = 10
 def checkMaxHP(points, machine, func):
     service = get_box_service(machine)
     
@@ -716,9 +716,9 @@ def checkMaxHP(points, machine, func):
         
         if result and len(result) > 0:
             res = float(result[0][0]) + float(points)
-            return res >= 20
+            return res >= 10
     else:
-        if float(points) >= 20:
+        if float(points) >= 10:
             return True
     
     return False
@@ -733,7 +733,7 @@ def addPoints(machine, points):
         if checkMaxHP(points, box_num, "add") is True:
             print(f'Setting Box {box_num} ({building} - {service}) to MAX Health')
             endpoint_logger.info(f'Setting Box {box_num} ({building} - {service}) to MAX Health')
-            sql = "UPDATE scoring SET health = 20 WHERE service = %s"
+            sql = "UPDATE scoring SET health = 10 WHERE service = %s"
             mysql.cursor.execute(sql, (service,))
         else:
             print(f'add {points} points to Box {box_num} ({building} - {service})')
@@ -791,7 +791,7 @@ def setPoints(machine, points):
         if checkMaxHP(points, box_num, "set"):
             print(f'Setting Box {box_num} ({building} - {service}) to MAX Health')
             endpoint_logger.info(f'Setting Box {box_num} ({building} - {service}) to MAX Health')
-            sql = "UPDATE scoring SET health = 20 WHERE service = %s"
+            sql = "UPDATE scoring SET health = 10 WHERE service = %s"
             mysql.cursor.execute(sql, (service,))
         else:
             print(f'set Box {box_num} ({building} - {service}) to {points} points')
