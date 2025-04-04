@@ -16,7 +16,7 @@
 # Usage:
 # ansible-playbook -i inventory.ini deploy.yml
 
-- import_playbook: services/dc-adds-dns/dc.yml
+#- import_playbook: services/dc-adds-dns/dc.yml
 - import_playbook: services/iis/iis.yml
 - import_playbook: services/nginx/nginx.yml
 - import_playbook: services/winrm/winrm.yml
