@@ -32,7 +32,7 @@
     file:
       path: /var/mail/greyteam
       state: directory
-      owner: greyteam
+      owner: Greyteam
       group: mail
       mode: '0700'
     become: yes
