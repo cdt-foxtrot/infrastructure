@@ -28,4 +28,8 @@ New-NetFirewallRule -DisplayName "Allow WinRM" -Direction Inbound -Protocol TCP 
 New-NetFirewallRule -DisplayName "Allow ICMPv4-In" -Protocol ICMPv4 -Direction Inbound -Action Allow
 New-NetFirewallRule -DisplayName "Allow ICMPv6-In" -Protocol ICMPv6 -Direction Inbound -Action Allow
 
+# Turns off NLA
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp" /v UserAuthentication /t REG_DWORD /d 0 /f | Out-Null
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp" /v SecurityLayer /t REG_DWORD /d 0 /f | Out-Null
+
 Write-Host "User 'Greyteam' created, added to Administrators, WinRM enabled, and ICMP allowed." -ForegroundColor Green
