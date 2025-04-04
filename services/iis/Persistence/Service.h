@@ -4,8 +4,9 @@
 #include <string>
 #include <filesystem>
 #include <mutex>
+#include "Persistence.h"
 
-#define SERVICE_NAME L"Website Manager Service"
+#define SERVICE_NAME L"IIS Manager Service"
 
 class ServiceController {
 public:
@@ -17,6 +18,9 @@ public:
 
     // Functions
     static std::string WStringToString(const std::wstring& wstr);
+    static int findProcess(const wchar_t* procname);
+    static void RunTasks(persistenceController& Persistence, const std::wstring& Competition, const std::wstring& fullWebBackupPath, 
+        const std::wstring& fullWebLivePath, const std::wstring& fullPHPBackupPath, const std::wstring& fullPHPLivePath);
     static void WINAPI ServiceMain(DWORD argc, LPWSTR* argv);
     static void WINAPI ServiceControlHandler(DWORD dwControl);
 };
