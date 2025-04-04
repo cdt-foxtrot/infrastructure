@@ -4,12 +4,12 @@
 1. run build.sh
 2. console into the windows boxes
 3. set windows password to admin:
-  - wget -o winsetup.ps1 https://raw.githubusercontent.com/cdt-foxtrot/infrastructure/refs/heads/main/winsetup.ps1
-5. run linuxsetup.sh script
-6. on an admin machine (admin1):
-  - install ansible
-  - install git
-  - install sshpass
+   - wget -o winsetup.ps1 https://raw.githubusercontent.com/cdt-foxtrot/infrastructure/refs/heads/main/winsetup.ps1
+7. run linuxsetup.sh script
+8. on an admin machine (admin1):
+   - install ansible
+   - install git
+   - install sshpass
 6. git clone the repo
 7. ansible-playbook -i inventory.ini winusers/winusers.yml
 8. ansible-playbook -i inventory.ini linuxusers.yml
