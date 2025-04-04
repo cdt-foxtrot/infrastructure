@@ -10,7 +10,7 @@ Pre-requisites for scoring backend:
 - ldap-utils
   
 oneliner:
-`apt install python3 python3-flask python3-pymysql python3-requests git mysql-server smb-client dnsutils ldap-utils -y`
+`apt install python3 python3-flask python3-pymysql python3-requests git mysql-server smbclient dnsutils ldap-utils -y`
 
 then:
 - clone repo `git clone https://github.com/cdt-foxtrot/infrastructure.git`

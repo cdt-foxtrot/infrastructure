@@ -1,5 +1,26 @@
 # Cyber Defense Techniques - Foxtrot Infrastructure
 
+## SETUP INSTRUCTIONS
+1. run build.sh
+2. console into the windows boxes
+3. set windows password to admin:
+   - `wget -o winsetup.ps1 https://raw.githubusercontent.com/cdt-foxtrot/infrastructure/refs/heads/main/winsetup.ps1`
+7. run linuxsetup.sh script
+8. on an admin machine (admin1):
+  `apt install ansible git sshpass -y`
+   - install ansible
+   - install git
+   - install sshpass
+6. git clone the repo `git clone https://github.com/cdt-foxtrot/infrastructure.git`
+7. `ansible-playbook -i inventory.ini winusers/winusers.yml`
+8. `ansible-playbook -i inventory.ini linuxusers.yml`
+9. `ansible-playbook -i inventory.ini deploy.yml`
+10. ~~Manually go into Beach (Nginx) and start the service:~~
+    ~~- cd C:\nginx\nginx-1.24.0~~
+    ~~- start nginx~~
+
+To set up scoring service, see readme in that directory.
+
 ## build.sh
 This script sets up the Foxtrot Competition Infrastructure
 

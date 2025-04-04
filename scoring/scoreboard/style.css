@@ -1,0 +1,345 @@
+body {
+  font-family: "Minecraft", Arial, sans-serif;
+  background-color: #282828;
+  margin: 0;
+  padding: 20px;
+  color: white;
+  background-image: url("assets/images/background.png");
+  background-size: cover;
+  background-attachment: fixed;
+  background-position: center;
+}
+
+.minecraftlogo {
+  height: 100px;
+  justify-self: center;
+  margin: auto auto;
+}
+
+.logoholder {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+main {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+h1 {
+  text-align: center;
+  color: #55ff55;
+  margin-bottom: 30px;
+  text-shadow: 2px 2px #000000;
+}
+
+.boxes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.box {
+  background-color: rgba(55, 55, 55, 0.5);
+  border: 3px solid #555555;
+  padding: 15px;
+  border-radius: 4px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s;
+  position: relative;
+  background-position: center;
+  background-size: cover;
+  background-blend-mode: overlay;
+  height: 180px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.box:hover {
+  transform: translateY(-5px);
+}
+
+.box-info-bottom {
+  align-self: flex-start;
+  margin-top: auto;
+  background-color: rgba(0, 0, 0, 0.6);
+  padding: 10px;
+  border-radius: 4px;
+  width: calc(100% - 20px);
+}
+
+.box h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #ffff55;
+  font-size: 18px;
+  text-shadow: 1px 1px #000000;
+}
+
+.health {
+  display: flex;
+  margin: 5px 0;
+  align-items: center;
+}
+
+.health-text {
+  margin-left: 10px;
+  font-weight: bold;
+  color: #ffffff;
+  text-shadow: 1px 1px #000000;
+  min-width: 35px; /* Ensures consistent spacing */
+  font-size: small;
+}
+
+.heart {
+  width: 25px;
+  height: 25px;
+  margin-right: 1px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.os-info {
+  font-size: 12px;
+  color: #aaaaaa;
+  background-color: rgba(0, 0, 0, 0.3);
+  padding: 2px 5px;
+  border-radius: 3px;
+  margin: 5px 0;
+  display: inline-block;
+}
+
+/* State indicator styling */
+.state-indicator {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: 14px;
+  text-shadow: 1px 1px #000000;
+}
+
+.state-up {
+  color: #55ff55;
+  background-color: rgba(85, 255, 85, 0.2);
+}
+
+.state-down {
+  color: #ff5555;
+  background-color: rgba(255, 85, 85, 0.2);
+}
+
+/* Box outlines based on state */
+.box-up {
+  box-shadow: 0 0 10px 3px rgba(85, 255, 85, 0.5);
+  border-color: #55ff55;
+}
+
+.box-down {
+  box-shadow: 0 0 10px 3px rgba(255, 85, 85, 0.5);
+  border-color: #ff5555;
+}
+
+.service-ip {
+  margin-top: 1px;
+  font-size: 14px;
+  color: #ffffff;
+}
+
+/* Dead box styling */
+.box-dead {
+  filter: grayscale(100%);
+  opacity: 0.7;
+  box-shadow: 0 0 10px 3px rgba(100, 100, 100, 0.5);
+  border-color: #777777;
+}
+
+/* Dead state indicator styling */
+.state-dead {
+  color: #aaaaaa;
+  background-color: rgba(100, 100, 100, 0.3);
+}
+
+#autoScanButton {
+  font-size: 18px;
+  background-color: #008542;
+  color: #fff;
+  text-shadow: 0 2px 0 rgb(0 0 0 / 25%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  border: 0;
+  z-index: 1;
+  user-select: none;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  white-space: unset;
+  padding: 0.8rem 1.5rem;
+  text-decoration: none;
+  font-weight: 900;
+  transition: all 0.7s cubic-bezier(0, 0.8, 0.26, 0.99);
+}
+
+#autoScanButton:before {
+  position: absolute;
+  pointer-events: none;
+  top: 0;
+  left: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  content: "";
+  transition: 0.7s cubic-bezier(0, 0.8, 0.26, 0.99);
+  z-index: -1;
+  background-color: #008542 !important;
+  box-shadow: 0 -4px rgb(21 108 0 / 50%) inset,
+    0 4px rgb(100 253 31 / 99%) inset, -4px 0 rgb(100 253 31 / 50%) inset,
+    4px 0 rgb(21 108 0 / 50%) inset;
+}
+
+#autoScanButton:after {
+  position: absolute;
+  pointer-events: none;
+  top: 0;
+  left: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  content: "";
+  box-shadow: 0 4px 0 0 rgb(0 0 0 / 15%);
+  transition: 0.7s cubic-bezier(0, 0.8, 0.26, 0.99);
+}
+
+#autoScanButton:hover:before {
+  box-shadow: 0 -4px rgb(0 0 0 / 50%) inset, 0 4px rgb(255 255 255 / 20%) inset,
+    -4px 0 rgb(255 255 255 / 20%) inset, 4px 0 rgb(0 0 0 / 50%) inset;
+}
+
+#autoScanButton:hover:after {
+  box-shadow: 0 4px 0 0 rgb(0 0 0 / 15%);
+}
+
+#autoScanButton.active {
+  min-width: 100px; /* Give enough room for the countdown text */
+  background-color: #ff5555 !important; /* Red background when active */
+}
+
+#autoScanButton:active:after {
+  box-shadow: 0 0px 0 0 rgb(0 0 0 / 15%);
+}
+
+#autoScanButton.active:before {
+  background-color: #ff5555 !important;
+  box-shadow: 0 -4px rgb(108 0 0 / 50%) inset, 0 4px rgb(253 31 31 / 99%) inset,
+    -4px 0 rgb(253 31 31 / 50%) inset, 4px 0 rgb(108 0 0 / 50%) inset;
+}
+
+.countdown-display {
+  display: none;
+}
+
+.controls-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+@font-face {
+  font-family: "Minecraft";
+  src: url("https://db.onlinewebfonts.com/t/b25585465908e9316af92229e417da57.woff2")
+      format("woff2"),
+    url("https://db.onlinewebfonts.com/t/b25585465908e9316af92229e417da57.woff")
+      format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@keyframes heartJitter {
+  0% {
+    transform: translateY(0);
+  }
+  25% {
+    transform: translateY(-2px);
+  }
+  50% {
+    transform: translateY(0);
+  }
+  75% {
+    transform: translateY(-1px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+.heart.critical {
+  animation: heartJitter 0.2s infinite;
+}
+
+/* Delay animations for different hearts to create a random effect */
+.heart.critical:nth-child(1) {
+  animation-delay: 0.05s;
+}
+.heart.critical:nth-child(2) {
+  animation-delay: 0s;
+}
+.heart.critical:nth-child(3) {
+  animation-delay: 0.1s;
+}
+.heart.critical:nth-child(4) {
+  animation-delay: 0.02s;
+}
+.heart.critical:nth-child(5) {
+  animation-delay: 0.07s;
+}
+.heart.critical:nth-child(6) {
+  animation-delay: 0.12s;
+}
+.heart.critical:nth-child(7) {
+  animation-delay: 0.04s;
+}
+.heart.critical:nth-child(8) {
+  animation-delay: 0.09s;
+}
+.heart.critical:nth-child(9) {
+  animation-delay: 0.01s;
+}
+.heart.critical:nth-child(10) {
+  animation-delay: 0.06s;
+}
+
+@keyframes heartFlash {
+  0% {
+    transform: scale(1);
+  }
+  16.67% {
+    transform: scale(1.2);
+  }
+  33.33% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  66.67% {
+    transform: scale(1);
+  }
+  83.33% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.heart-flash {
+  animation: heartFlash 1.2s ease-in-out;
+}

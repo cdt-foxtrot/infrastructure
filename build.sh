@@ -296,96 +296,101 @@ print_command "incus console --type=vga ${Nginx} &"
 print_command "incus console --type=vga ${WinRM} &"
 print_command "incus console --type=vga ${Admin-4} &"
 
-# Creates Ubuntu Apache VM
-print_message "Creating Apache VM..."
+# Creates Ubuntu Apache Container
+print_message "Creating Apache Container..."
 print_command "incus launch images:ubuntu/noble ${Apache} \\
---vm \\
 --network \"${BLUE_NETWORK}\" \\
 --device \"eth0,ipv4.address=${Apache_IP}\" -t c4-m8"
 
-# Creates Ubuntu SQL VM
-print_message "Creating SQL VM..."
+# Creates Ubuntu SQL Container
+print_message "Creating SQL Container..."
 print_command "incus launch images:ubuntu/noble ${SQL} \\
---vm \\
 --network \"${BLUE_NETWORK}\" \\
 --device \"eth0,ipv4.address=${SQL_IP}\" -t c4-m8"
 
-# Creates Ubuntu Mail VM
-print_message "Creating Mail VM..."
+# Creates Ubuntu Mail Container
+print_message "Creating Mail Container..."
 print_command "incus launch images:ubuntu/noble ${Mail} \\
---vm \\
 --network \"${BLUE_NETWORK}\" \\
 --device \"eth0,ipv4.address=${Mail_IP}\" -t c4-m8"
 
-# Creates Ubuntu NTP VM
-print_message "Creating NTP VM..."
+# Creates Ubuntu NTP Container
+print_message "Creating NTP Container..."
 print_command "incus launch images:ubuntu/noble ${NTP} \\
 --vm \\
 --network \"${BLUE_NETWORK}\" \\
 --device \"eth0,ipv4.address=${NTP_IP}\" -t c4-m8"
 
-# Creates Ubuntu Samba VM
-print_message "Creating Samba VM..."
+# Creates Ubuntu Samba Container
+print_message "Creating Samba Container..."
 print_command "incus launch images:ubuntu/noble ${Samba} \\
---vm \\
 --network \"${BLUE_NETWORK}\" \\
 --device \"eth0,ipv4.address=${Samba_IP}\" -t c4-m8"
 
-# Creates Ubuntu ELK VM
-print_message "Creating ELK VM..."
+# Creates Ubuntu ELK Container
+print_message "Creating ELK Container..."
 print_command "incus launch images:ubuntu/noble ${ELK} \\
---vm \\
 --network \"${BLUE_NETWORK}\" \\
 --device \"eth0,ipv4.address=${ELK_IP}\" -t c4-m8"
 
 # Creates Red Team Containers
 print_message "Creating Red Team Container (1)..."
 print_command "incus launch images:ubuntu/noble ${Nether1} \\
+--vm \\
 --network \"${RED_NETWORK}\" \\
 --device \"eth0,ipv4.address=${Nether1_IP}\" -t c4-m8"
 
 print_message "Creating Red Team Container (2)..."
 print_command "incus launch images:ubuntu/noble ${Nether2} \\
+--vm \\
 --network \"${RED_NETWORK}\" \\
 --device \"eth0,ipv4.address=${Nether2_IP}\" -t c4-m8"
 
 print_message "Creating Red Team Container (3)..."
 print_command "incus launch images:ubuntu/noble ${Nether3} \\
+--vm \\
 --network \"${RED_NETWORK}\" \\
 --device \"eth0,ipv4.address=${Nether3_IP}\" -t c4-m8"
 
 print_message "Creating Red Team Container (4)..."
 print_command "incus launch images:ubuntu/noble ${Nether4} \\
+--vm \\
 --network \"${RED_NETWORK}\" \\
 --device \"eth0,ipv4.address=${Nether4_IP}\" -t c4-m8"
 
 print_message "Creating Red Team Container (5)..."
 print_command "incus launch images:ubuntu/noble ${Nether5} \\
+--vm \\
 --network \"${RED_NETWORK}\" \\
 --device \"eth0,ipv4.address=${Nether5_IP}\" -t c4-m8"
 
 print_message "Creating Red Team Container (6)..."
 print_command "incus launch images:ubuntu/noble ${Nether6} \\
+--vm \\
 --network \"${RED_NETWORK}\" \\
 --device \"eth0,ipv4.address=${Nether6_IP}\" -t c4-m8"
 
 print_message "Creating Red Team Container (7)..."
 print_command "incus launch images:ubuntu/noble ${Nether7} \\
+--vm \\
 --network \"${RED_NETWORK}\" \\
 --device \"eth0,ipv4.address=${Nether7_IP}\" -t c4-m8"
 
 print_message "Creating Red Team Container (8)..."
 print_command "incus launch images:ubuntu/noble ${Nether8} \\
+--vm \\
 --network \"${RED_NETWORK}\" \\
 --device \"eth0,ipv4.address=${Nether8_IP}\" -t c4-m8"
 
 print_message "Creating Red Team Container (9)..."
 print_command "incus launch images:ubuntu/noble ${Nether9} \\
+--vm \\
 --network \"${RED_NETWORK}\" \\
 --device \"eth0,ipv4.address=${Nether9_IP}\" -t c4-m8"
 
 print_message "Creating Red Team Container (10)..."
 print_command "incus launch images:ubuntu/noble ${Nether10} \\
+--vm \\
 --network \"${RED_NETWORK}\" \\
 --device \"eth0,ipv4.address=${Nether10_IP}\" -t c4-m8"
 

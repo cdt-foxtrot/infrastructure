@@ -1,6 +1,6 @@
 ---
 - name: Deploy users with restricted admin privileges on Windows
-  hosts: dc
+  hosts: iis
   gather_facts: yes
   vars:
     standard_users:

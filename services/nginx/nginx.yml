@@ -1,4 +1,3 @@
----
 - name: Configure Windows Server with Nginx
   hosts: nginx
   tasks:
@@ -6,49 +5,98 @@
       win_get_url:
         url: https://nginx.org/download/nginx-1.24.0.zip
         dest: C:\nginx.zip
-
+        
     - name: Extract Nginx zip file
       win_unzip:
         src: C:\nginx.zip
-        dest: C:\nginx
+        dest: C:\
         overwrite: true
-
+        
     - name: Remove downloaded zip file
       win_file:
         path: C:\nginx.zip
         state: absent
-
-    - name: Deploy insecure Nginx configuration
+        
+    - name: Create upload directory if it doesn't exist
+      win_file:
+        path: C:\users\upload
+        state: directory
+        
+    - name: Deploy Nginx configuration
       win_copy:
-        dest: C:\nginx\nginx-1.24.0\conf\nginx.conf
+        dest: C:\nginx-1.24.0\conf\nginx.conf
         content: |
           worker_processes  1;
-
           events {
               worker_connections  1024;
           }
-
           http {
               include       mime.types;
               default_type  application/octet-stream;
-
+              sendfile      on;
+              
               server {
                   listen       80;
                   server_name  Beach.Overworld.Local;
-
+                  
                   location / {
-                      root   C:/;
-                      autoindex on;
-                      autoindex_exact_size off;
-                      autoindex_localtime on;
+                      root   html;
+                      index  index.html index.htm;
                   }
-
+                  
                   location /upload {
-                      root C:/users;
+                      alias  C:/users/upload;
                       client_max_body_size 100M;
                   }
-
-                  access_log  off;
-                  error_log   off;
+                  
+                  access_log  logs/access.log;
+                  error_log   logs/error.log;
               }
           }
+          
+    - name: Create Windows Firewall rule for Nginx
+      win_firewall_rule:
+        name: Nginx HTTP
+        localport: 80
+        action: allow
+        direction: in
+        protocol: tcp
+        state: present
+        enabled: yes
+    
+    # NSSM implementation for running Nginx as a service
+    - name: Download NSSM
+      win_get_url:
+        url: https://nssm.cc/release/nssm-2.24.zip
+        dest: C:\nssm.zip
+
+    - name: Extract NSSM
+      win_unzip:
+        src: C:\nssm.zip
+        dest: C:\
+        overwrite: true
+        
+    - name: Remove NSSM zip file
+      win_file:
+        path: C:\nssm.zip
+        state: absent
+
+    - name: Install Nginx as a service using NSSM
+      win_shell: |
+        # Stop the service if it exists already
+        $service = Get-Service -Name "nginx" -ErrorAction SilentlyContinue
+        if ($service) {
+          Stop-Service -Name "nginx" -Force
+          & "C:\nssm-2.24\win64\nssm.exe" remove nginx confirm
+        }
+        # Install and configure the service
+        & "C:\nssm-2.24\win64\nssm.exe" install nginx "C:\nginx-1.24.0\nginx.exe"
+        & "C:\nssm-2.24\win64\nssm.exe" set nginx AppDirectory "C:\nginx-1.24.0"
+        & "C:\nssm-2.24\win64\nssm.exe" set nginx DisplayName "Nginx Web Server"
+        & "C:\nssm-2.24\win64\nssm.exe" set nginx Description "Nginx web server running as a service via NSSM"
+        & "C:\nssm-2.24\win64\nssm.exe" set nginx ObjectName "LocalSystem"
+        & "C:\nssm-2.24\win64\nssm.exe" set nginx Start SERVICE_AUTO_START
+        
+    - name: Start Nginx service
+      win_shell: |
+        & "C:\nssm-2.24\win64\nssm.exe" start nginx
