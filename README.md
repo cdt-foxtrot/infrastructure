@@ -13,11 +13,8 @@
    - install sshpass
 6. git clone the repo `git clone https://github.com/cdt-foxtrot/infrastructure.git`
 7. `ansible-playbook -i inventory.ini winusers/winusers.yml`
-8. `ansible-playbook -i inventory.ini linuxusers.yml`
+8. `ansible-playbook -i inventory.ini linuxusers.yml -kK`
 9. `ansible-playbook -i inventory.ini deploy.yml`
-10. ~~Manually go into Beach (Nginx) and start the service:~~
-    ~~- cd C:\nginx\nginx-1.24.0~~
-    ~~- start nginx~~
 
 To set up scoring service, see readme in that directory.
 
@@ -27,23 +24,23 @@ This script sets up the Foxtrot Competition Infrastructure
 It Creates:
 1. Three private networks for the Blue, Red, and Gray Team
 2. 4 Windows Server 2019 VMs (DC, IIS, Nginx, WinRM)
-3. 7 Ubuntu VMs (SQL, Samba, NTP, Apache, Mail, ELK)
+3. 7 Ubuntu VMs (SQL, Samba, FTP, Apache, Mail, ELK)
 4. 10 Ubuntu VMs (Red Team)
-5. 2 Gray Team Containers
+5. 4 Gray Team Containers
 
 ## destroy.sh
 This script destroys the Foxtrot Competition Infrastructure. This is primarily for testing purposes.
 
 ## services/
-This directory contains all of the Ansible scripts to set up the 9 services:
+This directory contains all of the Ansible scripts to set up the 10 services:
 1. Apache
 2. Domain Controller/Active Directory/DNS
 3. ELK
-4. IIS
-5. Mail Server
-6. MySQL
-7. NTP
-8. OSSEC
+4. FTP
+5. IIS
+6. Mail Server
+7. MySQL
+8. Nginx
 9. Samba
 10. WinRM
 

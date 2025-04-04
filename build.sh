@@ -334,62 +334,62 @@ print_command "incus launch images:ubuntu/noble ${ELK} \\
 --device \"eth0,ipv4.address=${ELK_IP}\" -t c4-m8"
 
 # Creates Red Team Containers
-print_message "Creating Red Team Container (1)..."
-print_command "incus launch images:ubuntu/noble ${Nether1} \\
+print_message "Creating Red Team VM (1)..."
+print_command "incus launch images:ubuntu/noble/desktop ${Nether1} \\
 --vm \\
 --network \"${RED_NETWORK}\" \\
 --device \"eth0,ipv4.address=${Nether1_IP}\" -t c4-m8"
 
-print_message "Creating Red Team Container (2)..."
-print_command "incus launch images:ubuntu/noble ${Nether2} \\
+print_message "Creating Red Team VM (2)..."
+print_command "incus launch images:ubuntu/noble/desktop ${Nether2} \\
 --vm \\
 --network \"${RED_NETWORK}\" \\
 --device \"eth0,ipv4.address=${Nether2_IP}\" -t c4-m8"
 
-print_message "Creating Red Team Container (3)..."
-print_command "incus launch images:ubuntu/noble ${Nether3} \\
+print_message "Creating Red Team VM (3)..."
+print_command "incus launch images:ubuntu/noble/desktop ${Nether3} \\
 --vm \\
 --network \"${RED_NETWORK}\" \\
 --device \"eth0,ipv4.address=${Nether3_IP}\" -t c4-m8"
 
-print_message "Creating Red Team Container (4)..."
-print_command "incus launch images:ubuntu/noble ${Nether4} \\
+print_message "Creating Red Team VM (4)..."
+print_command "incus launch images:ubuntu/noble/desktop ${Nether4} \\
 --vm \\
 --network \"${RED_NETWORK}\" \\
 --device \"eth0,ipv4.address=${Nether4_IP}\" -t c4-m8"
 
-print_message "Creating Red Team Container (5)..."
-print_command "incus launch images:ubuntu/noble ${Nether5} \\
+print_message "Creating Red Team VM (5)..."
+print_command "incus launch images:ubuntu/noble/desktop ${Nether5} \\
 --vm \\
 --network \"${RED_NETWORK}\" \\
 --device \"eth0,ipv4.address=${Nether5_IP}\" -t c4-m8"
 
-print_message "Creating Red Team Container (6)..."
-print_command "incus launch images:ubuntu/noble ${Nether6} \\
+print_message "Creating Red Team VM (6)..."
+print_command "incus launch images:ubuntu/noble/desktop ${Nether6} \\
 --vm \\
 --network \"${RED_NETWORK}\" \\
 --device \"eth0,ipv4.address=${Nether6_IP}\" -t c4-m8"
 
-print_message "Creating Red Team Container (7)..."
-print_command "incus launch images:ubuntu/noble ${Nether7} \\
+print_message "Creating Red Team VM (7)..."
+print_command "incus launch images:ubuntu/noble/desktop ${Nether7} \\
 --vm \\
 --network \"${RED_NETWORK}\" \\
 --device \"eth0,ipv4.address=${Nether7_IP}\" -t c4-m8"
 
-print_message "Creating Red Team Container (8)..."
-print_command "incus launch images:ubuntu/noble ${Nether8} \\
+print_message "Creating Red Team VM (8)..."
+print_command "incus launch images:ubuntu/noble/desktop ${Nether8} \\
 --vm \\
 --network \"${RED_NETWORK}\" \\
 --device \"eth0,ipv4.address=${Nether8_IP}\" -t c4-m8"
 
-print_message "Creating Red Team Container (9)..."
-print_command "incus launch images:ubuntu/noble ${Nether9} \\
+print_message "Creating Red Team VM (9)..."
+print_command "incus launch images:ubuntu/noble/desktop ${Nether9} \\
 --vm \\
 --network \"${RED_NETWORK}\" \\
 --device \"eth0,ipv4.address=${Nether9_IP}\" -t c4-m8"
 
-print_message "Creating Red Team Container (10)..."
-print_command "incus launch images:ubuntu/noble ${Nether10} \\
+print_message "Creating Red Team VM (10)..."
+print_command "incus launch images:ubuntu/noble/desktop ${Nether10} \\
 --vm \\
 --network \"${RED_NETWORK}\" \\
 --device \"eth0,ipv4.address=${Nether10_IP}\" -t c4-m8"
