@@ -24,6 +24,7 @@ export ANSIBLE_INCUS_PROJECT=cdtfoxtrot
 # Gray Team Linux
 Admin1="Admin-1"
 Admin2="Admin-2"
+Admin3="Admin-3"
 
 # Blue Team Linux
 Apache="Plains"
@@ -50,7 +51,7 @@ cleanup_existing_users() {
     print_message "Starting cleanup of existing users..."
     
     # Cleanup Linux containers
-    for linux_container in ${Admin1} ${Admin2} \
+    for linux_container in ${Admin1} ${Admin2} ${Admin3} \
                         ${Nether1} ${Nether2} ${Nether3} ${Nether4} ${Nether5} \
                         ${Nether6} ${Nether7} ${Nether8} ${Nether9} ${Nether10} \
                         ${Apache} ${SQL} ${Mail} ${NTP} ${Samba} ${ELK}; do
@@ -90,7 +91,7 @@ enable_ssh() {
 cleanup_existing_users
 
 # Add Greyteam User to all Linux containers
-for linux_container in ${Admin1} ${Admin2} \
+for linux_container in ${Admin1} ${Admin2} ${Admin3} \
                       ${Nether1} ${Nether2} ${Nether3} ${Nether4} ${Nether5} \
                       ${Nether6} ${Nether7} ${Nether8} ${Nether9} ${Nether10} \
                       ${Apache} ${SQL} ${Mail} ${NTP} ${Samba} ${ELK}; do

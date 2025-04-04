@@ -296,45 +296,40 @@ print_command "incus console --type=vga ${Nginx} &"
 print_command "incus console --type=vga ${WinRM} &"
 print_command "incus console --type=vga ${Admin-4} &"
 
-# Creates Ubuntu Apache VM
-print_message "Creating Apache VM..."
+# Creates Ubuntu Apache Container
+print_message "Creating Apache Container..."
 print_command "incus launch images:ubuntu/noble ${Apache} \\
---vm \\
 --network \"${BLUE_NETWORK}\" \\
 --device \"eth0,ipv4.address=${Apache_IP}\" -t c4-m8"
 
-# Creates Ubuntu SQL VM
-print_message "Creating SQL VM..."
+# Creates Ubuntu SQL Container
+print_message "Creating SQL Container..."
 print_command "incus launch images:ubuntu/noble ${SQL} \\
---vm \\
 --network \"${BLUE_NETWORK}\" \\
 --device \"eth0,ipv4.address=${SQL_IP}\" -t c4-m8"
 
-# Creates Ubuntu Mail VM
-print_message "Creating Mail VM..."
+# Creates Ubuntu Mail Container
+print_message "Creating Mail Container..."
 print_command "incus launch images:ubuntu/noble ${Mail} \\
---vm \\
 --network \"${BLUE_NETWORK}\" \\
 --device \"eth0,ipv4.address=${Mail_IP}\" -t c4-m8"
 
-# Creates Ubuntu NTP VM
-print_message "Creating NTP VM..."
+# Creates Ubuntu NTP Container
+print_message "Creating NTP Container..."
 print_command "incus launch images:ubuntu/noble ${NTP} \\
 --vm \\
 --network \"${BLUE_NETWORK}\" \\
 --device \"eth0,ipv4.address=${NTP_IP}\" -t c4-m8"
 
-# Creates Ubuntu Samba VM
-print_message "Creating Samba VM..."
+# Creates Ubuntu Samba Container
+print_message "Creating Samba Container..."
 print_command "incus launch images:ubuntu/noble ${Samba} \\
---vm \\
 --network \"${BLUE_NETWORK}\" \\
 --device \"eth0,ipv4.address=${Samba_IP}\" -t c4-m8"
 
-# Creates Ubuntu ELK VM
-print_message "Creating ELK VM..."
+# Creates Ubuntu ELK Container
+print_message "Creating ELK Container..."
 print_command "incus launch images:ubuntu/noble ${ELK} \\
---vm \\
 --network \"${BLUE_NETWORK}\" \\
 --device \"eth0,ipv4.address=${ELK_IP}\" -t c4-m8"
 
