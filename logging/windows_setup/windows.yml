@@ -1,0 +1,32 @@
+#This is where the script for installing and configuring nxlog on windows devices when its written, huzzah!
+---
+- hosts: winventory.ini
+  tasks:
+    - name: Upload NXLog installer to remote Windows server
+       copy:
+         src: nxlog-trial-6.6.9843_windows_x64.msi
+         dest: C:\Users\administrator
+         owner: nxlog
+         group: nxlog
+       when: ansible_distribution == 'Windows'
+
+    - name: Install NXLog on Windows
+       win_package:
+         path: C:\Users\administrator\nxlog-trial-6.6.9843_windows_x64.msi
+         state: present
+       when: ansible_distribution == 'Windows'
+
+    - name: Copy new "windows.conf" file into the NXLog default config directory
+       copy:
+         src: windows.conf
+         dest: C:\Program Files\nxlog\conf\nxlog.d\windows.conf
+         owner: nxlog
+         group: nxlog
+         mode: '750'
+       when: ansible_distribution == 'Windows'
+
+    - name: Set nxlog service startup mode to auto and ensure it's started.
+       win_service:
+         name: nxlog
+         state: restarted
+
