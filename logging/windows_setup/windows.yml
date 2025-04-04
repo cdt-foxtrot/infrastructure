@@ -1,6 +1,6 @@
 #This is where the script for installing and configuring nxlog on windows devices when its written, huzzah!
 ---
-- hosts: winventory.ini
+- hosts: all
   tasks:
     - name: Upload NXLog installer to remote Windows server
       copy:

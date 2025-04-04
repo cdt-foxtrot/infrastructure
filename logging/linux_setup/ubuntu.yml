@@ -1,7 +1,7 @@
 #This is where the script installing nxlog on ubuntu devices will go, huzzah!
 
 ---
-- hosts: linventory.ini
+- hosts: all
   become: true
   become_user: root
 
