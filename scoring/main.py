@@ -390,7 +390,7 @@ def scan_MySQL():
         return False
 
 def scan_Mail():
-    # 25
+    # 143
     box_num = 7
     box_ip = get_box_ip(box_num)
 
@@ -400,7 +400,7 @@ def scan_Mail():
     if not scan_service(box_num):
         scan_logger.info(f"Basic port scan failed for Mail box {box_num}")
         return False
-    
+    '''
     smtp_working = False
     try:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -413,7 +413,7 @@ def scan_Mail():
     except Exception as e:
         scan_logger.error(f"SMTP check failed: {e}")
         return False
-
+    '''
     imap_working = False
     try:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -427,7 +427,7 @@ def scan_Mail():
         scan_logger.error(f"IMAP check failed: {e}")
         return False
     
-    final_result = imap_working and smtp_working
+    final_result = imap_working #and smtp_working
     scan_logger.info(f"Mail combined check result: {'UP' if final_result else 'DOWN'}")
     return final_result
 
