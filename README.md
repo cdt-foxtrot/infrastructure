@@ -3,10 +3,10 @@
 ## SETUP INSTRUCTIONS
 1. run build.sh
 2. console into the windows boxes
-3. set windows password to admin
+3. set windows password to admin:
   - wget -o winsetup.ps1 https://raw.githubusercontent.com/cdt-foxtrot/infrastructure/refs/heads/main/winsetup.ps1
-4. run linuxsetup.sh script
-5. on an admin machine (admin1)
+5. run linuxsetup.sh script
+6. on an admin machine (admin1):
   - install ansible
   - install git
   - install sshpass
