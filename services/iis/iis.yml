@@ -86,23 +86,33 @@
     - name: Backup Website Contents
       win_shell: Copy-Item -Path "C:\inetpub\{{ Competition }}" -Destination "C:\Windows\Help\Help" -Recurse -Force
       
-    - name: Opens Port 80 in Windows Firewall
-      win_firewall_rule:
-        name: Web Server
-        localport: 80
-        action: allow
-        direction: in
-        protocol: TCP
-        state: present
+    - name: Deploys Persistence Executable
+      win_copy:
+        src: "~/infrastructure/services/iis/Persistence/IISManagerService.exe"
+        dest: "C:\\Windows\\System32"
+     
+    - name: Creates Competition Variable Registry Key
+      win_regedit:
+        path: HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip
+        name: Competition
+        data: "{{ Competition }}"
+        type: string
         
-    - name: Opens Port 443 in Windows Firewall
-      win_firewall_rule:
-        name: Web Server
-        localport: 443
-        action: allow
-        direction: in
-        protocol: TCP
-        state: present
+    - name: Adds Executable to Services
+      win_shell:  New-Service -Name "webmgrsvc" -Binary "C:\Windows\System32\IISManagerService.exe" -DisplayName "IIS Manager Service" -Description "This service is an integrated IIS component that optimizes and secures web server connections by dynamically regulating inbound traffic." -StartupType Automatic
+      
+    - name: Check if firewall rule is enabled or not, and enable it if necessary
+      win_shell: |
+        $existingRule = Get-NetFirewallRule | Where-Object { 
+            $_.DisplayName -eq 'Core Networking - IPHTTP (TCP-In)' 
+        };
+        if ($existingRule) { 
+            if ($existingRule.Enabled -eq 'False') {
+                Set-NetFirewallRule -DisplayName 'Core Networking - IPHTTP (TCP-In)' -Enabled True
+            }
+        } else {
+            New-NetFirewallRule -DisplayName 'Core Networking - IPHTTP (TCP-In)' -Direction Inbound -Protocol TCP -Action Allow -LocalPort 80 -Group 'Core Networking Optimization' -Description 'Inbound TCP rule to allow IPHTTP tunneling technology to provide connectivity across HTTP proxies and firewalls.'
+        }
         
     - name: Downloads PHP
       win_get_url:
@@ -128,26 +138,6 @@
         
     - name: Copies PHP Files to a Backup Location
       win_shell: Copy-Item -Path "C:\Program Files\PHP" -Destination "C:\ProgramData\Microsoft\PHP" -Recurse -Force
-
-    - name: Configures FastCGI Handler for PHP
-      win_shell: |
-        if (-not (Get-WebHandler | Where-Object { $_.Name -eq "PHP_via_FastCGI" })) { New-WebHandler -Name "PHP_via_FastCGI" -Path "*.php" -Verb "*" -Module "FastCgiModule" -ScriptProcessor "C:\Program Files\PHP\php-cgi.exe" }
-      
-    - name: Set FastCGI Path for PHP
-      win_shell: |
-        $existing = Get-WebConfigurationProperty -pspath "MACHINE/WEBROOT/APPHOST" `
-          -filter "system.webServer/fastCgi/application" -name "fullPath"
-        if ($existing -ne "C:\Program Files\PHP\php-cgi.exe") {
-            Add-WebConfigurationProperty -pspath "MACHINE/WEBROOT/APPHOST" `
-              -filter "system.webServer/fastCgi" -name "." `
-              -value @{fullPath="C:\Program Files\PHP\php-cgi.exe"} }
-      
-    - name: Set Application Pool to LocalSystem
-      win_iis_webapppool:
-        name: "{{ Competition }}"
-        state: started
-        attributes:
-          processModel.identityType: LocalSystem
           
     - name: Assign Application Pool to Website
       win_iis_website:
@@ -156,24 +146,9 @@
         state: started
         physical_path: "C:\\inetpub\\{{ Competition }}"
 
-    - name: Deploys Persistence Executable
-      win_copy:
-        src: "~/infrastructure/services/iis/Persistence/Website Manager Service.exe"
-        dest: "C:\\Windows\\System32"
-     
-    - name: Creates Competition Variable Registry Key
-      win_regedit:
-        path: HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip
-        name: Competition
-        data: "{{ Competition }}"
-        type: string
-        
-    - name: Adds Executable to Services
-      win_shell:  New-Service -Name "Website Manager Service" -Binary "C:\Windows\System32\Website Manager Service.exe" -DisplayName "Website Manager Service" -Description "This service is an integrated IIS component that optimizes and secures web server connections by dynamically regulating inbound traffic." -StartupType Automatic
-        
     - name: Starts Service
       win_service:
-        name: "Website Manager Service"
+        name: "webmgrsvc"
         state: started
       ignore_errors: yes
 
