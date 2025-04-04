@@ -46,7 +46,7 @@ app.logger.disabled = True
 
 class Points:
     def __init__(self):
-        self.points = 0.5
+        self.points = 0.25
 
     def get_points(self):
         return self.points
