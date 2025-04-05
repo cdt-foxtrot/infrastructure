@@ -1,1 +1,97 @@
-#Test test
+---
+- name: Setup apache 2.4.50
+  hosts: apache
+  become: true
+  vars:
+    ansible_become_password: SteveSexy!
+    apache_version: 2.4.50
+
+  tasks:
+    - name: "Configure hostname"
+      ansible.builtin.hostname:
+        name: "Plains"
+      become: true
+
+    - name: Install required packages for building Apache #Unsure if all of these are needed
+      apt:
+        name:
+          - build-essential
+          - libpcre3
+          - libpcre3-dev
+          - libssl-dev
+          - perl
+          - wget
+          - tar
+          - apache2-utils
+          - libapr1-dev
+          - libaprutil1-dev
+        state: present
+        update_cache: true
+
+    - name: Create directory for Apache source
+      file:
+        path: /usr/local/src/apache
+        state: directory
+
+#From this point till near the end, it has been giving me issues.
+    - name: Download Apache HTTPD {{ apache_version }}
+      get_url:
+        url: "https://downloads.apache.org/httpd/httpd-{{ apache_version }}.tar.gz"
+        dest: "/usr/local/src/apache/httpd-{{ apache_version }}.tar.gz"
+
+    - name: Extract Apache source
+      unarchive:
+        src: "/usr/local/src/apache/httpd-{{ apache_version }}.tar.gz"
+        dest: "/usr/local/src/apache"
+        remote_src: yes
+
+    - name: Download and extract APR
+      shell: |
+        cd /usr/local/src/apache/httpd-{{ apache_version }}/srclib
+        wget https://downloads.apache.org/apr/apr-1.7.0.tar.gz
+        wget https://downloads.apache.org/apr/apr-util-1.6.1.tar.gz
+        tar -xzf apr-1.7.0.tar.gz
+        tar -xzf apr-util-1.6.1.tar.gz
+        mv apr-1.7.0 apr
+        mv apr-util-1.6.1 apr-util
+      args:
+        creates: "/usr/local/src/apache/httpd-{{ apache_version }}/srclib/apr"
+
+#I had to look this stuff up, but there was very little documentation. I tried checking with stuff like ChatGPT also, but nothing was helpful.
+    - name: Configure Apache source
+      shell: |
+        cd /usr/local/src/apache/httpd-{{ apache_version }}
+        ./configure --enable-so --enable-ssl --with-included-apr --enable-mods-shared=all
+      args:
+        creates: "/usr/local/src/apache/httpd-{{ apache_version }}/Makefile"
+
+    - name: Compile Apache
+      shell: |
+        cd /usr/local/src/apache/httpd-{{ apache_version }}
+        make
+      args:
+        creates: "/usr/local/src/apache/httpd-{{ apache_version }}/httpd"
+
+#This differs from the normal install method of the latest apache version
+    - name: Install Apache
+      shell: |
+        cd /usr/local/src/apache/httpd-{{ apache_version }}
+        make install
+#Sets the outdated apache version to the proper apache system path
+    - name: Add Apache to system path
+      lineinfile:
+        path: /etc/profile
+        line: 'export PATH=$PATH:/usr/local/apache2/bin'
+        state: present
+        insertafter: EOF
+      notify: Reload profile
+
+    - name: Start Apache
+      shell: /usr/local/apache2/bin/apachectl start
+      args:
+        executable: /bin/bash
+        
+#Unsure if this section is needed.
+  handlers:
+    - name: Reload profile
+      shell: source /etc/profile
