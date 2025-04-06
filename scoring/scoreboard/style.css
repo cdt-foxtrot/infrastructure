@@ -2,12 +2,15 @@ body {
   font-family: "Minecraft", Arial, sans-serif;
   background-color: #282828;
   margin: 0;
-  padding: 20px;
+  padding: 0; /* Remove padding to use full viewport */
   color: white;
   background-image: url("assets/images/background.png");
   background-size: cover;
   background-attachment: fixed;
   background-position: center;
+  height: 100vh; /* Use full viewport height */
+  display: flex;
+  flex-direction: column; /* Stack elements vertically */
 }
 
 .minecraftlogo {
@@ -20,11 +23,17 @@ body {
   width: 100%;
   display: flex;
   justify-content: center;
+  margin-bottom: 20px;
 }
 
 main {
-  max-width: 1200px;
+  max-width: 85%;
   margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  flex: 1; /* Take up all available space */
+  padding: 20px;
+  height: 100%; /* Take full height */
 }
 
 h1 {
@@ -34,16 +43,20 @@ h1 {
   text-shadow: 2px 2px #000000;
 }
 
+
+
 .boxes {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 20px;
+  flex: 1; /* This makes the boxes container take up all remaining space */
 }
 
 .box {
   background-color: rgba(55, 55, 55, 0.5);
   border: 3px solid #555555;
-  padding: 15px;
+  padding: 15px 15px 15px 15px;
   border-radius: 4px;
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
   transition: transform 0.2s;
