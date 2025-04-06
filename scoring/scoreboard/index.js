@@ -158,10 +158,10 @@ function createHealthBar(healthValue) {
     }
 
     // Add health value text display
-    const healthText = document.createElement('span');
-    healthText.className = 'health-text';
-    healthText.textContent = healthValue + "/10";
-    healthContainer.appendChild(healthText);
+    //const healthText = document.createElement('span');
+    //healthText.className = 'health-text';
+    //healthText.textContent = healthValue + "/10";
+    //healthContainer.appendChild(healthText);
 
     return healthContainer;
 }
@@ -202,7 +202,8 @@ function createBoxElement(boxData) {
 
     // Add building name as header
     const title = document.createElement('h3');
-    title.textContent = boxData.building;
+    title.className = 'box-title';
+    title.textContent = boxData.building + " - " + boxData.health;
     bottomInfo.appendChild(title);
 
     // Add service and IP info in the requested format
@@ -259,8 +260,11 @@ function updateBoxElement(boxData) {
         stateIndicator.textContent = boxData.state;
     }
 
-    // Update health bar with flash effect if health has changed
     const bottomInfo = boxElement.querySelector('.box-info-bottom');
+    const boxname = bottomInfo.querySelector('.box-title');
+    boxname.textContent = boxData.building + " - " + boxData.health;
+ 
+    // Update health bar with flash effect if health has changed
     if (bottomInfo) {
         const oldHealthBar = bottomInfo.querySelector('.health');
         if (oldHealthBar) {
