@@ -28,7 +28,7 @@
     # Copy the command_handler.php file to the web directory
     - name: Copy PHP handler
       copy:
-        src: ./chat_handler.php
+        src: /root/infrastructure/services/apache/chat.php
         dest: /var/www/html/chat.php
         owner: www-data
         group: www-data
@@ -37,7 +37,7 @@
     # Copy the HTML files if needed
     - name: Copy HTML files
       copy:
-        src: ./index.html  # Your Minecraft HTML page
+        src: /root/infrastructure/services/apache/index.html  # Your Minecraft HTML page
         dest: /var/www/html/index.html
         owner: www-data
         group: www-data
