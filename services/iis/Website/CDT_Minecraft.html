@@ -12,20 +12,20 @@
             background-color: #f9f9f9;
         }
 
-	    section {
-            border-top: 1.5px solid #6f0391;
+        section {
+            border-top: 1.5px solid #00e36a;
             padding-top: 20px;
-	    }
+        }
 
         /* Header styling */
         header {
             position: relative;
-            background-color: #6f0391;
+            background-color: #00e36a;
             background-image: url('Images/header.jpg');
             background-size: cover;
             background-position: center;
             color: white;
-            padding: 40px 20px; 
+            padding: 40px 20px;
             text-align: center;
         }
 
@@ -53,7 +53,7 @@
             justify-content: left;
         }
         nav input[type="text"] {
-            width: 865px;
+            width: 735px;
             padding: 15px;
             border: 1px solid #ccc;
             font-size: 1rem;
@@ -87,7 +87,7 @@
         }
         main button {
             padding: 10px 20px;
-            background-color: #ffd800;
+            background-color: #6c2b00;
             color: white;
             border: none;
             border-radius: 25px;
@@ -95,31 +95,82 @@
             font-size: 1rem;
         }
         main button:hover {
-            background-color: #ffd800;
+            background-color: #6c2b00;
         }
 
-        /* Gallery Section */
+        /* Team Members Section */
         .gallery {
             padding: 30px 10px;
             text-align: center;
-	        margin-bottom: 20px;
+            margin-bottom: 20px;
         }
         .gallery h2 {
             font-size: 1.8rem;
             color: #333;
             margin-bottom: 35px;
         }
-        .gallery-photos {
+        .team-members {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
         }
-        .gallery-photos img {
-            width: 32.6%;
+        .member {
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            width: 250px;
+            padding: 15px;
+            text-align: center;
+        }
+        .member img {
+            width: 100%;
             height: auto;
-            object-fit: cover; 
+            border-radius: 5px;
+        }
+        .member h3 {
+            margin-top: 10px;
+            font-size: 1.2rem;
+        }
+        .member p {
+            font-size: 1rem;
+            color: #555;
+            margin-bottom: 10px;
+        }
+        .linkedin-link {
+            display: inline-block;
+            margin-top: 10px;
+        }
+        .linkedin-icon {
+            width: 24px;
+            height: 24px;
+            transition: transform 0.2s ease;
+        }
+        .linkedin-icon:hover {
+            transform: scale(1.2);
+        }
+
+        /* Sponsors Section */
+        .sponsors {
+            padding: 40px 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .sponsors h2 {
+            font-size: 1.8rem;
+            color: #333;
+            margin-bottom: 35px;
+        }
+        .sponsors .sponsor-logos {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .sponsors img {
+            width: 250px;
+            height: auto;
         }
 
         /* Competing Teams Section */
@@ -149,39 +200,50 @@
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
-        /* Sponsors Section */
-        .sponsors {
-            padding: 40px 20px;
-            text-align: center;
-	        margin-bottom: 20px;
-        }
-        .sponsors h2 {
-            font-size: 1.8rem;
-            color: #333;
-            margin-bottom: 35px;
-        }
-        .sponsors .sponsor-logos {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-        .sponsors img {
-            width: 250px;
-            height: auto;
-        }
-
         /* Contact Form */
         .contact {
             padding: 40px 20px;
-            background-color: #6f0391;
+            background-color: #00e36a;  /* This will match the header's background color */
             color: white;
             text-align: center;
+            position: relative;
+            background-image: url('Images/header.jpg');  /* Add background image to contact form */
+            background-size: cover;
+            background-position: center;
         }
+
+        .contact::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3);  /* Dark overlay */
+            z-index: 1; /* Set overlay behind the form */
+        }
+
+        .contact h2 {
+            position: relative;
+            font-size: 2rem;
+            color: white;
+            z-index: 1; /* Ensure the heading is above the overlay */
+        }
+
+        .contact p {
+            position: relative;
+            font-size: 1.1rem;
+            color: white;
+            z-index: 1;
+        }
+
         .contact form {
             max-width: 500px;
             margin: 0 auto;
+            z-index: 2; /* Ensure form is above the overlay */
+            position: relative; /* Ensures form stays above overlay */
         }
+
         .contact input, .contact textarea {
             font-family: 'Verdana', sans-serif;
             width: 100%;
@@ -190,14 +252,22 @@
             border: none;
             border-radius: 5px;
             font-size: 1rem;
+            box-sizing: border-box;
+            line-height: 1.6;
+            z-index: 2; /* Ensure inputs are above the overlay */
+            position: relative; /* Ensures inputs stay above overlay */
         }
+
         .contact input[type="submit"] {
-            background-color: #ffd800;
+            background-color: #6c2b00;
             color: white;
             cursor: pointer;
+            z-index: 2; /* Ensure submit button is above overlay */
+            position: relative;
         }
+
         .contact input[type="submit"]:hover {
-            background-color: #ffd800;
+            background-color: #6c2b00;
         }
 
         /* Footer styling */
@@ -211,7 +281,7 @@
 </head>
 <body>
     <header>
-        <h1>CDTFoxtrot Minecraft</h1>
+        <h1>CDT Foxtrot Minecraft</h1>
     </header>    
 
     <nav>
@@ -224,34 +294,103 @@
     <main>
         <h2>About Our Competition</h2>
         <p>
-            MINECRAFT!
+            Hey everyone, this is Team Foxtrot speaking. I hope you guys enjoy our competition that we have worked tirelessly on
+            for the last month. It took many late night sessions to get everything working correctly so have fun defending your services,
+            threat hunting for malware, and playing Minecraft!
         </p>
         <button onclick="showAlert()">Learn More</button>
     </main>
 
-    <!-- Gallery Section -->
+    <!-- Team Members Section -->
     <section class="gallery">
-        <h2>Gallery</h2>
-        <div class="gallery-photos">
-            <img src="Images\\gallery1.jpg" alt="Gallery 1">
-            <img src="Images\\gallery2.jpg" alt="Gallery 2">
-            <img src="Images\\gallery3.jpg" alt="Gallery 3">
+        <h2>Meet Team Foxtrot</h2>
+        <div class="team-members">
+            <div class="member">
+                <h3>Johnny</h3>
+                <p>Team Leader & Aspiring Creeper</p>
+                <a href="https://www.linkedin.com/in/johnnyfagerlin/" target="_blank" class="linkedin-link">
+                    <img src="Images/johnny.jpg" alt="LinkedIn" class="linkedin-icon">
+                </a>
+            </div>
+            <div class="member">
+                <h3>Sebastian</h3>
+                <p>Secondary Leader & White Team Co-Lead</p>
+                <a href="https://www.linkedin.com/in/sebastian-hernandez-97557a251/" target="_blank" class="linkedin-link">
+                    <img src="Images/sebastian.jpg" alt="LinkedIn" class="linkedin-icon">
+                </a>
+            </div>
+            <div class="member">
+                <h3>Alex</h3>
+                <p>Scoring, Infrastructure, GUI Design (GOAT)</p>
+                <a href="https://www.linkedin.com/in/alexander-rogoff/" target="_blank" class="linkedin-link">
+                    <img src="Images/alex.jpg" alt="LinkedIn" class="linkedin-icon">
+                </a>
+            </div>
+            <div class="member">
+                <h3>Luke</h3>
+                <p>Infrastructure Lead & Vulnerabilities</p>
+                <a href="https://www.linkedin.com/in/luke-demi/" target="_blank" class="linkedin-link">
+                    <img src="Images/luke.jpg" alt="LinkedIn" class="linkedin-icon">
+                </a>
+            </div>
+            <div class="member">
+                <h3>Isaac</h3>
+                <p>Infrastructure Domains & Users</p>
+                <a href="https://www.linkedin.com/in/isaac-settle/" target="_blank" class="linkedin-link">
+                    <img src="Images/isaac.jpg" alt="LinkedIn" class="linkedin-icon">
+                </a>
+            </div>
+            <div class="member">
+                <h3>Mason</h3>
+                <p>White Team Co-Lead & Vulnerabilities</p>
+                <a href="https://www.linkedin.com/in/mason-kessler/" target="_blank" class="linkedin-link">
+                    <img src="Images/mason.jpg" alt="LinkedIn" class="linkedin-icon">
+                </a>
+            </div>
+            <div class="member">
+                <h3>Josh</h3>
+                <p>Scoring & OBS Guru</p>
+                <a href="https://www.linkedin.com/in/joshuamalaguti/" target="_blank" class="linkedin-link">
+                    <img src="Images/josh.jpg" alt="LinkedIn" class="linkedin-icon">
+                </a>
+            </div>
+            <div class="member">
+                <h3>Spencer</h3>
+                <p>Minecraft Lead</p>
+                <a href="https://www.linkedin.com/in/spencer-kurtz/" target="_blank" class="linkedin-link">
+                    <img src="Images/spencer.jpg" alt="LinkedIn" class="linkedin-icon">
+                </a>
+            </div>
+            <div class="member">
+                <h3>Gavin</h3>
+                <p>Minecraft Secondary</p>
+                <a href="https://www.linkedin.com/in/gavinhunsinger/" target="_blank" class="linkedin-link">
+                    <img src="Images/gavin.jpg" alt="LinkedIn" class="linkedin-icon">
+                </a>
+            </div>
+            <div class="member">
+                <h3>Nathan</h3>
+                <p>Logging</p>
+                <a href="https://www.linkedin.com/in/nathan-trumble-96a447181/" target="_blank" class="linkedin-link">
+                    <img src="Images/nathan.jpg" alt="LinkedIn" class="linkedin-icon">
+                </a>
+            </div>
         </div>
     </section>
 
     <!-- Competing Teams Section -->
     <section class="teams">
-        <h2>New Hires</h2>
+        <h2>Minecrafters</h2>
         <ul class="team-list">
-            <li>Team 1 - BLUE</li>
-            <li>Team 2 - RED</li>
-	    <li>Team 2 - GRAY</li>
+            <li>Team 1 - Delta (Red Team)</li>
+            <li>Team 2 - Echo (Blue Team)</li>
+	        <li>Team 3 - Foxtrot (Gray Team)</li>
         </ul>
     </section>
 
     <!-- Sponsors Section -->
     <section class="sponsors">
-        <h2>Our Sponsors</h2>
+        <h2>Our Sponsors (Real)</h2>
         <div class="sponsor-logos">
             <img src="Images\\sponsor1.png" alt="Sponsor 1">
         </div>
@@ -270,7 +409,7 @@
     </section>
 
     <footer>
-        <p>&copy; 2025 All Rights Reserved. Crafted with ❤️ by Big Booty Inc.</p>
+        <p>&copy; 2025 All Rights Reserved. Crafted with ❤️ by Team Foxtrot.</p>
     </footer>
     <script> 
 	function showAlert() { 
