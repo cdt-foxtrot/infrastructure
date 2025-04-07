@@ -59,6 +59,14 @@
         - { key: "bootstrap.memory_lock", value: "false" }
       notify: restart elasticsearch
 
+    - name: Set Elasticsearch JVM heap size
+      copy:
+        dest: /etc/elasticsearch/jvm.options.d/heap-size.options
+        content: |
+          -Xms256m
+          -Xmx256m
+      notify: restart elasticsearch
+
     # Enable and start Elasticsearch service
     - name: Ensure Elasticsearch service is enabled and started
       service:
