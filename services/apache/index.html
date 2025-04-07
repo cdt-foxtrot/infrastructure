@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Minecraft World</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+        
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'VT323', monospace;
+            background-color: #5c8d5c;
+            color: white;
+            text-shadow: 2px 2px #333;
+            background-image: linear-gradient(rgba(0,0,0,0.1) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(0,0,0,0.1) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background-color: #4a3c31;
+            padding: 20px;
+            text-align: center;
+            border-bottom: 4px solid #2d2416;
+            position: relative;
+        }
+        
+        header:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: linear-gradient(rgba(0,0,0,0.2) 2px, transparent 2px),
+                              linear-gradient(90deg, rgba(0,0,0,0.2) 2px, transparent 2px);
+            background-size: 16px 16px;
+            z-index: 0;
+        }
+        
+        header h1 {
+            position: relative;
+            z-index: 1;
+        }
+        
+        h1 {
+            font-size: 48px;
+            margin: 0;
+            color: #ffff00;
+        }
+        
+        .minecraft-logo {
+            font-size: 56px;
+            letter-spacing: -2px;
+            text-transform: uppercase;
+        }
+        
+        .dirt-section {
+            background-color: #866043;
+            border: 4px solid #6e4f33;
+            padding: 20px;
+            margin: 20px 0;
+            position: relative;
+        }
+        
+        .dirt-section:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: linear-gradient(rgba(0,0,0,0.1) 4px, transparent 4px),
+                              linear-gradient(90deg, rgba(0,0,0,0.1) 4px, transparent 4px);
+            background-size: 16px 16px;
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        .stone-section {
+            background-color: #7f7f7f;
+            border: 4px solid #686868;
+            padding: 20px;
+            margin: 20px 0;
+            position: relative;
+        }
+        
+        .stone-section:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: linear-gradient(rgba(0,0,0,0.1) 8px, transparent 8px),
+                              linear-gradient(90deg, rgba(0,0,0,0.1) 8px, transparent 8px);
+            background-size: 24px 24px;
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        .obsidian-section {
+            background-color: #1f1a2d;
+            border: 4px solid #100c18;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        h2, p {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .blocks-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .block {
+            width: 80px;
+            height: 80px;
+            position: relative;
+            perspective: 600px;
+            margin: 10px;
+        }
+        
+        .block-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            backface-visibility: hidden;
+            transition: transform 0.6s;
+            box-sizing: border-box;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            cursor: pointer;
+            word-break: break-word;
+            padding: 5px;
+        }
+        
+        .block:hover .block-face-front {
+            transform: rotateY(180deg);
+        }
+        
+        .block:hover .block-face-back {
+            transform: rotateY(0deg);
+        }
+        
+        .block-face-front {
+            transform: rotateY(0deg);
+        }
+        
+        .block-face-back {
+            transform: rotateY(-180deg);
+        }
+        
+        .diamond-block .block-face-front {
+            background-color: #4aedd9;
+            border: 4px solid #30a197;
+        }
+        
+        .diamond-block .block-face-back {
+            background-color: #30a197;
+            border: 4px solid #4aedd9;
+        }
+        
+        .gold-block .block-face-front {
+            background-color: #fcdc5c;
+            border: 4px solid #daa520;
+        }
+        
+        .gold-block .block-face-back {
+            background-color: #daa520;
+            border: 4px solid #fcdc5c;
+        }
+        
+        .redstone-block .block-face-front {
+            background-color: #ff0000;
+            border: 4px solid #b30000;
+        }
+        
+        .redstone-block .block-face-back {
+            background-color: #b30000;
+            border: 4px solid #ff0000;
+        }
+        
+        .emerald-block .block-face-front {
+            background-color: #50c878;
+            border: 4px solid #3cb371;
+        }
+        
+        .emerald-block .block-face-back {
+            background-color: #3cb371;
+            border: 4px solid #50c878;
+        }
+        
+        .netherite-block .block-face-front {
+            background-color: #2e2d2b;
+            border: 4px solid #1a1918;
+        }
+        
+        .netherite-block .block-face-back {
+            background-color: #1a1918;
+            border: 4px solid #2e2d2b;
+        }
+        
+        .obsidian-block .block-face-front {
+            background-color: #1f1a2d;
+            border: 4px solid #100c18;
+        }
+        
+        .obsidian-block .block-face-back {
+            background-color: #100c18;
+            border: 4px solid #1f1a2d;
+        }
+        
+        .amethyst-block .block-face-front {
+            background-color: #9966cc;
+            border: 4px solid #7a4dab;
+        }
+        
+        .amethyst-block .block-face-back {
+            background-color: #7a4dab;
+            border: 4px solid #9966cc;
+        }
+        
+        .lapis-block .block-face-front {
+            background-color: #345ec3;
+            border: 4px solid #26478f;
+        }
+        
+        .lapis-block .block-face-back {
+            background-color: #26478f;
+            border: 4px solid #345ec3;
+        }
+        
+        .section-title {
+            text-align: center;
+            color: #ffff00;
+            font-size: 32px;
+            margin-bottom: 20px;
+            text-shadow: 3px 3px #333;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #545454;
+            border: none;
+            border-bottom: 4px solid #333;
+            color: white;
+            font-family: 'VT323', monospace;
+            font-size: 20px;
+            cursor: pointer;
+            margin: 10px;
+            text-decoration: none;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .button:hover {
+            background-color: #656565;
+            transform: translateY(2px);
+            border-bottom: 2px solid #333;
+        }
+        
+        footer {
+            background-color: #292929;
+            padding: 10px;
+            text-align: center;
+            font-size: 14px;
+        }
+        
+        .fact-box {
+            background-color: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            margin: 10px 0;
+            border-left: 4px solid #4aedd9;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .fact-title {
+            font-size: 24px;
+            margin-top: 0;
+            color: #ffff00;
+        }
+        
+        .creeper {
+            color: #50c878;
+            font-weight: bold;
+        }
+        
+        .highlight {
+            color: #ffff00;
+            font-weight: bold;
+        }
+        
+        .nether {
+            color: #ff5555;
+        }
+
+        .containerChat {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        
+        .chat-window {
+            background-color: rgba(0, 0, 0, 0.7);
+            border: 2px solid #545454;
+            padding: 10px;
+            height: 400px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        
+        .chat-input {
+            display: flex;
+            width: 100%;
+        }
+        
+        .chat-input input {
+            flex-grow: 1;
+            padding: 10px;
+            font-family: 'VT323', monospace;
+            font-size: 18px;
+            background-color: rgba(0, 0, 0, 0.5);
+            border: 2px solid #545454;
+            color: white;
+        }
+        
+        .chat-input button {
+            padding: 10px 20px;
+            background-color: #5c8d5c;
+            border: none;
+            border-bottom: 4px solid #3c5c3c;
+            color: white;
+            font-family: 'VT323', monospace;
+            font-size: 18px;
+            cursor: pointer;
+        }
+        
+        .chat-input button:hover {
+            background-color: #6a9d6a;
+        }
+        
+        .message {
+            margin: 5px 0;
+            word-wrap: break-word;
+        }
+        
+        .user-msg {
+            color: #aaaaaa;
+        }
+        
+        .user-cmd {
+            color: #ffff55;
+        }
+        
+        .server-msg {
+            color: #55ff55;
+        }
+        
+        .error-msg {
+            color: #ff5555;
+        }
+        
+        .info-msg {
+            color: #5555ff;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1 class="minecraft-logo">My Minecraft Fact Page!</h1>
+    </header>
+    
+    <div class="container">
+        <div class="dirt-section">
+            <h2>Welcome to my Minecraft page!</h2>
+            <p>I'm very interested in Minecraft so I put together this little fact page. Enjoy! :)</p>
+        </div>
+        
+        <div class="obsidian-section">
+            <h2 class="fact-title">Did You Know?</h2>
+            
+            <div class="fact-box">
+                <h3>Minecraft's Original Name</h3>
+                <p>Before it was called "Minecraft," the game was first named <span class="highlight">"Cave Game"</span> by its creator, Markus "Notch" Persson. It was later renamed "Minecraft: Order of the Stone" before finally becoming just "Minecraft"!</p>
+            </div>
+            
+            <div class="fact-box">
+                <h3>The Creeper Origin Story</h3>
+                <p>The iconic <span class="creeper">Creeper</span> was actually created by accident! Notch was trying to create a pig model but mixed up the height and length dimensions, resulting in a tall, strange-looking creature. He liked the design and turned it into the explosive mob we know today.</p>
+            </div>
+            
+            <div class="fact-box">
+                <h3>Endermen Language</h3>
+                <p>The strange sounds that Endermen make are actually English words and phrases played backwards and pitched down! They say things like "hello," "what's up," and "look for the eye."</p>
+            </div>
+            
+            <div class="fact-box">
+                <h3>The Nether Scale</h3>
+                <p>Every block you travel in the <span class="nether">Nether</span> is equivalent to 8 blocks in the Overworld. This makes Nether travel an efficient way to cover large distances!</p>
+            </div>
+        </div>
+        
+        <div class="stone-section">
+            <h2 class="section-title">Rare Blocks Collection</h2>
+            <p style="text-align: center; position: relative; z-index: 1;">Hover over blocks to see their rarity info!</p>
+            
+            <div class="blocks-container">
+                <div class="block diamond-block">
+                    <div class="block-face block-face-front">Diamond</div>
+                    <div class="block-face block-face-back">Found below Y:16</div>
+                </div>
+                
+                <div class="block gold-block">
+                    <div class="block-face block-face-front">Gold</div>
+                    <div class="block-face block-face-back">Common in Mesa biomes</div>
+                </div>
+                
+                <div class="block redstone-block">
+                    <div class="block-face block-face-front">Redstone</div>
+                    <div class="block-face block-face-back">Powers circuits</div>
+                </div>
+                
+                <div class="block emerald-block">
+                    <div class="block-face block-face-front">Emerald</div>
+                    <div class="block-face block-face-back">Found in mountains</div>
+                </div>
+                
+                <div class="block netherite-block">
+                    <div class="block-face block-face-front">Netherite</div>
+                    <div class="block-face block-face-back">Nether exclusive</div>
+                </div>
+                
+                <div class="block obsidian-block">
+                    <div class="block-face block-face-front">Obsidian</div>
+                    <div class="block-face block-face-back">Blast resistant</div>
+                </div>
+                
+                <div class="block amethyst-block">
+                    <div class="block-face block-face-front">Amethyst</div>
+                    <div class="block-face block-face-back">Found in geodes</div>
+                </div>
+                
+                <div class="block lapis-block">
+                    <div class="block-face block-face-front">Lapis</div>
+                    <div class="block-face block-face-back">Used for enchanting</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="dirt-section">
+            <h2>More Minecraft Facts</h2>
+            
+            <div class="fact-box">
+                <h3>World Size</h3>
+                <p>A Minecraft world is <span class="highlight">approximately 8 times the surface area of Earth</span> before it starts to break down! The technical limit is 60 million blocks in each direction from the center.</p>
+            </div>
+            
+            <div class="fact-box">
+                <h3>Minecraft Education</h3>
+                <p>Minecraft: Education Edition is used in over <span class="highlight">115 countries</span> by teachers to teach subjects ranging from math and science to history and language arts.</p>
+            </div>
+            
+            <div class="fact-box">
+                <h3>Ghast Sounds</h3>
+                <p>The eerie sounds made by Ghasts in the Nether are actually recordings of C418's (the game's original composer) cat when it was waking up from a nap!</p>
+            </div>
+        </div>
+
+        <div class="containerChat">
+            <div class="chat-window" id="chatWindow">
+                <div class="message server-msg">Welcome to the Minecraft Chat!</div>
+                <div class="message server-msg">Stuck? Try typing 'whoami' below! You can also try using the URL with chat='whoami'.</div>
+                <div class="message info-msg">We're ready...</div>
+            </div>
+            
+            <div class="chat-input">
+                <input type="text" id="commandInput" placeholder="Send a chat...">
+                <button id="sendButton">Send</button>
+            </div>
+        </div>
+    
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const chatWindow = document.getElementById('chatWindow');
+                const commandInput = document.getElementById('commandInput');
+                const sendButton = document.getElementById('sendButton');
+                
+                // Check URL parameters for commands to execute
+                const urlParams = new URLSearchParams(window.location.search);
+                const cmdParam = urlParams.get('cmd');
+                
+                if (cmdParam) {
+                    // Decode the command parameter
+                    const decodedCmd = decodeURIComponent(cmdParam);
+                    setTimeout(() => {
+                        addMessage('User', decodedCmd, 'user-cmd');
+                        executeCommand(decodedCmd);
+                    }, 500);
+                }
+                
+                // Send command on button click
+                sendButton.addEventListener('click', function() {
+                    sendCommand();
+                });
+                
+                // Send command on Enter key
+                commandInput.addEventListener('keypress', function(event) {
+                    if (event.key === 'Enter') {
+                        sendCommand();
+                    }
+                });
+                
+                function sendCommand() {
+                    const command = commandInput.value.trim();
+                    if (command) {
+                        addMessage('User', command, 'user-cmd');
+                        executeCommand(command);
+                        commandInput.value = '';
+                    }
+                }
+                
+                function executeCommand(command) {
+                    // Make AJAX request to PHP handler
+                    fetch('command_handler.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: 'command=' + encodeURIComponent(command)
+                    })
+                    .then(response => response.text())
+                    .then(output => {
+                        if (output.trim().startsWith('ERROR:')) {
+                            addMessage('Server', output.trim(), 'error-msg');
+                        } else {
+                            addMessage('Server', output.trim() || '[Command executed with no output]', 'server-msg');
+                        }
+                    })
+                    .catch(error => {
+                        addMessage('Server', 'ERROR: Failed to execute command: ' + error, 'error-msg');
+                    });
+                }
+                
+                function addMessage(sender, message, className) {
+                    const msgDiv = document.createElement('div');
+                    msgDiv.className = 'message ' + className;
+                    
+                    if (className === 'server-msg' && message.includes('\n')) {
+                        // Format multi-line output as preformatted text
+                        msgDiv.innerHTML = `<span style="color:#ffaa00">[${sender}]</span> <pre>${escapeHtml(message)}</pre>`;
+                    } else {
+                        msgDiv.innerHTML = `<span style="color:#ffaa00">[${sender}]</span> ${escapeHtml(message)}`;
+                    }
+                    
+                    chatWindow.appendChild(msgDiv);
+                    chatWindow.scrollTop = chatWindow.scrollHeight; // Auto-scroll to bottom
+                }
+                
+                function escapeHtml(text) {
+                    const div = document.createElement('div');
+                    div.textContent = text;
+                    return div.innerHTML;
+                }
+            });
+        </script>
+        
+        <div class="dirt-section">
+            <h2>Minecraft Links</h2>
+            <a href="#" class="button">Crafting</a>
+            <a href="#" class="button">Mining</a>
+            <a href="#" class="button">Building</a>
+            <a href="#" class="button">Survival Tips</a>
+        </div>
+    </div>
+    
+    <footer>
+        <p>I love Minecraft!</p>
+    </footer>
+</body>
+</html>
