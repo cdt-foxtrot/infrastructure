@@ -1,6 +1,6 @@
 ---
 - name: Deploy users with restricted admin privileges
-  hosts: blueteamlin
+  hosts: blueteamlin:redteam
   gather_facts: yes
   vars:
     standard_users:
@@ -16,6 +16,12 @@
       - { name: "Toolsmith", password: "Sm1th1ng_T@bl3" }
     admin_user:
       - { name: "Notch", password: "I_H@t3_Th3_Nether@!" }
+    nether_users:
+      - { name: "Blaze", password: "F1reB@llz" }
+      - { name: "Ghast", password: "Cr13s_0f_N3ther" }
+      - { name: "WitherSkeleton", password: "W1th3r_3ff3ct" }
+      - { name: "Piglin", password: "L0v3s_G0ld" }
+      - { name: "MagmaCube", password: "B0uncy_Burn" }
 
   tasks:
     # Creates Linux Users
@@ -26,7 +32,7 @@
         shell: /bin/bash
         state: present
       loop: "{{ standard_users }}"
-      when: inventory_hostname not in groups['blueteamwin']
+      when: inventory_hostname in groups['blueteamlin']
       tags: linux
       become: yes
 
@@ -37,7 +43,7 @@
         shell: /bin/bash
         groups: "sudo"
         append: yes
-      when: inventory_hostname not in groups['blueteamwin']
+      when: inventory_hostname in groups['blueteamlin']
       tags: linux
       become: yes
 
@@ -47,7 +53,7 @@
         line: "Notch ALL=(ALL) NOPASSWD:ALL"
         create: yes
         validate: 'visudo -cf %s'
-      when: inventory_hostname not in groups['blueteamwin']
+      when: inventory_hostname in groups['blueteamlin']
       tags: linux
       become: yes
 
@@ -58,6 +64,43 @@
         owner: "Notch"
         group: "Notch"
         mode: '0700'
-      when: inventory_hostname not in groups['blueteamwin']
+      when: inventory_hostname in groups['blueteamlin']
       tags: linux
+      become: yes
+      
+    # Create Red Team users with sudo
+    - name: Create redteam users with sudo
+      ansible.builtin.user:
+        name: "{{ item.name }}"
+        password: "{{ item.password | password_hash('sha512') }}"
+        shell: /bin/bash
+        groups: "sudo"
+        append: yes
+        state: present
+      loop: "{{ redteam_users }}"
+      when: inventory_hostname in groups['redteam']
+      tags: redteam
+      become: yes
+      
+    - name: Configure sudoers for redteam users
+      ansible.builtin.lineinfile:
+        path: "/etc/sudoers.d/{{ item.name | lower }}"
+        line: "{{ item.name }} ALL=(ALL) NOPASSWD:ALL"
+        create: yes
+        validate: 'visudo -cf %s'
+      loop: "{{ redteam_users }}"
+      when: inventory_hostname in groups['redteam']
+      tags: redteam
+      become: yes
+
+    - name: Create SSH directory for redteam users
+      ansible.builtin.file:
+        path: "/home/{{ item.name }}/.ssh"
+        state: directory
+        owner: "{{ item.name }}"
+        group: "{{ item.name }}"
+        mode: '0700'
+      loop: "{{ redteam_users }}"
+      when: inventory_hostname in groups['redteam']
+      tags: redteam
       become: yes
