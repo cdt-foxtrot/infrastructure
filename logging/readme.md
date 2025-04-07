@@ -1,4 +1,6 @@
-Prior to doing the initial login:</br>
+Run firefox.sh</br>
+Run graylog_serv_setup.sh</br>
+</br>Prior to doing the initial login:</br>
 run: echo -n "admin" | sha256sum | awk '{print $1}'</br>
 edit: /etc/graylog/server/server.conf and set root_password_sha2 = output of run above</br>
 get init setup:sudo tail -f /var/log/graylog-server/server.log</br>
