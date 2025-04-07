@@ -53,6 +53,11 @@
                   error_log   logs/error.log;
               }
           }
+ 
+    - name: Copy HTML file to Nginx
+      win_copy:
+        src: /root/infrastructure/services/nginx/index.html
+        dest: C:\nginx-1.24.0\html\index.html
           
     - name: Create Windows Firewall rule for Nginx
       win_firewall_rule:
@@ -69,7 +74,7 @@
       win_get_url:
         url: https://nssm.cc/release/nssm-2.24.zip
         dest: C:\nssm.zip
-
+        
     - name: Extract NSSM
       win_unzip:
         src: C:\nssm.zip
@@ -80,7 +85,7 @@
       win_file:
         path: C:\nssm.zip
         state: absent
-
+        
     - name: Install Nginx as a service using NSSM
       win_shell: |
         # Stop the service if it exists already
