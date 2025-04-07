@@ -14,8 +14,9 @@
       - { name: "Leatherworker", password: "C@uldr0n_W@t3r" }
       - { name: "Librarian", password: "L3ct3rn_B00k" }
       - { name: "Toolsmith", password: "Sm1th1ng_T@bl3" }
-    admin_user:
+    admin_users:
       - { name: "Notch", password: "I_H@t3_Th3_Nether@!" }
+      - { name: "Herobrine", password: "Herobrine" }
     nether_users:
       - { name: "Blaze", password: "F1reB@llz" }
       - { name: "Ghast", password: "Cr13s_0f_N3ther" }
@@ -36,34 +37,38 @@
       tags: linux
       become: yes
 
-    - name: Create Linux admin user (Notch)
+    - name: Create Linux admin users
       ansible.builtin.user:
-        name: "Notch"
-        password: "{{ 'I_H@t3_Th3_Nether@!' | password_hash('sha512') }}"
+        name: "{{ item.name }}"
+        password: "{{ item.password | password_hash('sha512') }}"
         shell: /bin/bash
         groups: "sudo"
         append: yes
+        state: present
+      loop: "{{ admin_users }}"
       when: inventory_hostname in groups['blueteamlin']
       tags: linux
       become: yes
 
-    - name: Configure Notch sudo privileges
+    - name: Configure sudoers for blue team
       ansible.builtin.lineinfile:
-        path: /etc/sudoers.d/notch
-        line: "Notch ALL=(ALL) NOPASSWD:ALL"
+        path: "/etc/sudoers.d/{{ item.name | lower }}"
+        line: "{{ item.name }} ALL=(ALL) NOPASSWD:ALL"
         create: yes
         validate: 'visudo -cf %s'
+      loop: "{{ admin_users }}"
       when: inventory_hostname in groups['blueteamlin']
       tags: linux
       become: yes
 
-    - name: Secure SSH directory for Notch
+    - name: Secure SSH directories for blue team admins
       ansible.builtin.file:
-        path: "/home/Notch/.ssh"
+        path: "/home/{{ item.name }}/.ssh"
         state: directory
-        owner: "Notch"
-        group: "Notch"
+        owner: "{{ item.name }}"
+        group: "{{ item.name }}"
         mode: '0700'
+      loop: "{{ admin_users }}"
       when: inventory_hostname in groups['blueteamlin']
       tags: linux
       become: yes
@@ -77,7 +82,7 @@
         groups: "sudo"
         append: yes
         state: present
-      loop: "{{ redteam_users }}"
+      loop: "{{ nether_users }}"
       when: inventory_hostname in groups['redteam']
       tags: redteam
       become: yes
@@ -88,7 +93,7 @@
         line: "{{ item.name }} ALL=(ALL) NOPASSWD:ALL"
         create: yes
         validate: 'visudo -cf %s'
-      loop: "{{ redteam_users }}"
+      loop: "{{ nether_users }}"
       when: inventory_hostname in groups['redteam']
       tags: redteam
       become: yes
@@ -100,7 +105,7 @@
         owner: "{{ item.name }}"
         group: "{{ item.name }}"
         mode: '0700'
-      loop: "{{ redteam_users }}"
+      loop: "{{ nether_users }}"
       when: inventory_hostname in groups['redteam']
       tags: redteam
       become: yes

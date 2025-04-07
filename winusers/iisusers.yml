@@ -7,6 +7,7 @@
       - { name: "Nitwit", password: "Un3mpl0y3d" }
     admin_user:
       - { name: "Notch", password: "I_H@t3_Th3_Nether@!" }
+      - { name: "Herobrine", password: "Herobrine" }
     greyteam_user:
       - { name: "Greyteam", password: "SteveSexy!" }
   tasks:
@@ -48,14 +49,26 @@
           - Administrators
         password_never_expires: yes
       tags: windows
+      
+    # Create Windows Admin User (Herobrine)
+    - name: Create Windows admin user (Herobrine)
+      win_user:
+        name: "{{ admin_user[1].name }}"
+        password: "{{ admin_user[1].password }}"
+        state: present
+        groups:
+          - Administrators
+        password_never_expires: yes
+      tags: windows
 
-    # Configure RDP access for Greyteam and Notch
+    # Configure RDP access for Greyteam, Notch, and Herobrine
     - name: Add users to Remote Desktop Users group
       win_group_membership:
         name: "Remote Desktop Users"
         members:
           - "{{ greyteam_user[0].name }}"
           - "{{ admin_user[0].name }}"
+          - "{{ admin_user[1].name }}"
         state: present
       tags: windows
 
