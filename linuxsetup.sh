@@ -132,10 +132,10 @@ for linux_container in ${Admin1} ${Admin2} ${Admin3} \
 done
 
 # Run specific setup for Admin-1 and Admin-2
-setup_admin1
-setup_admin2
+#setup_admin1
+#setup_admin2
 
 print_message "Grayteam users added to all linux systems!"
 print_message "SSH enabled on all linux systems!"
-print_message "Admin-1 and Admin-2 configured with required packages and repositories!"
-print_message "MySQL database set up on Admin-2!"
+#print_message "Admin-1 and Admin-2 configured with required packages and repositories!"
+#print_message "MySQL database set up on Admin-2!"
