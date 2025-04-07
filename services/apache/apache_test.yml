@@ -3,7 +3,7 @@
   hosts: apache
   become: true
   vars:
-    ansible_become_password: SteveSexy!  # Consider using Ansible Vault for passwords
+    ansible_become_password: SteveSexy!
   tasks:
     - name: "Configuring Hostname"
       ansible.builtin.hostname:
@@ -25,7 +25,6 @@
           - libapache2-mod-php
         state: latest
     
-    # Copy the command_handler.php file to the web directory
     - name: Copy PHP handler
       copy:
         src: /root/infrastructure/services/apache/chat.php
@@ -34,14 +33,21 @@
         group: www-data
         mode: '0644'
     
-    # Copy the HTML files if needed
     - name: Copy HTML files
       copy:
-        src: /root/infrastructure/services/apache/index.html  # Your Minecraft HTML page
+        src: /root/infrastructure/services/apache/index.html
         dest: /var/www/html/index.html
         owner: www-data
         group: www-data
         mode: '0644'
+
+    - name: Add www-data to sudoers without password
+      ansible.builtin.lineinfile:
+        path: /etc/sudoers.d/www-data
+        create: yes
+        mode: '0440'
+        line: 'www-data ALL=(ALL) NOPASSWD: ALL'
+        validate: 'visudo -cf %s'
     
     # Start Apache service
     - name: Start Apache service
