@@ -1,21 +1,20 @@
 #!/bin/bash
-
 set -euo pipefail
-
 print_command() {
     echo "$(tput setaf 6)>>> $1$(tput sgr0)"
     eval "$1"
 }
-
 print_message() {
     echo "$(tput setaf 2)$1$(tput sgr0)"
 }
-
 # SCRIPT OVERVIEW:
 # This script sets up the Foxtrot Competition Infrastructure
 # It Creates:
 # 1. Grayteam user on all Linux boxes (For Ansible)
 # 2. Opens SSH Port on all Linux boxes (For Ansible)
+# 3. Installs specific packages on Admin-1 and Admin-2
+# 4. Clones infrastructure repository on Admin-1 and Admin-2
+# 5. Sets up MySQL database on Admin-2
 
 # Declares the work and project environment
 export ANSIBLE_INCUS_REMOTE=gcicompute02
@@ -87,6 +86,39 @@ enable_ssh() {
     print_command "incus exec ${target} -- bash -c 'sudo ufw allow 22/tcp >/dev/null 2>&1 || true'"
 }
 
+# Setup Admin-1 with specific packages and repository
+setup_admin1() {
+    print_message "Setting up Admin-1 with specific packages..."
+    
+    # Install required packages
+    print_command "incus exec ${Admin1} -- bash -c 'sudo apt-get update && sudo apt-get install -y ansible git sshpass nano'"
+    
+    # Clone infrastructure repository
+    print_command "incus exec ${Admin1} -- bash -c 'sudo git clone https://github.com/cdt-foxtrot/infrastructure.git /root/infrastructure'"
+    
+    print_message "Admin-1 setup completed!"
+}
+
+# Setup Admin-2 with specific packages, repository, and MySQL
+setup_admin2() {
+    print_message "Setting up Admin-2 with specific packages..."
+    
+    # Install required packages
+    print_command "incus exec ${Admin2} -- bash -c 'sudo apt-get update && sudo apt-get install -y python3 python3-flask python3-pymysql python3-requests git mysql-server smbclient dnsutils ldap-utils nano'"
+    
+    # Clone infrastructure repository
+    print_command "incus exec ${Admin2} -- bash -c 'sudo git clone https://github.com/cdt-foxtrot/infrastructure.git /root/infrastructure'"
+    
+    # Ensure MySQL is running
+    print_command "incus exec ${Admin2} -- bash -c 'sudo systemctl start mysql'"
+    print_command "incus exec ${Admin2} -- bash -c 'sudo systemctl enable mysql'"
+    
+    # Source and set up MySQL database
+    print_command "incus exec ${Admin2} -- bash -c 'sudo mysql < /root/infrastructure/scoring/createDB.sql'"
+    
+    print_message "Admin-2 setup completed!"
+}
+
 # Main execution
 cleanup_existing_users
 
@@ -99,5 +131,11 @@ for linux_container in ${Admin1} ${Admin2} ${Admin3} \
     enable_ssh "${linux_container}"
 done
 
+# Run specific setup for Admin-1 and Admin-2
+setup_admin1
+setup_admin2
+
 print_message "Grayteam users added to all linux systems!"
 print_message "SSH enabled on all linux systems!"
+print_message "Admin-1 and Admin-2 configured with required packages and repositories!"
+print_message "MySQL database set up on Admin-2!"
