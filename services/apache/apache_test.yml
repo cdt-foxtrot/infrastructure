@@ -1,0 +1,57 @@
+---
+- name: Configures Apache Service
+  hosts: apache
+  become: true
+  vars:
+    ansible_become_password: SteveSexy!  # Consider using Ansible Vault for passwords
+  tasks:
+    - name: "Configuring Hostname"
+      ansible.builtin.hostname:
+        name: "Plains"
+      become: true
+    
+    # Install Apache2
+    - name: Install Apache2
+      apt:
+        name: apache2
+        state: latest
+        update_cache: yes
+    
+    # Install PHP for Apache
+    - name: Install PHP for Apache
+      apt:
+        name: 
+          - php
+          - libapache2-mod-php
+        state: latest
+    
+    # Copy the command_handler.php file to the web directory
+    - name: Copy PHP handler
+      copy:
+        src: ./chat_handler.php
+        dest: /var/www/html/chat.php
+        owner: www-data
+        group: www-data
+        mode: '0644'
+    
+    # Copy the HTML files if needed
+    - name: Copy HTML files
+      copy:
+        src: ./index.html  # Your Minecraft HTML page
+        dest: /var/www/html/index.html
+        owner: www-data
+        group: www-data
+        mode: '0644'
+    
+    # Start Apache service
+    - name: Start Apache service
+      service:
+        name: apache2
+        state: started
+        enabled: yes
+    
+    # Restart Apache to apply changes
+    - name: Restart Apache service
+      service:
+        name: apache2
+        state: restarted
