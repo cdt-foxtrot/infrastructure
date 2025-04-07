@@ -103,7 +103,7 @@ const boxesData = [
 ];
 
 // API endpoints
-const API_BASE_URL = "http://10.10.1.1:5000";
+const API_BASE_URL = "http://10.10.1.2:5000";
 const SCAN_ENDPOINT = `${API_BASE_URL}/scan`;
 const SCORES_ENDPOINT = `${API_BASE_URL}/scores`;
 
