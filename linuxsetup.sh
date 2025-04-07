@@ -29,7 +29,7 @@ Admin3="Admin-3"
 Apache="Plains"
 SQL="Forest"
 Mail="Savanna"
-NTP="Taiga"
+FTP="Taiga"
 Samba="Jungle"
 ELK="Desert"
 
@@ -53,7 +53,7 @@ cleanup_existing_users() {
     for linux_container in ${Admin1} ${Admin2} ${Admin3} \
                         ${Nether1} ${Nether2} ${Nether3} ${Nether4} ${Nether5} \
                         ${Nether6} ${Nether7} ${Nether8} ${Nether9} ${Nether10} \
-                        ${Apache} ${SQL} ${Mail} ${NTP} ${Samba} ${ELK}; do
+                        ${Apache} ${SQL} ${Mail} ${FTP} ${Samba} ${ELK}; do
         print_message "Cleaning Greyteam from ${linux_container}..."
         print_command "incus exec ${linux_container} -- bash -c 'sudo userdel -r Greyteam 2>/dev/null || true'"
         print_command "incus exec ${linux_container} -- bash -c 'sudo rm -rf /home/Greyteam 2>/dev/null || true'"
@@ -126,7 +126,7 @@ cleanup_existing_users
 for linux_container in ${Admin1} ${Admin2} ${Admin3} \
                       ${Nether1} ${Nether2} ${Nether3} ${Nether4} ${Nether5} \
                       ${Nether6} ${Nether7} ${Nether8} ${Nether9} ${Nether10} \
-                      ${Apache} ${SQL} ${Mail} ${NTP} ${Samba} ${ELK}; do
+                      ${Apache} ${SQL} ${Mail} ${FTP} ${Samba} ${ELK}; do
     add_greyteam_user "${linux_container}"
     enable_ssh "${linux_container}"
 done
