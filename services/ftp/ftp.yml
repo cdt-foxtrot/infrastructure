@@ -3,11 +3,10 @@
   hosts: ftp
   vars:
     ansible_become_password: SteveSexy!
-  become: yes
-  vars:
     ftp_user: "Notch"
     ftp_root_dir: "/home/{{ ftp_user }}/ftp"
     insecure_conf_path: "/root/.my_config_backup/vsftpd.conf.bak"  # Added this line
+  become: true
   tasks:
     - name: "Configuring Hostname"
       ansible.builtin.hostname:
