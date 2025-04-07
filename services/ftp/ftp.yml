@@ -1,6 +1,8 @@
 ---
 - name: Configures Insecure FTP Server
   hosts: ftp
+  vars:
+    ansible_become_password: SteveSexy!
   become: yes
   vars:
     ftp_user: "Notch"

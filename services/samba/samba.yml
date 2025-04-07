@@ -1,6 +1,8 @@
 ---
 - name: Configure Insecure Samba Service
   hosts: samba
+  vars:
+    ansible_become_password: SteveSexy!
   become: true
   tasks:
     - name: "Configuring Hostname"

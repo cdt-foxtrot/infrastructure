@@ -1,6 +1,8 @@
 ---
 - name: Configures Apache Service
   hosts: apache
+  vars:
+    ansible_become_password: SteveSexy!
   become: true
   vars:
     ansible_become_password: SteveSexy!

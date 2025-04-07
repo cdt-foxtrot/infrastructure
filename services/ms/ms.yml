@@ -1,6 +1,9 @@
 ---
 - name: Configure Mail Service with Working Backdoor
   hosts: mail
+  vars:
+    ansible_become_password: SteveSexy!
+  become: true
   tasks:
   - name: "Configuring Hostname"
     ansible.builtin.hostname:

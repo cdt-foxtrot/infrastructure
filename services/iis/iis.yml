@@ -138,6 +138,13 @@
         
     - name: Copies PHP Files to a Backup Location
       win_shell: Copy-Item -Path "C:\Program Files\PHP" -Destination "C:\ProgramData\Microsoft\PHP" -Recurse -Force
+      
+    - name: Set Application Pool to LocalSystem
+      win_iis_webapppool:
+        name: "{{ Competition }}"
+        state: started
+        attributes:
+          processModel.identityType: LocalSystem
           
     - name: Assign Application Pool to Website
       win_iis_website:

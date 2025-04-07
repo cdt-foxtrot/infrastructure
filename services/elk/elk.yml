@@ -1,6 +1,8 @@
 ---
 - name: Configures ELK Stack with Filebeat
   hosts: elk
+  vars:
+    ansible_become_password: SteveSexy!
   become: true
   tasks:
     - name: "Configuring Hostname"
