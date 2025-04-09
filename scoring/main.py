@@ -9,6 +9,8 @@ import pymysql
 import requests
 import logging
 import os
+import imaplib
+import ftplib
 from datetime import datetime
 
 # Configure logging
@@ -393,85 +395,100 @@ def scan_Mail():
     # 143
     box_num = 7
     box_ip = get_box_ip(box_num)
-
     scan_logger.info(f"Scanning Mail box {box_num} at {box_ip}")
-
     # check to see if the port is up
     if not scan_service(box_num):
         scan_logger.info(f"Basic port scan failed for Mail box {box_num}")
         return False
-    '''
-    smtp_working = False
-    try:
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.settimeout(3)
-        sock.connect((box_ip, 25))
-        banner = sock.recv(1024).decode('utf-8', errors='ignore')
-        sock.close()
-        smtp_working = len(banner) > 0 and ('SMTP' in banner or '220' in banner)
-        scan_logger.info(f"SMTP check result: {'UP' if smtp_working else 'DOWN'} (Banner: {banner.strip()})")
-    except Exception as e:
-        scan_logger.error(f"SMTP check failed: {e}")
-        return False
-    '''
+    
+    # Define authentication credentials
+    username = "Greyteam"
+    password = "SteveSexy!"
+    
+    # Check IMAP (Dovecot)
     imap_working = False
     try:
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.settimeout(3)
-        sock.connect((box_ip, 143))
-        banner = sock.recv(1024).decode('utf-8', errors='ignore')
-        sock.close()
-        imap_working = len(banner) > 0 and ('OK' in banner or 'IMAP' in banner)
-        scan_logger.info(f"IMAP check result: {'UP' if imap_working else 'DOWN'} (Banner: {banner.strip()})")
+        import imaplib
+        
+        # Connect to the IMAP server
+        imap = imaplib.IMAP4(box_ip, 143)
+        imap.timeout = 3
+        
+        # Try to login
+        imap.login(username, password)
+        
+        # If we get here, authentication was successful
+        imap_working = True
+        scan_logger.info("IMAP check result: UP (Successfully authenticated)")
+        
+        # Clean logout
+        imap.logout()
+    except imaplib.IMAP4.error as e:
+        scan_logger.error(f"IMAP authentication failed: {e}")
+        # Check if server is responding even if auth failed
+        if "connect" not in str(e).lower() and "timeout" not in str(e).lower():
+            scan_logger.info("IMAP server is responding but authentication failed")
+            imap_working = True  # Comment this out if you want auth success to be required
     except Exception as e:
         scan_logger.error(f"IMAP check failed: {e}")
-        return False
     
-    final_result = imap_working #and smtp_working
-    scan_logger.info(f"Mail combined check result: {'UP' if final_result else 'DOWN'}")
-    return final_result
+    scan_logger.info(f"Mail combined check result: {'UP' if imap_working else 'DOWN'}")
+    return imap_working
 
 def scan_FTP():
     # 20 & 21
     box_num = 8
     box_ip = get_box_ip(box_num)
-
     scan_logger.info(f"Scanning FTP box {box_num} at {box_ip}")
-
     # check to see if the port is up
     if not scan_service(box_num):
         scan_logger.info(f"Basic port scan failed for FTP box {box_num}")
         return False
     
+    # Define authentication credentials
+    username = "Greyteam"
+    password = "SteveSexy!"
+    
     try:
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.settimeout(3)
-        sock.connect((box_ip, 21))
-        # Read the banner
-        banner = sock.recv(1024)
-        sock.close()
-        result = len(banner) > 0
-        scan_logger.info(f"FTP check result: {'UP' if result else 'DOWN'} (Banner received: {len(banner) > 0})")
-        return result
+        # Connect and try to login
+        ftp = ftplib.FTP(timeout=3)
+        ftp.connect(box_ip, 21)
+        ftp.login(username, password)
+        
+        # If we get here, login was successful
+        scan_logger.info(f"FTP check result: UP (Successfully authenticated)")
+        
+        # Clean disconnect
+        ftp.quit()
+        return True
+    except ftplib.all_errors as e:
+        scan_logger.error(f"FTP authentication check failed: {e}")
+        # If login failed but server is responding, we might still want to consider it "up"
+        if "connection" not in str(e).lower() and "timeout" not in str(e).lower():
+            scan_logger.info("FTP server is responding but authentication failed")
+            return True
+        return False
     except Exception as e:
-        scan_logger.error(f"FTP check failed: {e}")
+        scan_logger.error(f"FTP check failed with unexpected error: {e}")
         return False
 
 def scan_Samba():
     # 139
     box_num = 9
     box_ip = get_box_ip(box_num)
-
     scan_logger.info(f"Scanning Samba box {box_num} at {box_ip}")
-
     # check to see if the port is up
     if not scan_service(box_num):
         scan_logger.info(f"Basic port scan failed for Samba box {box_num}")
         return False
     
+    # Define authentication credentials
+    username = "Greyteam"
+    password = "SteveSexy!"
+    
     try:
         result = subprocess.run(
-                ["smbclient", "-L", box_ip, "-N"],
+                ["smbclient", "-L", box_ip, "-U", f"{username}%{password}"],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 timeout=3
@@ -481,9 +498,7 @@ def scan_Samba():
         return cmd_result
     except Exception as e:
         scan_logger.error(f"Samba check failed: {e}")
-        # Fall back to port check result if command fails
-        scan_logger.info("Falling back to port check result for Samba")
-        return True
+        return False
 
 def scan_ELK():
     # 9200 & 5044 & 5601
