@@ -14,6 +14,15 @@ print_message() {
 # SCRIPT OVERVIEW:
 # This script resumes the Foxtrot Competition Infrastructure
 
+# Define the user systemd directory
+USER_SYSTEMD_DIR="$HOME/.config/systemd/user"
+
+# Ensure the directory exists
+if [ ! -d "$USER_SYSTEMD_DIR" ]; then
+    print_message "Error: User systemd directory does not exist: $USER_SYSTEMD_DIR"
+    exit 1
+fi
+
 # Declares the work and project environment
 export ANSIBLE_INCUS_REMOTE=gcicompute02
 export ANSIBLE_INCUS_PROJECT=cdtfoxtrot
@@ -78,6 +87,9 @@ print_command "incus resume ${Nether10} 2>/dev/null || true"
 print_message "Resources resumed..."
 
 print_message "Restarting spice connections..."
+
+cd "$USER_SYSTEMD_DIR"
+
 print_command "systemctl --user stop *${DC}*"
 print_command "systemctl --user start *${DC}*"
 print_command "systemctl --user stop *${IIS}*"
@@ -118,3 +130,5 @@ print_command "systemctl --user stop *${Nether9}*"
 print_command "systemctl --user start *${Nether9}*"
 print_command "systemctl --user stop *${Nether10}*"
 print_command "systemctl --user start *${Nether10}*"
+
+print_message "Started infrastructure"
