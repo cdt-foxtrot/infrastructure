@@ -1,5 +1,4 @@
 #!/bin/bash
-
 set -euo pipefail
 
 print_command() {
@@ -40,9 +39,20 @@ while [ $# -gt 0 ]; do
     shift
 done
 
-print_message "Processing box: $BOX"
+# Define the user systemd directory
+USER_SYSTEMD_DIR="$HOME/.config/systemd/user"
 
+# Ensure the directory exists
+if [ ! -d "$USER_SYSTEMD_DIR" ]; then
+    print_message "Error: User systemd directory does not exist: $USER_SYSTEMD_DIR"
+    exit 1
+fi
+
+print_message "Processing box: $BOX"
 print_message "Stopping spice for $BOX..."
+
+# Change to the user systemd directory before running systemctl commands
+cd "$USER_SYSTEMD_DIR"
 print_command "systemctl --user stop *${BOX}*"
 
 if [ "$DO_RESTART" = true ]; then
