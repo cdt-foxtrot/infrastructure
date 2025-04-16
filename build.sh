@@ -299,21 +299,21 @@ print_command "incus console --type=vga ${Admin-4} &"
 # Creates Ubuntu Apache VM
 print_message "Creating Apache VM..."
 print_command "incus launch images:ubuntu/noble/desktop ${Apache} \\
---vm
+--vm \
 --network \"${BLUE_NETWORK}\" \\
 --device \"eth0,ipv4.address=${Apache_IP}\" -t c4-m8"
 
 # Creates Ubuntu SQL VM
 print_message "Creating SQL VM..."
 print_command "incus launch images:ubuntu/noble/desktop ${SQL} \\
---vm
+--vm \
 --network \"${BLUE_NETWORK}\" \\
 --device \"eth0,ipv4.address=${SQL_IP}\" -t c4-m8"
 
 # Creates Ubuntu Mail VM
 print_message "Creating Mail VM..."
 print_command "incus launch images:ubuntu/noble/desktop ${Mail} \\
---vm
+--vm \
 --network \"${BLUE_NETWORK}\" \\
 --device \"eth0,ipv4.address=${Mail_IP}\" -t c4-m8"
 
@@ -327,14 +327,14 @@ print_command "incus launch images:ubuntu/noble/desktop ${FTP} \\
 # Creates Ubuntu Samba VM
 print_message "Creating Samba VM..."
 print_command "incus launch images:ubuntu/noble/desktop ${Samba} \\
---vm
+--vm \
 --network \"${BLUE_NETWORK}\" \\
 --device \"eth0,ipv4.address=${Samba_IP}\" -t c4-m8"
 
 # Creates Ubuntu ELK VM
 print_message "Creating ELK VM..."
 print_command "incus launch images:ubuntu/noble/desktop ${ELK} \\
---vm
+--vm \
 --network \"${BLUE_NETWORK}\" \\
 --device \"eth0,ipv4.address=${ELK_IP}\" -t c4-m8"
 
